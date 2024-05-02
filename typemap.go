@@ -1,4 +1,4 @@
-package goadl
+package goadl_rt
 
 var (
 	PrimitiveMap = map[string]string{

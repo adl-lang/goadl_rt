@@ -1,4 +1,4 @@
-package goadl
+package goadl_rt
 
 import (
 	"encoding/json"

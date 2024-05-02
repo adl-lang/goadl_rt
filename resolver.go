@@ -1,4 +1,4 @@
-package goadl
+package goadl_rt
 
 type Resolver interface {
 	Resolve(ScopedName) func() interface{}
