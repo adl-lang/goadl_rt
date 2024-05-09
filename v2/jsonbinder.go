@@ -59,7 +59,7 @@ func buildJsonBinding0(
 	texpr TypeExpr,
 	boundTypeParams BoundTypeParams,
 ) *JsonBinding[any] {
-	return Ok(HandleTypeRef[*JsonBinding[any]](
+	return Ok(HandleE_TypeRef[*JsonBinding[any]](
 		texpr.TypeRef.Branch,
 		func(trb TypeRefBranch_Primitive) (*JsonBinding[any], error) {
 			return primitiveJsonBinding(dres, string(trb), texpr.Parameters, boundTypeParams), nil
@@ -69,7 +69,7 @@ func buildJsonBinding0(
 		},
 		func(trb TypeRefBranch_Reference) (*JsonBinding[any], error) {
 			ast := dres.Resolve(ScopedName(trb))
-			return HandleDeclType[*JsonBinding[any]](
+			return HandleE_DeclType[*JsonBinding[any]](
 				ast.Decl.Type.Branch,
 				func(dtb DeclTypeBranch_Struct_) (*JsonBinding[any], error) {
 					return structJsonBinding(dres, Struct(dtb), texpr.Parameters, boundTypeParams), nil

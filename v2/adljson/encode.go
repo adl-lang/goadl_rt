@@ -86,34 +86,36 @@ func buildEncodeBinding(
 	texpr TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return Ok(HandleTypeRef[encoderFunc](
+	return Handle_TypeRef[encoderFunc](
 		texpr.TypeRef.Branch,
-		func(trb TypeRefBranch_Primitive) (encoderFunc, error) {
-			return primitiveEncodeBinding(dres, string(trb), texpr.Parameters, boundTypeParams), nil
+		func(trb TypeRefBranch_Primitive) encoderFunc {
+			return primitiveEncodeBinding(dres, string(trb), texpr.Parameters, boundTypeParams)
 		},
-		func(trb TypeRefBranch_TypeParam) (encoderFunc, error) {
-			return boundTypeParams[string(trb)], nil
+		func(trb TypeRefBranch_TypeParam) encoderFunc {
+			return boundTypeParams[string(trb)]
 		},
-		func(trb TypeRefBranch_Reference) (encoderFunc, error) {
+		func(trb TypeRefBranch_Reference) encoderFunc {
 			ast := dres.Resolve(ScopedName(trb))
-			return HandleDeclType[encoderFunc](
+			return Handle_DeclType[encoderFunc](
 				ast.Decl.Type.Branch,
-				func(dtb DeclTypeBranch_Struct_) (encoderFunc, error) {
-					return structEncodeBinding(dres, Struct(dtb), texpr.Parameters, boundTypeParams), nil
+				func(dtb DeclTypeBranch_Struct_) encoderFunc {
+					return structEncodeBinding(dres, Struct(dtb), texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Union_) (encoderFunc, error) {
-					// union := Union(dtb)
-					return nil, nil
+				func(dtb DeclTypeBranch_Union_) encoderFunc {
+					if isEnum(Union(dtb)) {
+						return enumEncodeBinding(dres, Union(dtb), texpr.Parameters, boundTypeParams)
+					}
+					return unionEncodeBinding(dres, Union(dtb), texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Type_) (encoderFunc, error) {
-					return typedefEncodeBinding(dres, TypeDef(dtb), texpr.Parameters, boundTypeParams), nil
+				func(dtb DeclTypeBranch_Type_) encoderFunc {
+					return typedefEncodeBinding(dres, TypeDef(dtb), texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Newtype_) (encoderFunc, error) {
-					return newtypeEncodeBinding(dres, NewType(dtb), texpr.Parameters, boundTypeParams), nil
+				func(dtb DeclTypeBranch_Newtype_) encoderFunc {
+					return newtypeEncodeBinding(dres, NewType(dtb), texpr.Parameters, boundTypeParams)
 				},
 			)
 		},
-	))
+	)
 }
 
 func structEncodeBinding(
@@ -153,7 +155,12 @@ func enumEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return nil
+	return func(e *encodeState, v reflect.Value) {
+		key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+		e.WriteString(`"`)
+		e.WriteString(string(key))
+		e.WriteString(`"`)
+	}
 }
 
 func unionEncodeBinding(
@@ -162,7 +169,22 @@ func unionEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return nil
+	encMap := make(map[string]encoderFunc)
+	for _, f := range union_.Fields {
+		encMap[f.Name] = buildEncodeBinding(dres, f.TypeExpr, boundTypeParams)
+	}
+	return func(e *encodeState, v reflect.Value) {
+		key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+		e.WriteString(`{"`)
+		e.WriteString(string(key))
+		e.WriteString(`":`)
+		if enc, ok := encMap[key]; ok {
+			enc(e, reflect.ValueOf(v.Field(0).Interface()).Field(0))
+		} else {
+			e.WriteString("-- missing enc for " + key)
+		}
+		e.WriteString(`}`)
+	}
 }
 
 func newtypeEncodeBinding(
@@ -171,7 +193,9 @@ func newtypeEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return nil
+	return func(e *encodeState, v reflect.Value) {
+		panic("not impl")
+	}
 }
 
 func typedefEncodeBinding(
@@ -180,7 +204,9 @@ func typedefEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return nil
+	return func(e *encodeState, v reflect.Value) {
+		panic("not impl")
+	}
 }
 
 func primitiveEncodeBinding(
@@ -485,4 +511,25 @@ func resolveKeyName(k reflect.Value) (string, error) {
 		return strconv.FormatUint(k.Uint(), 10), nil
 	}
 	panic("unexpected map key type")
+}
+
+func isEnum(union goadl.Union) bool {
+	for _, field := range union.Fields {
+		isv := goadl.Handle_TypeRef[bool](
+			field.TypeExpr.TypeRef.Branch,
+			func(trb goadl.TypeRefBranch_Primitive) bool {
+				return trb == "Void"
+			},
+			func(trb goadl.TypeRefBranch_TypeParam) bool {
+				return false
+			},
+			func(trb goadl.TypeRefBranch_Reference) bool {
+				return false
+			},
+		)
+		if !isv {
+			return false
+		}
+	}
+	return true
 }

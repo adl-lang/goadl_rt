@@ -67,7 +67,24 @@ func (*TypeRef) Reference(scopedName ScopedName) TypeRef {
 	}
 }
 
-func HandleTypeRef[T any](
+func Handle_TypeRef[T any](
+	in TypeRefBranch,
+	primitive func(TypeRefBranch_Primitive) T,
+	typeParam func(TypeRefBranch_TypeParam) T,
+	reference func(TypeRefBranch_Reference) T,
+) T {
+	switch b := in.(type) {
+	case TypeRefBranch_Primitive:
+		return primitive(b)
+	case TypeRefBranch_TypeParam:
+		return typeParam(b)
+	case TypeRefBranch_Reference:
+		return reference(b)
+	}
+	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
+}
+
+func HandleE_TypeRef[T any](
 	in TypeRefBranch,
 	primitive func(TypeRefBranch_Primitive) (T, error),
 	typeParam func(TypeRefBranch_TypeParam) (T, error),
@@ -108,7 +125,7 @@ func (obj *TypeRef) UnmarshalJSON(b []byte) error {
 }
 
 func (obj TypeRef) MarshalJSON() ([]byte, error) {
-	ba, err := HandleTypeRef(
+	ba, err := HandleE_TypeRef(
 		obj.Branch,
 		func(primitive TypeRefBranch_Primitive) ([]byte, error) {
 			return []byte(`{"primitive" : "` + primitive + `"}`), nil
@@ -216,7 +233,27 @@ func (*DeclType) Newtype_(newtype_ NewType) DeclType {
 	return DeclType{DeclTypeBranch_Newtype_(newtype_)}
 }
 
-func HandleDeclType[T any](
+func Handle_DeclType[T any](
+	in DeclTypeBranch,
+	struct_ func(DeclTypeBranch_Struct_) T,
+	union_ func(DeclTypeBranch_Union_) T,
+	type_ func(DeclTypeBranch_Type_) T,
+	newtype_ func(DeclTypeBranch_Newtype_) T,
+) T {
+	switch b := in.(type) {
+	case DeclTypeBranch_Struct_:
+		return struct_(b)
+	case DeclTypeBranch_Union_:
+		return union_(b)
+	case DeclTypeBranch_Type_:
+		return type_(b)
+	case DeclTypeBranch_Newtype_:
+		return newtype_(b)
+	}
+	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
+}
+
+func HandleE_DeclType[T any](
 	in DeclTypeBranch,
 	struct_ func(DeclTypeBranch_Struct_) (T, error),
 	union_ func(DeclTypeBranch_Union_) (T, error),
@@ -275,7 +312,7 @@ func (obj *DeclType) UnmarshalJSON(b []byte) error {
 }
 
 func (obj DeclType) MarshalJSON() ([]byte, error) {
-	discriminator, err := HandleDeclType(
+	discriminator, err := HandleE_DeclType(
 		obj.Branch,
 		func(struct_ DeclTypeBranch_Struct_) (string, error) {
 			return "struct_", nil
