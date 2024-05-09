@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/helix-collective/goadl/v2"
+	goadl "github.com/adl-lang/goadl_rt/v2"
 )
 
 func TestSplitKV(t *testing.T) {
