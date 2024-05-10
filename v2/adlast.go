@@ -233,6 +233,26 @@ func (*DeclType) Newtype_(newtype_ NewType) DeclType {
 	return DeclType{DeclTypeBranch_Newtype_(newtype_)}
 }
 
+func HandleP_DeclType[T any](
+	in DeclTypeBranch,
+	struct_ func(struct_ Struct) T,
+	union_ func(union_ Union) T,
+	type_ func(type_ TypeDef) T,
+	newtype_ func(newtype_ NewType) T,
+) T {
+	switch b := in.(type) {
+	case DeclTypeBranch_Struct_:
+		return struct_(Struct(b))
+	case DeclTypeBranch_Union_:
+		return union_(Union(b))
+	case DeclTypeBranch_Type_:
+		return type_(TypeDef(b))
+	case DeclTypeBranch_Newtype_:
+		return newtype_(NewType(b))
+	}
+	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
+}
+
 func Handle_DeclType[T any](
 	in DeclTypeBranch,
 	struct_ func(DeclTypeBranch_Struct_) T,
