@@ -67,6 +67,23 @@ func (*TypeRef) Reference(scopedName ScopedName) TypeRef {
 	}
 }
 
+func Handle_P_TypeRef[T any](
+	in TypeRefBranch,
+	primitive func(primitive string) T,
+	typeParam func(typeParam string) T,
+	reference func(reference ScopedName) T,
+) T {
+	switch b := in.(type) {
+	case TypeRefBranch_Primitive:
+		return primitive(string(b))
+	case TypeRefBranch_TypeParam:
+		return typeParam(string(b))
+	case TypeRefBranch_Reference:
+		return reference(ScopedName(b))
+	}
+	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
+}
+
 func Handle_TypeRef[T any](
 	in TypeRefBranch,
 	primitive func(TypeRefBranch_Primitive) T,
@@ -254,23 +271,35 @@ func HandleP_DeclType[T any](
 }
 
 func Handle_DeclType[T any](
-	in DeclTypeBranch,
-	struct_ func(DeclTypeBranch_Struct_) T,
-	union_ func(DeclTypeBranch_Union_) T,
-	type_ func(DeclTypeBranch_Type_) T,
-	newtype_ func(DeclTypeBranch_Newtype_) T,
+	_in DeclTypeBranch,
+	struct_ func(struct_ Struct) T,
+	union_ func(union_ Union) T,
+	type_ func(type_ TypeDef) T,
+	newtype_ func(newtype_ NewType) T,
+	_default func() T,
 ) T {
-	switch b := in.(type) {
+	switch b := _in.(type) {
 	case DeclTypeBranch_Struct_:
-		return struct_(b)
+		if struct_ != nil {
+			return struct_(Struct(b))
+		}
 	case DeclTypeBranch_Union_:
-		return union_(b)
+		if union_ != nil {
+			return union_(Union(b))
+		}
 	case DeclTypeBranch_Type_:
-		return type_(b)
+		if type_ != nil {
+			return type_(TypeDef(b))
+		}
 	case DeclTypeBranch_Newtype_:
-		return newtype_(b)
+		if newtype_ != nil {
+			return newtype_(NewType(b))
+		}
 	}
-	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
+	if _default != nil {
+		return _default()
+	}
+	panic("not handled")
 }
 
 func HandleE_DeclType[T any](

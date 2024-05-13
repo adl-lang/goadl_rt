@@ -98,21 +98,22 @@ func buildEncodeBinding(
 			ast := dres.Resolve(ScopedName(trb))
 			return Handle_DeclType[encoderFunc](
 				ast.Decl.Type.Branch,
-				func(dtb DeclTypeBranch_Struct_) encoderFunc {
-					return structEncodeBinding(dres, Struct(dtb), texpr.Parameters, boundTypeParams)
+				func(struct_ goadl.Struct) encoderFunc {
+					return structEncodeBinding(dres, struct_, texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Union_) encoderFunc {
-					if isEnum(Union(dtb)) {
-						return enumEncodeBinding(dres, Union(dtb), texpr.Parameters, boundTypeParams)
+				func(union_ goadl.Union) encoderFunc {
+					if isEnum(union_) {
+						return enumEncodeBinding(dres, union_, texpr.Parameters, boundTypeParams)
 					}
-					return unionEncodeBinding(dres, Union(dtb), texpr.Parameters, boundTypeParams)
+					return unionEncodeBinding(dres, union_, texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Type_) encoderFunc {
-					return typedefEncodeBinding(dres, TypeDef(dtb), texpr.Parameters, boundTypeParams)
+				func(type_ goadl.TypeDef) encoderFunc {
+					return typedefEncodeBinding(dres, type_, texpr.Parameters, boundTypeParams)
 				},
-				func(dtb DeclTypeBranch_Newtype_) encoderFunc {
-					return newtypeEncodeBinding(dres, NewType(dtb), texpr.Parameters, boundTypeParams)
+				func(newtype_ goadl.NewType) encoderFunc {
+					return newtypeEncodeBinding(dres, newtype_, texpr.Parameters, boundTypeParams)
 				},
+				nil,
 			)
 		},
 	)
