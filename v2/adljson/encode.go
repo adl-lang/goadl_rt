@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	. "github.com/adl-lang/goadl_rt/v2"
@@ -37,9 +38,12 @@ func NewEncoder[T any](
 
 func (enc *Encoder[T]) Encode(v T) error {
 	es := &encodeState{}
-	enc.binding(es, reflect.ValueOf(v))
+	err := enc.binding(es, reflect.ValueOf(v))
+	if err != nil {
+		return err
+	}
 	b := es.Bytes()
-	_, err := enc.w.Write(b)
+	_, err = enc.w.Write(b)
 	return err
 }
 
@@ -47,7 +51,7 @@ type encodeState struct {
 	bytes.Buffer // accumulated output
 }
 
-type encoderFunc func(e *encodeState, v reflect.Value)
+type encoderFunc func(e *encodeState, v reflect.Value) error
 
 // var encoderCache sync.Map // map[reflect.Type]encoderFunc
 
@@ -81,23 +85,59 @@ type encoderFunc func(e *encodeState, v reflect.Value)
 
 type boundEncodeTypeParams map[string]encoderFunc
 
+var encoderCache sync.Map // map[reflect.Type]decodeFunc
+
 func buildEncodeBinding(
+	dres Resolver,
+	texpr TypeExpr,
+	boundTypeParams boundEncodeTypeParams,
+) encoderFunc {
+	// taken from golang stdlib src/encoding/json/encode.go
+	key := texprKey(texpr)
+	if fi, ok := encoderCache.Load(key); ok {
+		return fi.(encoderFunc)
+	}
+	// To deal with recursive types, populate the map with an
+	// indirect func before we build it. This type waits on the
+	// real func (f) to be ready and then calls it. This indirect
+	// func is only used for recursive types.
+	var (
+		wg sync.WaitGroup
+		f  encoderFunc
+	)
+	wg.Add(1)
+	fi, loaded := encoderCache.LoadOrStore(key, encoderFunc(func(e *encodeState, v reflect.Value) error {
+		wg.Wait()
+		return f(e, v)
+	}))
+	if loaded {
+		return fi.(encoderFunc)
+	}
+
+	// Compute the real encoder and replace the indirect func with it.
+	f = buildNewEncodeBinding(dres, texpr, boundTypeParams)
+	wg.Done()
+	encoderCache.Store(key, f)
+	return f
+}
+
+func buildNewEncodeBinding(
 	dres Resolver,
 	texpr TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
 	return Handle_TypeRef[encoderFunc](
 		texpr.TypeRef.Branch,
-		func(trb TypeRefBranch_Primitive) encoderFunc {
-			return primitiveEncodeBinding(dres, string(trb), texpr.Parameters, boundTypeParams)
+		func(primitive string) encoderFunc {
+			return primitiveEncodeBinding(dres, primitive, texpr.Parameters, boundTypeParams)
 		},
-		func(trb TypeRefBranch_TypeParam) encoderFunc {
-			return boundTypeParams[string(trb)]
+		func(typeParam string) encoderFunc {
+			return boundTypeParams[typeParam]
 		},
-		func(trb TypeRefBranch_Reference) encoderFunc {
-			ast := dres.Resolve(ScopedName(trb))
+		func(reference goadl.ScopedName) encoderFunc {
+			ast := dres.Resolve(reference)
 			return Handle_DeclType[encoderFunc](
-				ast.Decl.Type.Branch,
+				ast.SD.Decl.Type.Branch,
 				func(struct_ goadl.Struct) encoderFunc {
 					return structEncodeBinding(dres, struct_, texpr.Parameters, boundTypeParams)
 				},
@@ -131,7 +171,7 @@ func structEncodeBinding(
 		jb := buildEncodeBinding(dres, field.TypeExpr, newBoundTypeParams)
 		fieldJB = append(fieldJB, jb)
 	}
-	fn := func(e *encodeState, v reflect.Value) {
+	fn := func(e *encodeState, v reflect.Value) error {
 		next := byte('{')
 		for i := range struct_.Fields {
 			f := struct_.Fields[i]
@@ -139,13 +179,17 @@ func structEncodeBinding(
 			e.WriteByte(next)
 			next = ','
 			e.WriteString(`"` + f.SerializedName + `":`)
-			fe(e, v.Field(i))
+			err := fe(e, v.Field(i))
+			if err != nil {
+				return err
+			}
 		}
 		if next == '{' {
 			e.WriteString("{}")
 		} else {
 			e.WriteByte('}')
 		}
+		return nil
 	}
 	return fn
 }
@@ -156,12 +200,21 @@ func enumEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return func(e *encodeState, v reflect.Value) {
-		key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+	return func(e *encodeState, v reflect.Value) error {
+		name1 := v.Field(0).Type().Name()
+		name2 := reflect.TypeOf(v.Field(0).Interface()).Name()
+		key := name2[len(name1)+1:]
+		// key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
 		e.WriteString(`"`)
 		e.WriteString(string(key))
 		e.WriteString(`"`)
+		return nil
 	}
+}
+
+type boundEncField struct {
+	encoderFunc encoderFunc
+	field       goadl.Field
 }
 
 func unionEncodeBinding(
@@ -170,21 +223,45 @@ func unionEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	encMap := make(map[string]encoderFunc)
+	encMap := make(map[string]boundEncField)
 	for _, f := range union_.Fields {
-		encMap[f.Name] = buildEncodeBinding(dres, f.TypeExpr, boundTypeParams)
+		encMap[f.SerializedName] = boundEncField{
+			buildEncodeBinding(dres, f.TypeExpr, boundTypeParams),
+			f,
+		}
 	}
-	return func(e *encodeState, v reflect.Value) {
-		key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+
+	return func(e *encodeState, v reflect.Value) error {
+		if v.Field(0).IsNil() {
+			return fmt.Errorf("cannot encode incomplete value")
+		}
+		// fmt.Printf("!!! %+#v %v\n", v, v.Type().PkgPath())
+		name1 := v.Field(0).Type().Name()
+		// name2 := v.Type().Field(0).Name
+		name2 := reflect.TypeOf(v.Field(0).Interface()).Name()
+		fmt.Printf("name1: %v name2: %v\n", name1, name2)
+		if idx := strings.Index(name1, "["); idx > -1 {
+			name1 = name1[:idx]
+		}
+		if idx := strings.Index(name2, "["); idx > -1 {
+			name2 = name2[:idx]
+		}
+		key := name2[len(name1)+1:]
+		// key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+		// fmt.Printf("1:%v 2:%v -- %v %v\n", name1, name2, name2[len(name1)+1:], key)
 		e.WriteString(`{"`)
 		e.WriteString(string(key))
 		e.WriteString(`":`)
-		if enc, ok := encMap[key]; ok {
-			enc(e, reflect.ValueOf(v.Field(0).Interface()).Field(0))
+		if bf, ok := encMap[key]; ok {
+			err := bf.encoderFunc(e, reflect.ValueOf(v.Field(0).Interface()).Field(0))
+			if err != nil {
+				return err
+			}
 		} else {
-			e.WriteString("-- missing enc for " + key)
+			return fmt.Errorf("missing encoding. key: %v", key)
 		}
 		e.WriteString(`}`)
+		return nil
 	}
 }
 
@@ -194,9 +271,7 @@ func newtypeEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return func(e *encodeState, v reflect.Value) {
-		panic("not impl")
-	}
+	return buildEncodeBinding(dres, newtype.TypeExpr, boundTypeParams)
 }
 
 func typedefEncodeBinding(
@@ -205,9 +280,7 @@ func typedefEncodeBinding(
 	params []TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return func(e *encodeState, v reflect.Value) {
-		panic("not impl")
-	}
+	return buildEncodeBinding(dres, typedef.TypeExpr, boundTypeParams)
 }
 
 func primitiveEncodeBinding(
@@ -218,63 +291,73 @@ func primitiveEncodeBinding(
 ) encoderFunc {
 	switch ptype {
 	case "Int8", "Int16", "Int32", "Int64":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()
 			b = strconv.AppendInt(b, v.Int(), 10)
 			e.Write(b)
+			return nil
 		}
 	case "Word8", "Word16", "Word32", "Word64":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()
 			b = strconv.AppendUint(b, v.Uint(), 10)
 			e.Write(b)
+			return nil
 		}
 	case "Bool":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()
 			b = strconv.AppendBool(b, v.Bool())
 			e.Write(b)
+			return nil
 		}
 	case "Float":
 		return float64Encoder
 	case "Double":
 		return float64Encoder
 	case "String":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			e.Write(appendString(e.AvailableBuffer(), v.String(), false))
+			return nil
 		}
 	case "ByteVector":
 		return encodeByteSlice
 	case "Void":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			e.WriteString("null")
+			return nil
 		}
 	case "Json":
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			if v.IsZero() {
 				e.WriteString("null")
-				return
+				return nil
 			}
 			b, _ := gojson.Marshal(v.Interface())
 			e.Write(b)
+			return nil
 		}
 	case "Vector":
 		elementBinding := buildEncodeBinding(dres, params[0], boundTypeParams)
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			e.WriteByte('[')
 			n := v.Len()
 			for i := 0; i < n; i++ {
 				if i > 0 {
 					e.WriteByte(',')
 				}
-				elementBinding(e, v.Index(i))
+				err := elementBinding(e, v.Index(i))
+				if err != nil {
+					return err
+				}
 			}
 			e.WriteByte(']')
+			return nil
 		}
 	case "StringMap":
 		elementBinding := buildEncodeBinding(dres, params[0], boundTypeParams)
 		// TODO depends on struct generated for StringMap
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			switch v.Kind() {
 			case reflect.Array, reflect.Slice:
 				e.WriteByte('{')
@@ -285,23 +368,27 @@ func primitiveEncodeBinding(
 					}
 					e.WriteString(`"` + v.String() + `"`)
 					e.WriteByte(':')
-					elementBinding(e, v.Index(i).Field(1))
+					err := elementBinding(e, v.Index(i).Field(1))
+					if err != nil {
+						return err
+					}
 				}
 				e.WriteByte('}')
 			case reflect.Map:
 				en := stringMapEncoder{elemEnc: elementBinding}
-				en.encode(e, v)
+				return en.encode(e, v)
 			}
+			return nil
 		}
 	case "Nullable":
 		elementBinding := buildEncodeBinding(dres, params[0], boundTypeParams)
-		return func(e *encodeState, v reflect.Value) {
+		return func(e *encodeState, v reflect.Value) error {
 			if v.IsNil() {
 				e.WriteString("null")
-				return
+				return nil
 			}
 			// depends on how Nullable is encoded
-			elementBinding(e, v.Elem())
+			return elementBinding(e, v.Elem())
 		}
 	}
 	return nil
@@ -322,7 +409,7 @@ func createBoundTypeParams(
 
 type floatEncoder int // number of bits
 
-func (bits floatEncoder) encode(e *encodeState, v reflect.Value) {
+func (bits floatEncoder) encode(e *encodeState, v reflect.Value) error {
 	f := v.Float()
 	// if math.IsInf(f, 0) || math.IsNaN(f) {
 	// 	e.error(&UnsupportedValueError{v, strconv.FormatFloat(f, 'g', -1, int(bits))})
@@ -354,6 +441,7 @@ func (bits floatEncoder) encode(e *encodeState, v reflect.Value) {
 	}
 	// b = mayAppendQuote(b, opts.quoted)
 	e.Write(b)
+	return nil
 }
 
 var (
@@ -433,10 +521,10 @@ func appendString[Bytes []byte | string](dst []byte, src Bytes, escapeHTML bool)
 	return dst
 }
 
-func encodeByteSlice(e *encodeState, v reflect.Value) {
+func encodeByteSlice(e *encodeState, v reflect.Value) error {
 	if v.IsNil() {
 		e.WriteString("null")
-		return
+		return nil
 	}
 
 	s := v.Bytes()
@@ -445,6 +533,7 @@ func encodeByteSlice(e *encodeState, v reflect.Value) {
 	b = base64.StdEncoding.AppendEncode(b, s)
 	b = append(b, '"')
 	e.Write(b)
+	return nil
 }
 
 const hex = "0123456789abcdef"
@@ -453,10 +542,10 @@ type stringMapEncoder struct {
 	elemEnc encoderFunc
 }
 
-func (me stringMapEncoder) encode(e *encodeState, v reflect.Value) {
+func (me stringMapEncoder) encode(e *encodeState, v reflect.Value) error {
 	if v.IsNil() {
 		e.WriteString("{}")
-		return
+		return nil
 	}
 	e.WriteByte('{')
 
@@ -487,6 +576,7 @@ func (me stringMapEncoder) encode(e *encodeState, v reflect.Value) {
 		me.elemEnc(e, kv.v)
 	}
 	e.WriteByte('}')
+	return nil
 }
 
 type reflectWithString struct {
@@ -518,13 +608,13 @@ func isEnum(union goadl.Union) bool {
 	for _, field := range union.Fields {
 		isv := goadl.Handle_TypeRef[bool](
 			field.TypeExpr.TypeRef.Branch,
-			func(trb goadl.TypeRefBranch_Primitive) bool {
-				return trb == "Void"
+			func(primitive string) bool {
+				return primitive == "Void"
 			},
-			func(trb goadl.TypeRefBranch_TypeParam) bool {
+			func(typeParam string) bool {
 				return false
 			},
-			func(trb goadl.TypeRefBranch_Reference) bool {
+			func(reference goadl.ScopedName) bool {
 				return false
 			},
 		)

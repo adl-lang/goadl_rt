@@ -1,22 +1,29 @@
 package goadl
 
+import "reflect"
+
+type ScopedInfo struct {
+	SD      ScopedDecl
+	TypeMap map[string]reflect.Type
+}
+
 type Resolver interface {
-	Resolve(ScopedName) *ScopedDecl
+	Resolve(ScopedName) *ScopedInfo
 }
 
 type Registry interface {
-	Register(ScopedName, ScopedDecl)
+	Register(ScopedName, ScopedInfo)
 }
 
 type ResolverType struct {
-	store map[ScopedName]*ScopedDecl
+	store map[ScopedName]*ScopedInfo
 }
 
 var RESOLVER *ResolverType = &ResolverType{
-	store: make(map[ScopedName]*ScopedDecl),
+	store: make(map[ScopedName]*ScopedInfo),
 }
 
-func (rt *ResolverType) Resolve(name ScopedName) *ScopedDecl {
+func (rt *ResolverType) Resolve(name ScopedName) *ScopedInfo {
 	sd, has := rt.store[name]
 	if !has {
 		return nil
@@ -24,6 +31,6 @@ func (rt *ResolverType) Resolve(name ScopedName) *ScopedDecl {
 	return sd
 }
 
-func (rt *ResolverType) Register(name ScopedName, sd ScopedDecl) {
+func (rt *ResolverType) Register(name ScopedName, sd ScopedInfo) {
 	rt.store[name] = &sd
 }

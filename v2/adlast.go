@@ -67,7 +67,7 @@ func (*TypeRef) Reference(scopedName ScopedName) TypeRef {
 	}
 }
 
-func Handle_P_TypeRef[T any](
+func Handle_TypeRef[T any](
 	in TypeRefBranch,
 	primitive func(primitive string) T,
 	typeParam func(typeParam string) T,
@@ -84,7 +84,7 @@ func Handle_P_TypeRef[T any](
 	panic(fmt.Sprintf("code gen error unhandled branch '%#v", in))
 }
 
-func Handle_TypeRef[T any](
+func Handle_TypeRefBranch[T any](
 	in TypeRefBranch,
 	primitive func(TypeRefBranch_Primitive) T,
 	typeParam func(TypeRefBranch_TypeParam) T,
@@ -439,11 +439,11 @@ func (an *Annotation) Set(val interface{}) {
 	an.Val = val
 }
 
-func (m Module) String() string { return m.Name }
-func (m Decl) String() string   { return m.Name }
-func (i Import) String() string {
-	if i.ModuleName != nil {
-		return *i.ModuleName
-	}
-	return i.ScopedName.ModuleName + ":" + i.ScopedName.Name
-}
+// func (m Module) String() string { return m.Name }
+// func (m Decl) String() string   { return m.Name }
+// func (i Import) String() string {
+// 	if i.ModuleName != nil {
+// 		return *i.ModuleName
+// 	}
+// 	return i.ScopedName.ModuleName + ":" + i.ScopedName.Name
+// }
