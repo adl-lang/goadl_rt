@@ -42,3 +42,18 @@ func (obj *Maybe[T]) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+func (obj *Maybe[T]) MarshalJSON() ([]byte, error) {
+	if obj.Nothing != nil {
+		return []byte(`"nothing"`), nil
+	}
+	j, e := json.Marshal(obj.Just)
+	if e != nil {
+		return nil, e
+	}
+	b := make([]byte, len(j)+len([]byte(`{"just":}`)))
+	copy(b, []byte(`{"just":`))
+	copy(b[len([]byte(`{"just":`)):], j)
+	b[len(b)-1] = '}'
+	return b, nil
+}

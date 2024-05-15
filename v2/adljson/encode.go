@@ -239,13 +239,14 @@ func unionEncodeBinding(
 		name1 := v.Field(0).Type().Name()
 		// name2 := v.Type().Field(0).Name
 		name2 := reflect.TypeOf(v.Field(0).Interface()).Name()
-		fmt.Printf("name1: %v name2: %v\n", name1, name2)
+		// fmt.Printf("name1: %v name2: %v\n", name1, name2)
 		if idx := strings.Index(name1, "["); idx > -1 {
 			name1 = name1[:idx]
 		}
 		if idx := strings.Index(name2, "["); idx > -1 {
 			name2 = name2[:idx]
 		}
+		// fmt.Printf("name1: %v name2: %v\n", name1, name2)
 		key := name2[len(name1)+1:]
 		// key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
 		// fmt.Printf("1:%v 2:%v -- %v %v\n", name1, name2, name2[len(name1)+1:], key)

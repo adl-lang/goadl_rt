@@ -2,6 +2,10 @@ package goadl
 
 import "reflect"
 
+type BranchFactory interface {
+	MakeNewBranch(key string) (any, error)
+}
+
 type ScopedInfo struct {
 	SD      ScopedDecl
 	TypeMap map[string]reflect.Type

@@ -3,6 +3,7 @@ package goadl
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 )
 
 type ADL struct {
@@ -299,7 +300,7 @@ func Handle_DeclType[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("not handled")
+	panic(fmt.Sprintf("Handle_DeclType: unhandled branch %v", reflect.TypeOf(_in)))
 }
 
 func HandleE_DeclType[T any](

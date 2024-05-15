@@ -346,17 +346,6 @@ func unionDecodeBinding(
 		case string:
 			key = t
 			val = nil
-			// if bf, ok := decMap[t]; ok {
-			// 	if p, ok := bf.field.TypeExpr.TypeRef.Branch.(goadl.TypeRefBranch_Primitive); !ok {
-			// 		return fmt.Errorf("path: %v, received a union string which isn't a primitive. type %v", ctx.path, bf.field.TypeExpr.TypeRef.Branch)
-			// 	} else if p != "Void" {
-			// 		return fmt.Errorf("path: %v, received a union string which isn't of type Void. type %v", ctx.path, p)
-			// 	}
-			// 	ds.v.Set(reflect.ValueOf(goadl.Void{}))
-			// 	return nil
-			// } else {
-			// 	return fmt.Errorf("path: %v, unexpected branch '%v'", ctx.path, t)
-			// }
 		case map[string]any:
 			if len(t) != 1 {
 				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ctx.path, len(t))
