@@ -111,26 +111,6 @@ func Make_DeclType_newtype_(v NewType) DeclType {
 	}
 }
 
-func Handle_Branch_DeclType[T any](
-	_in DeclTypeBranch,
-	struct_ func(struct_ DeclType_Struct_) (T, error),
-	union_ func(union_ DeclType_Union_) (T, error),
-	type_ func(type_ DeclType_Type_) (T, error),
-	newtype_ func(newtype_ DeclType_Newtype_) (T, error),
-) (T, error) {
-	switch _b := _in.(type) {
-	case DeclType_Struct_:
-		return struct_(_b)
-	case DeclType_Union_:
-		return union_(_b)
-	case DeclType_Type_:
-		return type_(_b)
-	case DeclType_Newtype_:
-		return newtype_(_b)
-	}
-	panic("code gen error unhandled branch in : DeclType")
-}
-
 func Handle_DeclType[T any](
 	_in DeclTypeBranch,
 	struct_ func(struct_ Struct) T,
@@ -279,20 +259,6 @@ func Make_Import_scopedName(v ScopedName) Import {
 	return Import{
 		Import_ScopedName{v},
 	}
-}
-
-func Handle_Branch_Import[T any](
-	_in ImportBranch,
-	moduleName func(moduleName Import_ModuleName) (T, error),
-	scopedName func(scopedName Import_ScopedName) (T, error),
-) (T, error) {
-	switch _b := _in.(type) {
-	case Import_ModuleName:
-		return moduleName(_b)
-	case Import_ScopedName:
-		return scopedName(_b)
-	}
-	panic("code gen error unhandled branch in : Import")
 }
 
 func Handle_Import[T any](
@@ -590,23 +556,6 @@ func Make_TypeRef_reference(v ScopedName) TypeRef {
 	return TypeRef{
 		TypeRef_Reference{v},
 	}
-}
-
-func Handle_Branch_TypeRef[T any](
-	_in TypeRefBranch,
-	primitive func(primitive TypeRef_Primitive) (T, error),
-	typeParam func(typeParam TypeRef_TypeParam) (T, error),
-	reference func(reference TypeRef_Reference) (T, error),
-) (T, error) {
-	switch _b := _in.(type) {
-	case TypeRef_Primitive:
-		return primitive(_b)
-	case TypeRef_TypeParam:
-		return typeParam(_b)
-	case TypeRef_Reference:
-		return reference(_b)
-	}
-	panic("code gen error unhandled branch in : TypeRef")
 }
 
 func Handle_TypeRef[T any](

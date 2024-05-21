@@ -46,20 +46,6 @@ func Make_Either_right[T1 any, T2 any](v T2) Either[T1, T2] {
 	}
 }
 
-func Handle_Branch_Either[T1 any, T2 any, T any](
-	_in EitherBranch[T1, T2],
-	left func(left Either_Left[T1]) (T, error),
-	right func(right Either_Right[T2]) (T, error),
-) (T, error) {
-	switch _b := _in.(type) {
-	case Either_Left[T1]:
-		return left(_b)
-	case Either_Right[T2]:
-		return right(_b)
-	}
-	panic("code gen error unhandled branch in : Either")
-}
-
 func Handle_Either[T1 any, T2 any, T any](
 	_in EitherBranch[T1, T2],
 	left func(left T1) T,
@@ -175,20 +161,6 @@ func Make_Maybe_just[T any](v T) Maybe[T] {
 	}
 }
 
-func Handle_Branch_Maybe[T any, T2 any](
-	_in MaybeBranch[T],
-	nothing func(nothing Maybe_Nothing) (T2, error),
-	just func(just Maybe_Just[T]) (T2, error),
-) (T2, error) {
-	switch _b := _in.(type) {
-	case Maybe_Nothing:
-		return nothing(_b)
-	case Maybe_Just[T]:
-		return just(_b)
-	}
-	panic("code gen error unhandled branch in : Maybe")
-}
-
 func Handle_Maybe[T any, T2 any](
 	_in MaybeBranch[T],
 	nothing func(nothing struct{}) T2,
@@ -298,20 +270,6 @@ func Make_Result_error[T any, E any](v E) Result[T, E] {
 	return Result[T, E]{
 		Result_Error[E]{v},
 	}
-}
-
-func Handle_Branch_Result[T any, E any, T2 any](
-	_in ResultBranch[T, E],
-	ok func(ok Result_Ok[T]) (T2, error),
-	error func(error Result_Error[E]) (T2, error),
-) (T2, error) {
-	switch _b := _in.(type) {
-	case Result_Ok[T]:
-		return ok(_b)
-	case Result_Error[E]:
-		return error(_b)
-	}
-	panic("code gen error unhandled branch in : Result")
 }
 
 func Handle_Result[T any, E any, T2 any](
