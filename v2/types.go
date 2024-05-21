@@ -17,8 +17,8 @@ func (obj Void) MarshalJSON() ([]byte, error) {
 }
 
 type Maybe[T any] struct {
-	Nothing *Void `json:"nothing"`
-	Just    *T    `json:"just"`
+	Nothing *Void `json:"nothing,omitempty"`
+	Just    *T    `json:"just,omitempty"`
 }
 
 func (obj *Maybe[T]) UnmarshalJSON(b []byte) error {

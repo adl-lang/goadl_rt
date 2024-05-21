@@ -6,6 +6,10 @@ import (
 	"reflect"
 )
 
+type Ident = string
+
+// type Ident[A any] string
+
 type ADL struct {
 	Modules []*Module
 }
@@ -395,9 +399,9 @@ func (obj DeclType) MarshalJSON() ([]byte, error) {
 }
 
 type Decl struct {
-	Name        string   `json:"name"`
-	Version     string   `json:"version,omitempty"`
-	Type        DeclType `json:"type_"`
+	Name        string        `json:"name"`
+	Version     Maybe[uint32] `json:"version,omitempty"`
+	Type        DeclType      `json:"type_"`
 	Annotations `json:"annotations"`
 }
 
