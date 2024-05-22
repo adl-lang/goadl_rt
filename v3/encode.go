@@ -225,10 +225,11 @@ func unionEncodeBinding(
 	params []adlast.TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
+	newBoundTypeParams := createBoundTypeParams(dres, union_.TypeParams, params, boundTypeParams)
 	encMap := make(map[string]boundEncField)
 	for _, f := range union_.Fields {
 		encMap[f.SerializedName] = boundEncField{
-			buildEncodeBinding(dres, f.TypeExpr, boundTypeParams),
+			buildEncodeBinding(dres, f.TypeExpr, newBoundTypeParams),
 			f,
 		}
 	}
@@ -242,6 +243,10 @@ func unionEncodeBinding(
 		e.WriteString(string(key))
 		e.WriteString(`":`)
 		if bf, ok := encMap[key]; ok {
+			// fmt.Printf("!!!1 %+#v\n", v)
+			// fmt.Printf("!!!2 %+v\n", bf.field)
+			// fmt.Printf("!!!3 %+v\n", reflect.ValueOf(v.Field(0).Interface()).Field(0))
+			// fmt.Print(" %+v\n", boundTypeParams)
 			err := bf.encoderFunc(e, reflect.ValueOf(v.Field(0).Interface()).Field(0))
 			if err != nil {
 				return err
@@ -260,7 +265,8 @@ func newtypeEncodeBinding(
 	params []adlast.TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return buildEncodeBinding(dres, newtype.TypeExpr, boundTypeParams)
+	newBoundTypeParams := createBoundTypeParams(dres, newtype.TypeParams, params, boundTypeParams)
+	return buildEncodeBinding(dres, newtype.TypeExpr, newBoundTypeParams)
 }
 
 func typedefEncodeBinding(
@@ -269,7 +275,8 @@ func typedefEncodeBinding(
 	params []adlast.TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
-	return buildEncodeBinding(dres, typedef.TypeExpr, boundTypeParams)
+	newBoundTypeParams := createBoundTypeParams(dres, typedef.TypeParams, params, boundTypeParams)
+	return buildEncodeBinding(dres, typedef.TypeExpr, newBoundTypeParams)
 }
 
 func primitiveEncodeBinding(
@@ -278,6 +285,7 @@ func primitiveEncodeBinding(
 	params []adlast.TypeExpr,
 	boundTypeParams boundEncodeTypeParams,
 ) encoderFunc {
+	fmt.Printf("??? %v\n", ptype)
 	switch ptype {
 	case "Int8", "Int16", "Int32", "Int64":
 		return func(e *encodeState, v reflect.Value) error {
@@ -289,8 +297,9 @@ func primitiveEncodeBinding(
 	case "Word8", "Word16", "Word32", "Word64":
 		return func(e *encodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()
-			b = strconv.AppendUint(b, v.Uint(), 10)
+			b = strconv.AppendUint(b, v.Elem().Uint(), 10)
 			e.Write(b)
+			// e.Write([]byte(fmt.Sprintf("%v", v)))
 			return nil
 		}
 	case "Bool":

@@ -50,6 +50,7 @@ func (dec *Decoder[T]) Decode(v *T) error {
 	// for now encode into a Go any and pull pieces out into ADL decls
 	var v0 any
 	jd := json.NewDecoder(dec.r)
+	jd.UseNumber()
 	err := jd.Decode(&v0)
 	if err != nil {
 		return err
@@ -142,7 +143,11 @@ func buildNewDecodeBinding(
 			return primitiveDecodeBinding(dres, primitive, texpr.Parameters, boundTypeParams)
 		},
 		func(typeParam string) decodeFunc {
-			return boundTypeParams[typeParam]
+			bf := boundTypeParams[typeParam]
+			if bf == nil {
+				panic(fmt.Errorf("bg == nil - typeParam:%v boundTypeParams:%v", typeParam, boundTypeParams))
+			}
+			return bf
 		},
 		func(reference adlast.ScopedName) decodeFunc {
 			ast := dres.Resolve(reference)
@@ -282,12 +287,10 @@ func structDecodeBinding(
 	typeExpr []adlast.TypeExpr,
 	boundTypeParams boundDecodeTypeParams,
 ) decodeFunc {
-	newBoundTypeParams := make(boundDecodeTypeParams)
-	for i, paramName := range struct_.TypeParams {
-		newBoundTypeParams[paramName] = buildDecodeBinding(dres, typeExpr[i], boundTypeParams)
-	}
+	newBoundTypeParams := createDecBoundTypeParams(dres, struct_.TypeParams, typeExpr, boundTypeParams)
 	fieldJB := make([]decodeFunc, 0, len(struct_.Fields))
 	for _, field := range struct_.Fields {
+		// field.TypeExpr.Parameters
 		jb := buildDecodeBinding(dres, field.TypeExpr, newBoundTypeParams)
 		fieldJB = append(fieldJB, jb)
 	}
@@ -339,12 +342,17 @@ func unionDecodeBinding(
 	typeExpr []adlast.TypeExpr,
 	boundTypeParams boundDecodeTypeParams,
 ) decodeFunc {
+	newBoundTypeParams := createDecBoundTypeParams(dres, union_.TypeParams, typeExpr, boundTypeParams)
 	decMap := make(map[string]boundDecField)
 	for _, f := range union_.Fields {
-		decMap[f.SerializedName] = boundDecField{
-			buildDecodeBinding(dres, f.TypeExpr, boundTypeParams),
+		bf := boundDecField{
+			buildDecodeBinding(dres, f.TypeExpr, newBoundTypeParams),
 			f,
 		}
+		if bf.decodeFunc == nil {
+			panic(fmt.Errorf("decodeFunc == nil - %#+v", f.TypeExpr))
+		}
+		decMap[f.SerializedName] = bf
 	}
 	return func(ctx decContext, ds *decodeState, v any) error {
 		var (
@@ -377,6 +385,10 @@ func unionDecodeBinding(
 				ctx0 := decContext{
 					path: append(ctx.path, key),
 				}
+				if bf.decodeFunc == nil {
+					panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v\n", ctx.path, key, decMap))
+
+				}
 				err := bf.decodeFunc(ctx0, &ds0, val)
 				if err != nil {
 					return err
@@ -402,7 +414,8 @@ func typedefDecodeBinding(
 	typeExpr []adlast.TypeExpr,
 	boundTypeParams boundDecodeTypeParams,
 ) decodeFunc {
-	return buildDecodeBinding(dres, type_.TypeExpr, boundTypeParams)
+	newBoundTypeParams := createDecBoundTypeParams(dres, type_.TypeParams, typeExpr, boundTypeParams)
+	return buildDecodeBinding(dres, type_.TypeExpr, newBoundTypeParams)
 }
 
 func newtypeDecodeBinding(
@@ -411,6 +424,20 @@ func newtypeDecodeBinding(
 	typeExpr []adlast.TypeExpr,
 	boundTypeParams boundDecodeTypeParams,
 ) decodeFunc {
+	newBoundTypeParams := createDecBoundTypeParams(dres, newtype_.TypeParams, typeExpr, boundTypeParams)
 	// TODO different default values
-	return buildDecodeBinding(dres, newtype_.TypeExpr, boundTypeParams)
+	return buildDecodeBinding(dres, newtype_.TypeExpr, newBoundTypeParams)
+}
+
+func createDecBoundTypeParams(
+	dres Resolver,
+	paramNames []string,
+	paramTypes []adlast.TypeExpr,
+	boundTypeParams boundDecodeTypeParams,
+) boundDecodeTypeParams {
+	result := boundDecodeTypeParams{}
+	for i, paramName := range paramNames {
+		result[paramName] = buildDecodeBinding(dres, paramTypes[i], boundTypeParams)
+	}
+	return result
 }
