@@ -79,12 +79,9 @@ type DeclType_Newtype_ struct {
 	V NewType `branch:"newtype_"`
 }
 
-func (DeclType_Struct_) isDeclTypeBranch() {}
-
-func (DeclType_Union_) isDeclTypeBranch() {}
-
-func (DeclType_Type_) isDeclTypeBranch() {}
-
+func (DeclType_Struct_) isDeclTypeBranch()  {}
+func (DeclType_Union_) isDeclTypeBranch()   {}
+func (DeclType_Type_) isDeclTypeBranch()    {}
 func (DeclType_Newtype_) isDeclTypeBranch() {}
 
 func Make_DeclType_struct_(v Struct) DeclType {
@@ -246,7 +243,6 @@ type Import_ScopedName struct {
 }
 
 func (Import_ModuleName) isImportBranch() {}
-
 func (Import_ScopedName) isImportBranch() {}
 
 func Make_Import_moduleName(v ModuleName) Import {
@@ -535,9 +531,7 @@ type TypeRef_Reference struct {
 }
 
 func (TypeRef_Primitive) isTypeRefBranch() {}
-
 func (TypeRef_TypeParam) isTypeRefBranch() {}
-
 func (TypeRef_Reference) isTypeRefBranch() {}
 
 func Make_TypeRef_primitive(v Ident) TypeRef {

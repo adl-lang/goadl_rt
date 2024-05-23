@@ -30,8 +30,7 @@ type Either_Right[T2 any] struct {
 	V T2 `branch:"right"`
 }
 
-func (Either_Left[T1]) isEitherBranch() {}
-
+func (Either_Left[T1]) isEitherBranch()  {}
 func (Either_Right[T2]) isEitherBranch() {}
 
 func Make_Either_left[T1 any, T2 any](v T1) Either[T1, T2] {
@@ -144,7 +143,6 @@ type Maybe_Just[T any] struct {
 }
 
 func (Maybe_Nothing) isMaybeBranch() {}
-
 func (Maybe_Just[T]) isMaybeBranch() {}
 
 func Make_Maybe_nothing[T any](v struct{}) Maybe[T] {
@@ -254,8 +252,7 @@ type Result_Error[E any] struct {
 	V E `branch:"error"`
 }
 
-func (Result_Ok[T]) isResultBranch() {}
-
+func (Result_Ok[T]) isResultBranch()    {}
 func (Result_Error[E]) isResultBranch() {}
 
 func Make_Result_ok[T any, E any](v T) Result[T, E] {
