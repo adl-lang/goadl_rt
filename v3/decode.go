@@ -39,7 +39,7 @@ func NewDecoder[T any](
 	texpr ATypeExpr[T],
 	dres Resolver,
 ) *Decoder[T] {
-	binding := buildDecodeBinding(dres, texpr.Value, make(boundDecodeTypeParams))
+	binding := buildDecodeBinding(dres, texpr.Value, make(map[string]decodeFunc))
 	return &Decoder[T]{
 		r:       r,
 		binding: binding,
@@ -50,7 +50,7 @@ func (dec *Decoder[T]) Decode(v *T) error {
 	// for now encode into a Go any and pull pieces out into ADL decls
 	var v0 any
 	jd := json.NewDecoder(dec.r)
-	jd.UseNumber()
+	// jd.UseNumber()
 	err := jd.Decode(&v0)
 	if err != nil {
 		return err
@@ -64,22 +64,23 @@ func (dec *Decoder[T]) Decode(v *T) error {
 	return dec.binding(dc, &ds, v0)
 }
 
-type boundDecodeTypeParams map[string]decodeFunc
+// type map[string]decodeFunc map[string]decodeFunc
 
-func texprKey(te adlast.TypeExpr) string {
+func texprDecKey(te adlast.TypeExpr) string {
 	ref := adlast.Handle_TypeRef[string](
 		te.TypeRef.Branch,
 		func(primitive string) string {
 			if len(te.Parameters) == 0 {
 				return primitive + ":"
 			}
-			return primitive + ":" + texprKey(te.Parameters[0])
+			return primitive + ":" + texprDecKey(te.Parameters[0])
 		},
 		func(typeParam string) string {
-			if len(te.Parameters) != 0 {
-				panic("type params cannot have params")
-			}
-			return "[" + typeParam + "]"
+			panic("type params cannot have params")
+			// if len(te.Parameters) != 0 {
+			// 	panic("type params cannot have params")
+			// }
+			// return "[" + typeParam + "]"
 		},
 		func(reference adlast.ScopedName) string {
 			sn := reference.ModuleName + "." + reference.Name + "::"
@@ -87,7 +88,7 @@ func texprKey(te adlast.TypeExpr) string {
 				if i != 0 {
 					sn = sn + ","
 				}
-				sn = sn + texprKey(te.Parameters[i])
+				sn = sn + texprDecKey(te.Parameters[i])
 			}
 			return sn
 		},
@@ -101,10 +102,10 @@ var decoderCache sync.Map // map[reflect.Type]decodeFunc
 func buildDecodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
 	// taken from golang stdlib src/encoding/json/encode.go
-	key := texprKey(texpr)
+	key := texprDecKey(texpr)
 	if fi, ok := decoderCache.Load(key); ok {
 		return fi.(decodeFunc)
 	}
@@ -135,7 +136,7 @@ func buildDecodeBinding(
 func buildNewDecodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
 	return adlast.Handle_TypeRef[decodeFunc](
 		texpr.TypeRef.Branch,
@@ -186,7 +187,7 @@ func primitiveDecodeBinding(
 	dres Resolver,
 	primitive string,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
 	switch primitive {
 	case "Int8", "Int16", "Int32", "Int64",
@@ -199,8 +200,8 @@ func primitiveDecodeBinding(
 			// fmt.Println(v, ds.v)
 			ro := reflect.ValueOf(v)
 			if !ro.CanConvert(ds.v.Type()) {
-				return fmt.Errorf("path: %v, received value cannot be convert to expected type. expected %s:%v received %v %+#v",
-					ctx.path, primitive, ds.v.Type(), ro.Kind(), ro.Interface())
+				return fmt.Errorf("path: %v, received value cannot be convert to expected type. expected %s:%v received type:'%v' val:'%+#v'",
+					ctx.path, ds.v.Type(), primitive, ro.Kind(), ro.Interface())
 			}
 			ro = ro.Convert(ds.v.Type())
 			ds.v.Set(ro)
@@ -285,13 +286,14 @@ func structDecodeBinding(
 	dres Resolver,
 	struct_ adlast.Struct,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
-	newBoundTypeParams := createDecBoundTypeParams(dres, struct_.TypeParams, typeExpr, boundTypeParams)
+	fbind, tbind := createDecBoundTypeParams(dres, struct_.TypeParams, typeExpr, boundTypeParams)
 	fieldJB := make([]decodeFunc, 0, len(struct_.Fields))
 	for _, field := range struct_.Fields {
 		// field.TypeExpr.Parameters
-		jb := buildDecodeBinding(dres, field.TypeExpr, newBoundTypeParams)
+		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
+		jb := buildDecodeBinding(dres, monoTe, fbind)
 		fieldJB = append(fieldJB, jb)
 	}
 	return func(ctx decContext, ds *decodeState, v any) error {
@@ -325,7 +327,7 @@ func enumDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
 	panic("unimplemented")
 }
@@ -340,13 +342,14 @@ func unionDecodeBinding(
 	typeMap map[string]reflect.Type,
 	union_ adlast.Union,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
-	newBoundTypeParams := createDecBoundTypeParams(dres, union_.TypeParams, typeExpr, boundTypeParams)
+	fbind, tbind := createDecBoundTypeParams(dres, union_.TypeParams, typeExpr, boundTypeParams)
 	decMap := make(map[string]boundDecField)
 	for _, f := range union_.Fields {
+		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
 		bf := boundDecField{
-			buildDecodeBinding(dres, f.TypeExpr, newBoundTypeParams),
+			buildDecodeBinding(dres, monoTe, fbind),
 			f,
 		}
 		if bf.decodeFunc == nil {
@@ -412,32 +415,36 @@ func typedefDecodeBinding(
 	dres Resolver,
 	type_ adlast.TypeDef,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
-	newBoundTypeParams := createDecBoundTypeParams(dres, type_.TypeParams, typeExpr, boundTypeParams)
-	return buildDecodeBinding(dres, type_.TypeExpr, newBoundTypeParams)
+	fbind, tbind := createDecBoundTypeParams(dres, type_.TypeParams, typeExpr, boundTypeParams)
+	monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
+	return buildDecodeBinding(dres, monoTe, fbind)
 }
 
 func newtypeDecodeBinding(
 	dres Resolver,
 	newtype_ adlast.NewType,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
+	boundTypeParams map[string]decodeFunc,
 ) decodeFunc {
-	newBoundTypeParams := createDecBoundTypeParams(dres, newtype_.TypeParams, typeExpr, boundTypeParams)
+	fbind, tbind := createDecBoundTypeParams(dres, newtype_.TypeParams, typeExpr, boundTypeParams)
+	monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
 	// TODO different default values
-	return buildDecodeBinding(dres, newtype_.TypeExpr, newBoundTypeParams)
+	return buildDecodeBinding(dres, monoTe, fbind)
 }
 
 func createDecBoundTypeParams(
 	dres Resolver,
 	paramNames []string,
 	paramTypes []adlast.TypeExpr,
-	boundTypeParams boundDecodeTypeParams,
-) boundDecodeTypeParams {
-	result := boundDecodeTypeParams{}
+	boundTypeParams map[string]decodeFunc,
+) (map[string]decodeFunc, map[string]adlast.TypeExpr) {
+	fbind := map[string]decodeFunc{}
+	tbind := map[string]adlast.TypeExpr{}
 	for i, paramName := range paramNames {
-		result[paramName] = buildDecodeBinding(dres, paramTypes[i], boundTypeParams)
+		fbind[paramName] = buildDecodeBinding(dres, paramTypes[i], boundTypeParams)
+		tbind[paramName] = paramTypes[i]
 	}
-	return result
+	return fbind, tbind
 }

@@ -28,7 +28,7 @@ func NewEncoder[T any](
 	texpr ATypeExpr[T],
 	dres Resolver,
 ) *Encoder[T] {
-	binding := buildEncodeBinding(dres, texpr.Value, make(boundEncodeTypeParams))
+	binding := buildEncodeBinding(dres, texpr.Value, map[string]encoderFunc{})
 	return &Encoder[T]{
 		w:       w,
 		binding: binding,
@@ -82,18 +82,75 @@ type encoderFunc func(e *encodeState, v reflect.Value) error
 // 	return f
 // }
 
-type boundEncodeTypeParams map[string]encoderFunc
+// type encBinding struct {
+// 	fn encoderFunc
+// 	te adlast.TypeExpr
+// }
+// type boundEncodeTypeParams map[string]encBinding
 
 var encoderCache sync.Map // map[reflect.Type]decodeFunc
+
+func texprEncKey(
+	// dres Resolver,
+	te adlast.TypeExpr,
+	// tpMap map[string]adlast.TypeExpr,
+) string {
+	defer func() {
+		if r := recover(); r != nil {
+			panic(fmt.Errorf("%v%w", te.TypeRef.Branch, r.(error)))
+		}
+	}()
+	// te := defunctionalizeTe(tpMap, te0)
+	ref := adlast.Handle_TypeRef[string](
+		te.TypeRef.Branch,
+		func(primitive string) string {
+			if len(te.Parameters) == 0 {
+				return primitive + ":"
+			}
+			return primitive + ":" + texprEncKey(te.Parameters[0])
+			// return primitive + ":" + texprEncKey(dres, te.Parameters[0], tpMap)
+		},
+		func(typeParam string) string {
+			panic(fmt.Errorf("%s", typeParam))
+			// if len(te.Parameters) != 0 {
+			// 	panic("type params cannot have params")
+			// }
+			// return "[" + typeParam + "]"
+		},
+		func(reference adlast.ScopedName) string {
+			// si := dres.Resolve(reference)
+			// if si == nil {
+			// 	panic(fmt.Errorf("cannot resolve %v", reference))
+			// }
+			// tp := typeParamsFromDecl(si.SD.Decl)
+			// tpMap1 := map[string]adlast.TypeExpr{}
+			// for i, tp := range typeParamsFromDecl(si.SD.Decl) {
+			// 	tpMap1[tp] = te.Parameters[i]
+			// }
+
+			sn := reference.ModuleName + "." + reference.Name + "::"
+			for i := range te.Parameters {
+				if i != 0 {
+					sn = sn + ","
+				}
+				sn = sn + texprEncKey(te.Parameters[i])
+			}
+			return sn
+		},
+		nil,
+	)
+	return ref
+}
 
 func buildEncodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
 	// taken from golang stdlib src/encoding/json/encode.go
-	key := texprKey(texpr)
+	key := texprEncKey(texpr)
 	if fi, ok := encoderCache.Load(key); ok {
+		// fmt.Printf("encoderCache found %v : %v\n", key, texpr)
 		return fi.(encoderFunc)
 	}
 	// To deal with recursive types, populate the map with an
@@ -110,6 +167,7 @@ func buildEncodeBinding(
 		return f(e, v)
 	}))
 	if loaded {
+		// fmt.Printf("encoderCache recursive %v : %v\n", key, texpr)
 		return fi.(encoderFunc)
 	}
 
@@ -117,13 +175,14 @@ func buildEncodeBinding(
 	f = buildNewEncodeBinding(dres, texpr, boundTypeParams)
 	wg.Done()
 	encoderCache.Store(key, f)
+	// fmt.Printf("encoderCache stored %v : %v\n", key, texpr)
 	return f
 }
 
 func buildNewEncodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
 	return adlast.Handle_TypeRef[encoderFunc](
 		texpr.TypeRef.Branch,
@@ -135,6 +194,7 @@ func buildNewEncodeBinding(
 		},
 		func(reference adlast.ScopedName) encoderFunc {
 			ast := dres.Resolve(reference)
+			// fmt.Printf(">%v:", ast.SD.Decl.Name)
 			return adlast.Handle_DeclType[encoderFunc](
 				ast.SD.Decl.Type_.Branch,
 				func(struct_ adlast.Struct) encoderFunc {
@@ -142,7 +202,7 @@ func buildNewEncodeBinding(
 				},
 				func(union_ adlast.Union) encoderFunc {
 					if isEnum(union_) {
-						return enumEncodeBinding(dres, union_, texpr.Parameters, boundTypeParams)
+						return enumEncodeBinding()
 					}
 					return unionEncodeBinding(dres, union_, texpr.Parameters, boundTypeParams)
 				},
@@ -163,15 +223,16 @@ func structEncodeBinding(
 	dres Resolver,
 	struct_ adlast.Struct,
 	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
-	newBoundTypeParams := createBoundTypeParams(dres, struct_.TypeParams, params, boundTypeParams)
+	fbind, tbind := createBoundTypeParams(dres, struct_.TypeParams, params, boundTypeParams)
 	fieldJB := make([]encoderFunc, 0)
 	for _, field := range struct_.Fields {
-		jb := buildEncodeBinding(dres, field.TypeExpr, newBoundTypeParams)
+		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
+		jb := buildEncodeBinding(dres, monoTe, fbind)
 		fieldJB = append(fieldJB, jb)
 	}
-	fn := func(e *encodeState, v reflect.Value) error {
+	return func(e *encodeState, v reflect.Value) error {
 		next := byte('{')
 		for i := range struct_.Fields {
 			f := struct_.Fields[i]
@@ -179,6 +240,7 @@ func structEncodeBinding(
 			e.WriteByte(next)
 			next = ','
 			e.WriteString(`"` + f.SerializedName + `":`)
+			// fmt.Printf(">>> %+v\n", f)
 			err := fe(e, v.Field(i))
 			if err != nil {
 				return err
@@ -191,22 +253,16 @@ func structEncodeBinding(
 		}
 		return nil
 	}
-	return fn
 }
 
-func enumEncodeBinding(
-	dres Resolver,
-	union_ adlast.Union,
-	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
-) encoderFunc {
+func enumEncodeBinding() encoderFunc {
 	return func(e *encodeState, v reflect.Value) error {
 		// name1 := v.Field(0).Type().Name()
-		name1 := v.Type().Name()
-		name2 := reflect.TypeOf(v.Field(0).Interface()).Name()
-		fmt.Printf("n1:%s n2:%s\n", name1, name2)
-		key := name2[len(name1)+1:]
-		// key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
+		// name1 := v.Type().Name()
+		// name2 := reflect.TypeOf(v.Field(0).Interface()).Name()
+		// fmt.Printf("n1:%s n2:%s\n", name1, name2)
+		// key := name2[len(name1)+1:]
+		key := reflect.TypeOf(v.Field(0).Interface()).Field(0).Tag.Get("branch")
 		e.WriteString(`"`)
 		e.WriteString(string(key))
 		e.WriteString(`"`)
@@ -223,13 +279,14 @@ func unionEncodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
 	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
-	newBoundTypeParams := createBoundTypeParams(dres, union_.TypeParams, params, boundTypeParams)
+	fbind, tbind := createBoundTypeParams(dres, union_.TypeParams, params, boundTypeParams)
 	encMap := make(map[string]boundEncField)
 	for _, f := range union_.Fields {
+		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
 		encMap[f.SerializedName] = boundEncField{
-			buildEncodeBinding(dres, f.TypeExpr, newBoundTypeParams),
+			buildEncodeBinding(dres, monoTe, fbind),
 			f,
 		}
 	}
@@ -243,6 +300,7 @@ func unionEncodeBinding(
 		e.WriteString(string(key))
 		e.WriteString(`":`)
 		if bf, ok := encMap[key]; ok {
+			// fmt.Printf("!!!0 %+#v\n", key)
 			// fmt.Printf("!!!1 %+#v\n", v)
 			// fmt.Printf("!!!2 %+v\n", bf.field)
 			// fmt.Printf("!!!3 %+v\n", reflect.ValueOf(v.Field(0).Interface()).Field(0))
@@ -263,29 +321,31 @@ func newtypeEncodeBinding(
 	dres Resolver,
 	newtype adlast.NewType,
 	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
-	newBoundTypeParams := createBoundTypeParams(dres, newtype.TypeParams, params, boundTypeParams)
-	return buildEncodeBinding(dres, newtype.TypeExpr, newBoundTypeParams)
+	fbind, tbind := createBoundTypeParams(dres, newtype.TypeParams, params, boundTypeParams)
+	monoTe := SubstituteTypeBindings(tbind, newtype.TypeExpr)
+	return buildEncodeBinding(dres, monoTe, fbind)
 }
 
 func typedefEncodeBinding(
 	dres Resolver,
 	typedef adlast.TypeDef,
 	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
-	newBoundTypeParams := createBoundTypeParams(dres, typedef.TypeParams, params, boundTypeParams)
-	return buildEncodeBinding(dres, typedef.TypeExpr, newBoundTypeParams)
+	fbind, tbind := createBoundTypeParams(dres, typedef.TypeParams, params, boundTypeParams)
+	monoTe := SubstituteTypeBindings(tbind, typedef.TypeExpr)
+	return buildEncodeBinding(dres, monoTe, fbind)
 }
 
 func primitiveEncodeBinding(
 	dres Resolver,
 	ptype string,
 	params []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
+	boundTypeParams map[string]encoderFunc,
 ) encoderFunc {
-	fmt.Printf("??? %v\n", ptype)
+	// fmt.Printf("??? %v\n", ptype)
 	switch ptype {
 	case "Int8", "Int16", "Int32", "Int64":
 		return func(e *encodeState, v reflect.Value) error {
@@ -297,9 +357,8 @@ func primitiveEncodeBinding(
 	case "Word8", "Word16", "Word32", "Word64":
 		return func(e *encodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()
-			b = strconv.AppendUint(b, v.Elem().Uint(), 10)
+			b = strconv.AppendUint(b, v.Uint(), 10)
 			e.Write(b)
-			// e.Write([]byte(fmt.Sprintf("%v", v)))
 			return nil
 		}
 	case "Bool":
@@ -390,19 +449,6 @@ func primitiveEncodeBinding(
 		}
 	}
 	return nil
-}
-
-func createBoundTypeParams(
-	dresolver Resolver,
-	paramNames []string,
-	paramTypes []adlast.TypeExpr,
-	boundTypeParams boundEncodeTypeParams,
-) boundEncodeTypeParams {
-	result := make(boundEncodeTypeParams)
-	for i, paramName := range paramNames {
-		result[paramName] = buildEncodeBinding(dresolver, paramTypes[i], boundTypeParams)
-	}
-	return result
 }
 
 type floatEncoder int // number of bits
@@ -622,4 +668,20 @@ func isEnum(union adlast.Union) bool {
 		}
 	}
 	return true
+}
+
+func createBoundTypeParams(
+	dresolver Resolver,
+	paramNames []string,
+	paramTypes []adlast.TypeExpr,
+	boundTypeParams map[string]encoderFunc,
+) (map[string]encoderFunc, map[string]adlast.TypeExpr) {
+	fbind := map[string]encoderFunc{}
+	tbind := map[string]adlast.TypeExpr{}
+	// result := make(boundEncodeTypeParams)
+	for i, paramName := range paramNames {
+		fbind[paramName] = buildEncodeBinding(dresolver, paramTypes[i], boundTypeParams)
+		tbind[paramName] = paramTypes[i]
+	}
+	return fbind, tbind
 }
