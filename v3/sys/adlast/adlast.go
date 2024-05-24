@@ -55,13 +55,13 @@ type DeclTypeBranch interface {
 func (*DeclType) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "struct_":
-		return DeclType_Struct_{}, nil
+		return &DeclType_Struct_{}, nil
 	case "union_":
-		return DeclType_Union_{}, nil
+		return &DeclType_Union_{}, nil
 	case "type_":
-		return DeclType_Type_{}, nil
+		return &DeclType_Type_{}, nil
 	case "newtype_":
-		return DeclType_Newtype_{}, nil
+		return &DeclType_Newtype_{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
@@ -228,9 +228,9 @@ type ImportBranch interface {
 func (*Import) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "moduleName":
-		return Import_ModuleName{}, nil
+		return &Import_ModuleName{}, nil
 	case "scopedName":
-		return Import_ScopedName{}, nil
+		return &Import_ScopedName{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
@@ -511,11 +511,11 @@ type TypeRefBranch interface {
 func (*TypeRef) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "primitive":
-		return TypeRef_Primitive{}, nil
+		return &TypeRef_Primitive{}, nil
 	case "typeParam":
-		return TypeRef_TypeParam{}, nil
+		return &TypeRef_TypeParam{}, nil
 	case "reference":
-		return TypeRef_Reference{}, nil
+		return &TypeRef_Reference{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }

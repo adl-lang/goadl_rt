@@ -475,30 +475,43 @@ func unionDecodeBinding(
 		}
 
 		if bf, ok := decMap[key]; ok {
-			if typ, ok := typeMap[key]; ok {
-				vn := reflect.New(typ)
-				ds0 := decodeState{
-					v: vn.Elem().Field(0),
+			var vn reflect.Value
+			if ds.v.CanAddr() && ds.v.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := ds.v.Addr().MethodByName("MakeNewBranch")
+				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
+				if resps[1].Interface() != nil {
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ctx.path, key)
 				}
-				ctx0 := decContext{
-					path: append(ctx.path, key),
-				}
-				if bf.decodeFunc == nil {
-					panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
-
-				}
-				err := bf.decodeFunc(ctx0, &ds0, val)
-				if err != nil {
-					return err
-				}
-				r0 := ds.v // for top level Elem() is already called
-				r0 = r0.Field(0)
-				// r0 = r0.Field(0)
-				r0.Set(vn.Elem())
-				return nil
+				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, unexpected branch - no type registered '%v'", ctx.path, key)
+				if typ, ok := typeMap[key]; ok {
+					vn = reflect.New(typ)
+				} else {
+					return fmt.Errorf("path: %v, unexpected branch - no type registered '%v'", ctx.path, key)
+				}
 			}
+			ds0 := decodeState{
+				v: vn.Elem().Field(0),
+			}
+			ctx0 := decContext{
+				path: append(ctx.path, key),
+			}
+			if bf.decodeFunc == nil {
+				panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
+
+			}
+			err := bf.decodeFunc(ctx0, &ds0, val)
+			if err != nil {
+				return err
+			}
+			r0 := ds.v // for top level Elem() is already called
+
+			r0 = r0.Field(0)
+
+			// r0 = r0.Field(0)
+			r0.Set(vn.Elem())
+			return nil
+
 		} else {
 			return fmt.Errorf("path: %v, unexpected branch '%v'", ctx.path, key)
 		}

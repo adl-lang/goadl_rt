@@ -16,9 +16,9 @@ type EitherBranch[T1 any, T2 any] interface {
 func (*Either[T1, T2]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "left":
-		return Either_Left[T1]{}, nil
+		return &Either_Left[T1]{}, nil
 	case "right":
-		return Either_Right[T2]{}, nil
+		return &Either_Right[T2]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
@@ -128,9 +128,9 @@ type MaybeBranch[T any] interface {
 func (*Maybe[T]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "nothing":
-		return Maybe_Nothing{}, nil
+		return &Maybe_Nothing{}, nil
 	case "just":
-		return Maybe_Just[T]{}, nil
+		return &Maybe_Just[T]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
@@ -238,9 +238,9 @@ type ResultBranch[T any, E any] interface {
 func (*Result[T, E]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "ok":
-		return Result_Ok[T]{}, nil
+		return &Result_Ok[T]{}, nil
 	case "error":
-		return Result_Error[E]{}, nil
+		return &Result_Error[E]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
