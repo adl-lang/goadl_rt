@@ -35,9 +35,34 @@ func NewEncoder[T any](
 	}
 }
 
+func NewEncoderUnchecked(
+	w io.Writer,
+	texpr adlast.TypeExpr,
+	dres Resolver,
+) *Encoder[any] {
+	binding := buildEncodeBinding(dres, texpr, map[string]encoderFunc{})
+	return &Encoder[any]{
+		w:       w,
+		binding: binding,
+	}
+}
+
+func unwrap(rv reflect.Value) reflect.Value {
+	k := rv.Kind()
+	if k == reflect.Pointer {
+		return unwrap(rv.Elem())
+	}
+	if k == reflect.Interface {
+		return unwrap(reflect.ValueOf(rv.Interface()))
+	}
+	return rv
+}
+
 func (enc *Encoder[T]) Encode(v T) error {
 	es := &encodeState{}
-	err := enc.binding(es, reflect.ValueOf(v))
+	rv := reflect.ValueOf(v)
+	rv = unwrap(rv)
+	err := enc.binding(es, rv)
 	if err != nil {
 		return err
 	}

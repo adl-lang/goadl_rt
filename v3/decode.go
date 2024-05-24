@@ -18,6 +18,11 @@ type Decoder[T any] struct {
 	binding decodeFunc
 }
 
+type UncheckedDecoder struct {
+	r       io.Reader
+	binding decodeFunc
+}
+
 type decodeState struct {
 	v reflect.Value
 }
@@ -46,6 +51,18 @@ func NewDecoder[T any](
 	}
 }
 
+func NewDecoderUnchecked(
+	r io.Reader,
+	texpr adlast.TypeExpr,
+	dres Resolver,
+) *UncheckedDecoder {
+	binding := buildDecodeBinding(dres, texpr, make(map[string]decodeFunc))
+	return &UncheckedDecoder{
+		r:       r,
+		binding: binding,
+	}
+}
+
 func (dec *Decoder[T]) Decode(v *T) error {
 	// for now encode into a Go any and pull pieces out into ADL decls
 	var v0 any
@@ -57,6 +74,25 @@ func (dec *Decoder[T]) Decode(v *T) error {
 	}
 	ds := decodeState{
 		v: reflect.ValueOf(v).Elem(),
+	}
+	dc := decContext{
+		path: []string{"$"},
+	}
+	return dec.binding(dc, &ds, v0)
+}
+
+func (dec *UncheckedDecoder) Decode(v any) error {
+	// for now encode into a Go any and pull pieces out into ADL decls
+	var v0 any
+	jd := json.NewDecoder(dec.r)
+	err := jd.Decode(&v0)
+	if err != nil {
+		return err
+	}
+	rv := reflect.ValueOf(v)
+	rv = unwrap(rv)
+	ds := decodeState{
+		v: rv,
 	}
 	dc := decContext{
 		path: []string{"$"},
