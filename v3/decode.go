@@ -191,23 +191,23 @@ func buildNewDecodeBinding(
 			if ast == nil {
 				panic(fmt.Errorf("cannot find %v", reference))
 			}
-			if ast.SD.Decl.Type_.Branch == nil {
+			if ast.Decl.Type_.Branch == nil {
 				panic(fmt.Errorf("nil branch %v\n%+v", reference, ast))
 
 			}
 
-			fbind, tbind := createDecBoundTypeParams(dres, TypeParamsFromDecl(ast.SD.Decl), texpr.Parameters, boundTypeParams)
+			fbind, tbind := createDecBoundTypeParams(dres, TypeParamsFromDecl(ast.Decl), texpr.Parameters, boundTypeParams)
 
 			return adlast.Handle_DeclType[decodeFunc](
-				ast.SD.Decl.Type_.Branch,
+				ast.Decl.Type_.Branch,
 				func(struct_ adlast.Struct) decodeFunc {
 					return structDecodeBinding(dres, struct_, fbind, tbind)
 				},
 				func(union_ adlast.Union) decodeFunc {
 					if isEnum(union_) {
-						return enumDecodeBinding(dres, union_, ast.TypeMap)
+						return enumDecodeBinding(dres, union_)
 					}
-					return unionDecodeBinding(dres, ast.TypeMap, union_, fbind, tbind)
+					return unionDecodeBinding(dres, union_, fbind, tbind)
 				},
 				func(type_ adlast.TypeDef) decodeFunc {
 					return typedefDecodeBinding(dres, type_, fbind, tbind)
@@ -364,7 +364,6 @@ func structDecodeBinding(
 func enumDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
-	typeMap map[string]reflect.Type,
 ) decodeFunc {
 	decMap := make(map[string]boundDecField)
 	for _, f := range union_.Fields {
@@ -399,29 +398,35 @@ func enumDecodeBinding(
 		}
 
 		if bf, ok := decMap[key]; ok {
-			if typ, ok := typeMap[key]; ok {
-				vn := reflect.New(typ)
-				ds0 := decodeState{
-					v: vn.Elem().Field(0),
+			var vn reflect.Value
+			if ds.v.CanAddr() && ds.v.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := ds.v.Addr().MethodByName("MakeNewBranch")
+				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
+				if resps[1].Interface() != nil {
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ctx.path, key)
 				}
-				ctx0 := decContext{
-					path: append(ctx.path, key),
-				}
-				if bf.decodeFunc == nil {
-					panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
-				}
-				err := bf.decodeFunc(ctx0, &ds0, val)
-				if err != nil {
-					return err
-				}
-				r0 := ds.v // for top level Elem() is already called
-				r0 = r0.Field(0)
-				// r0 = r0.Field(0)
-				r0.Set(vn.Elem())
-				return nil
+				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, unexpected branch - no type registered '%v'", ctx.path, key)
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ctx.path, ds.v.Type())
 			}
+			ds0 := decodeState{
+				v: vn.Elem().Field(0),
+			}
+			ctx0 := decContext{
+				path: append(ctx.path, key),
+			}
+			if bf.decodeFunc == nil {
+				panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
+			}
+			err := bf.decodeFunc(ctx0, &ds0, val)
+			if err != nil {
+				return err
+			}
+			r0 := ds.v // for top level Elem() is already called
+			r0 = r0.Field(0)
+			// r0 = r0.Field(0)
+			r0.Set(vn.Elem())
+			return nil
 		} else {
 			return fmt.Errorf("path: %v, unexpected branch '%v'", ctx.path, key)
 		}
@@ -435,7 +440,6 @@ type boundDecField struct {
 
 func unionDecodeBinding(
 	dres Resolver,
-	typeMap map[string]reflect.Type,
 	union_ adlast.Union,
 	fbind map[string]decodeFunc,
 	tbind map[string]adlast.TypeExpr,
@@ -484,11 +488,7 @@ func unionDecodeBinding(
 				}
 				vn = resps[0].Elem()
 			} else {
-				if typ, ok := typeMap[key]; ok {
-					vn = reflect.New(typ)
-				} else {
-					return fmt.Errorf("path: %v, unexpected branch - no type registered '%v'", ctx.path, key)
-				}
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ctx.path, ds.v.Type())
 			}
 			ds0 := decodeState{
 				v: vn.Elem().Field(0),

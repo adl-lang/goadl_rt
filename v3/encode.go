@@ -221,7 +221,7 @@ func buildNewEncodeBinding(
 			ast := dres.Resolve(reference)
 			// fmt.Printf(">%v:", ast.SD.Decl.Name)
 			return adlast.Handle_DeclType[encoderFunc](
-				ast.SD.Decl.Type_.Branch,
+				ast.Decl.Type_.Branch,
 				func(struct_ adlast.Struct) encoderFunc {
 					return structEncodeBinding(dres, struct_, texpr.Parameters, boundTypeParams)
 				},

@@ -1,8 +1,6 @@
 package goadl
 
 import (
-	"reflect"
-
 	. "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 
@@ -10,28 +8,23 @@ type BranchFactory interface {
 	MakeNewBranch(key string) (any, error)
 }
 
-type ScopedInfo struct {
-	SD      ScopedDecl
-	TypeMap map[string]reflect.Type
-}
-
 type Resolver interface {
-	Resolve(ScopedName) *ScopedInfo
+	Resolve(ScopedName) *ScopedDecl
 }
 
 type Registry interface {
-	Register(ScopedName, ScopedInfo)
+	Register(ScopedName, ScopedDecl)
 }
 
 type ResolverType struct {
-	store map[ScopedName]*ScopedInfo
+	store map[ScopedName]*ScopedDecl
 }
 
 var RESOLVER *ResolverType = &ResolverType{
-	store: make(map[ScopedName]*ScopedInfo),
+	store: make(map[ScopedName]*ScopedDecl),
 }
 
-func (rt *ResolverType) Resolve(name ScopedName) *ScopedInfo {
+func (rt *ResolverType) Resolve(name ScopedName) *ScopedDecl {
 	sd, has := rt.store[name]
 	if !has {
 		return nil
@@ -39,6 +32,6 @@ func (rt *ResolverType) Resolve(name ScopedName) *ScopedInfo {
 	return sd
 }
 
-func (rt *ResolverType) Register(name ScopedName, sd ScopedInfo) {
+func (rt *ResolverType) Register(name ScopedName, sd ScopedDecl) {
 	rt.store[name] = &sd
 }
