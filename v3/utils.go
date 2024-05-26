@@ -6,31 +6,53 @@ import (
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 
-func SubstituteTypeBindings(m map[string]adlast.TypeExpr, te adlast.TypeExpr) adlast.TypeExpr {
-	p0 := make([]adlast.TypeExpr, len(te.Parameters))
-	for i := range te.Parameters {
-		p0[i] = SubstituteTypeBindings(m, te.Parameters[i])
-	}
+type TypeBinding struct {
+	Name  string
+	Value adlast.TypeExpr
+}
 
-	if tp, ok := te.TypeRef.Branch.(adlast.TypeRef_TypeParam); ok {
-		if te0, ok := m[tp.V]; !ok {
-			panic(fmt.Errorf("type param not found %v", tp.V))
-			// return adlast.TypeExpr{
-			// 	TypeRef:    te.TypeRef,
-			// 	Parameters: p0,
-			// }
-		} else {
-			if len(te.Parameters) != 0 {
-				panic(fmt.Errorf("type param cannot have type params, not a concrete type"))
-			}
-			return te0
+func CreateDecBoundTypeParams(
+	paramNames []string,
+	paramTypes []adlast.TypeExpr,
+) []TypeBinding {
+	binding := make([]TypeBinding, len(paramNames))
+	for i, paramName := range paramNames {
+		binding[i] = TypeBinding{
+			Name:  paramName,
+			Value: paramTypes[i],
 		}
 	}
+	return binding
+}
 
-	return adlast.TypeExpr{
-		TypeRef:    te.TypeRef,
-		Parameters: p0,
+func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr {
+	usedTp := make([]*adlast.TypeExpr, len(binding))
+	var recurse func(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr
+	recurse = func(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr {
+		parameters := make([]adlast.TypeExpr, len(te.Parameters))
+		for i := range te.Parameters {
+			parameters[i] = recurse(binding, te.Parameters[i])
+		}
+
+		if tp, ok := te.TypeRef.Branch.(adlast.TypeRef_TypeParam); ok {
+			for i, b := range binding {
+				if b.Name == tp.V {
+					if len(te.Parameters) != 0 {
+						panic(fmt.Errorf("type param cannot have type params, not a concrete type"))
+					}
+					usedTp[i] = &b.Value
+					return b.Value
+				}
+			}
+			panic(fmt.Errorf("type param not found %v", tp.V))
+		}
+
+		return adlast.TypeExpr{
+			TypeRef:    te.TypeRef,
+			Parameters: parameters,
+		}
 	}
+	return recurse(binding, te)
 }
 
 func TypeParamsFromDecl(decl adlast.Decl) []string {

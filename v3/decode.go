@@ -6,7 +6,6 @@ import (
 	"io"
 	"reflect"
 	"strconv"
-	"strings"
 	"sync"
 
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
@@ -15,36 +14,20 @@ import (
 
 type Decoder[T any] struct {
 	r       io.Reader
-	binding decodeFunc
+	binding DecodeFunc
 }
 
 type UncheckedDecoder struct {
 	r       io.Reader
-	binding decodeFunc
+	binding DecodeFunc
 }
-
-type decodeState struct {
-	v reflect.Value
-}
-
-type ctxPath []string
-
-func (cp ctxPath) String() string {
-	return "[" + strings.Join(cp, ",") + "]"
-}
-
-type decContext struct {
-	path ctxPath
-}
-
-type decodeFunc func(ctx decContext, ds *decodeState, v any) error
 
 func NewDecoder[T any](
 	r io.Reader,
 	texpr ATypeExpr[T],
 	dres Resolver,
 ) *Decoder[T] {
-	binding := buildDecodeBinding(dres, texpr.Value, make(map[string]decodeFunc))
+	binding := buildDecodeBinding(dres, texpr.Value)
 	return &Decoder[T]{
 		r:       r,
 		binding: binding,
@@ -56,12 +39,18 @@ func NewDecoderUnchecked(
 	texpr adlast.TypeExpr,
 	dres Resolver,
 ) *UncheckedDecoder {
-	binding := buildDecodeBinding(dres, texpr, make(map[string]decodeFunc))
+	binding := buildDecodeBinding(dres, texpr)
 	return &UncheckedDecoder{
 		r:       r,
 		binding: binding,
 	}
 }
+
+type JsonDecoder[T any] interface {
+	Decode(v *T) error
+}
+
+var _ JsonDecoder[any] = &Decoder[any]{}
 
 func (dec *Decoder[T]) Decode(v *T) error {
 	// for now encode into a Go any and pull pieces out into ADL decls
@@ -72,13 +61,11 @@ func (dec *Decoder[T]) Decode(v *T) error {
 	if err != nil {
 		return err
 	}
-	ds := decodeState{
-		v: reflect.ValueOf(v).Elem(),
+	ds := DecodeState{
+		V:    reflect.ValueOf(v).Elem(),
+		Path: []string{"$"},
 	}
-	dc := decContext{
-		path: []string{"$"},
-	}
-	return dec.binding(dc, &ds, v0)
+	return dec.binding(&ds, v0)
 }
 
 func (dec *UncheckedDecoder) Decode(v any) error {
@@ -91,16 +78,14 @@ func (dec *UncheckedDecoder) Decode(v any) error {
 	}
 	rv := reflect.ValueOf(v)
 	rv = unwrap(rv)
-	ds := decodeState{
-		v: rv,
+	ds := DecodeState{
+		V:    rv,
+		Path: []string{"$"},
 	}
-	dc := decContext{
-		path: []string{"$"},
-	}
-	return dec.binding(dc, &ds, v0)
+	return dec.binding(&ds, v0)
 }
 
-// type map[string]decodeFunc map[string]decodeFunc
+// type map[string]DecodeFunc map[string]DecodeFunc
 
 func texprDecKey(te adlast.TypeExpr) string {
 	ref := adlast.Handle_TypeRef[string](
@@ -133,17 +118,17 @@ func texprDecKey(te adlast.TypeExpr) string {
 	return ref
 }
 
-var decoderCache sync.Map // map[reflect.Type]decodeFunc
+var decoderCache sync.Map // map[reflect.Type]DecodeFunc
 
 func buildDecodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]decodeFunc,
-) decodeFunc {
-	// taken from golang stdlib src/encoding/json/encode.go
+	// boundTypeParams map[string]DecodeFunc,
+) DecodeFunc {
 	key := texprDecKey(texpr)
+	// taken from golang stdlib src/encoding/json/encode.go
 	if fi, ok := decoderCache.Load(key); ok {
-		return fi.(decodeFunc)
+		return fi.(DecodeFunc)
 	}
 	// To deal with recursive types, populate the map with an
 	// indirect func before we build it. This type waits on the
@@ -151,19 +136,19 @@ func buildDecodeBinding(
 	// func is only used for recursive types.
 	var (
 		wg sync.WaitGroup
-		f  decodeFunc
+		f  DecodeFunc
 	)
 	wg.Add(1)
-	fi, loaded := decoderCache.LoadOrStore(key, decodeFunc(func(ctx decContext, e *decodeState, v any) error {
+	fi, loaded := decoderCache.LoadOrStore(key, DecodeFunc(func(e *DecodeState, v any) error {
 		wg.Wait()
-		return f(ctx, e, v)
+		return f(e, v)
 	}))
 	if loaded {
-		return fi.(decodeFunc)
+		return fi.(DecodeFunc)
 	}
 
 	// Compute the real encoder and replace the indirect func with it.
-	f = buildNewDecodeBinding(dres, texpr, boundTypeParams)
+	f = buildNewDecodeBinding(dres, texpr)
 	wg.Done()
 	decoderCache.Store(key, f)
 	return f
@@ -172,21 +157,16 @@ func buildDecodeBinding(
 func buildNewDecodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]decodeFunc,
-) decodeFunc {
-	return adlast.Handle_TypeRef[decodeFunc](
+) DecodeFunc {
+	return adlast.Handle_TypeRef[DecodeFunc](
 		texpr.TypeRef.Branch,
-		func(primitive string) decodeFunc {
-			return primitiveDecodeBinding(dres, primitive, texpr.Parameters, boundTypeParams)
+		func(primitive string) DecodeFunc {
+			return primitiveDecodeBinding(dres, primitive, texpr.Parameters)
 		},
-		func(typeParam string) decodeFunc {
-			bf := boundTypeParams[typeParam]
-			if bf == nil {
-				panic(fmt.Errorf("bg == nil - typeParam:%v boundTypeParams:%v", typeParam, boundTypeParams))
-			}
-			return bf
+		func(typeParam string) DecodeFunc {
+			panic(fmt.Errorf("typeParam:%v", typeParam))
 		},
-		func(reference adlast.ScopedName) decodeFunc {
+		func(reference adlast.ScopedName) DecodeFunc {
 			ast := dres.Resolve(reference)
 			if ast == nil {
 				panic(fmt.Errorf("cannot find %v", reference))
@@ -195,25 +175,37 @@ func buildNewDecodeBinding(
 				panic(fmt.Errorf("nil branch %v\n%+v", reference, ast))
 
 			}
-
-			fbind, tbind := createDecBoundTypeParams(dres, TypeParamsFromDecl(ast.Decl), texpr.Parameters, boundTypeParams)
-
-			return adlast.Handle_DeclType[decodeFunc](
+			tbind := CreateDecBoundTypeParams(TypeParamsFromDecl(ast.Decl), texpr.Parameters)
+			// custom types
+			if helper, has := dres.ResolveHelper(reference); has {
+				typeparamDec := make([]DecodeFunc, len(texpr.Parameters))
+				for i := range texpr.Parameters {
+					monoTe := SubstituteTypeBindings(tbind, texpr.Parameters[i])
+					typeparamDec[i] = buildDecodeBinding(dres, monoTe)
+				}
+				return helper.BuildDecodeFunc(typeparamDec...)
+			}
+			return adlast.Handle_DeclType[DecodeFunc](
 				ast.Decl.Type_.Branch,
-				func(struct_ adlast.Struct) decodeFunc {
-					return structDecodeBinding(dres, struct_, fbind, tbind)
+				func(struct_ adlast.Struct) DecodeFunc {
+					return structDecodeBinding(dres, struct_, tbind)
 				},
-				func(union_ adlast.Union) decodeFunc {
+				func(union_ adlast.Union) DecodeFunc {
 					if isEnum(union_) {
 						return enumDecodeBinding(dres, union_)
 					}
-					return unionDecodeBinding(dres, union_, fbind, tbind)
+					return unionDecodeBinding(dres, union_, tbind)
 				},
-				func(type_ adlast.TypeDef) decodeFunc {
-					return typedefDecodeBinding(dres, type_, fbind, tbind)
+				func(type_ adlast.TypeDef) DecodeFunc {
+					monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
+					return buildDecodeBinding(dres, monoTe)
+					// return typedefDecodeBinding(dres, type_, tbind)
 				},
-				func(newtype_ adlast.NewType) decodeFunc {
-					return newtypeDecodeBinding(dres, newtype_, fbind, tbind)
+				func(newtype_ adlast.NewType) DecodeFunc {
+					monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
+					// TODO different default values
+					return buildDecodeBinding(dres, monoTe)
+					// return newtypeDecodeBinding(dres, newtype_, tbind)
 				},
 				nil,
 			)
@@ -226,8 +218,7 @@ func primitiveDecodeBinding(
 	dres Resolver,
 	primitive string,
 	typeExpr []adlast.TypeExpr,
-	boundTypeParams map[string]decodeFunc,
-) decodeFunc {
+) DecodeFunc {
 	switch primitive {
 	case "Int8", "Int16", "Int32", "Int64",
 		"Word8", "Word16", "Word32", "Word64",
@@ -235,86 +226,89 @@ func primitiveDecodeBinding(
 		"Float",
 		"Double",
 		"String":
-		return func(ctx decContext, ds *decodeState, v any) error {
-			// fmt.Println(v, ds.v)
+		return func(ds *DecodeState, v any) error {
+			// fmt.Println(v, ds.V)
 			ro := reflect.ValueOf(v)
-			if !ro.CanConvert(ds.v.Type()) {
+			if !ro.CanConvert(ds.V.Type()) {
 				return fmt.Errorf("path: %v, received value cannot be convert to expected type. expected %s:%v received type:'%v' val:'%+#v'",
-					ctx.path, ds.v.Type(), primitive, ro.Kind(), ro.Interface())
+					ds.Path, ds.V.Type(), primitive, ro.Kind(), ro.Interface())
 			}
-			ro = ro.Convert(ds.v.Type())
-			ds.v.Set(ro)
+			ro = ro.Convert(ds.V.Type())
+			ds.V.Set(ro)
 			return nil
 		}
 	// case "ByteVector":
 	case "Void":
-		return func(ctx decContext, ds *decodeState, v any) error {
+		return func(ds *DecodeState, v any) error {
 			return nil
 		}
 	case "Json":
-		return func(ctx decContext, ds *decodeState, v any) error {
+		return func(ds *DecodeState, v any) error {
 			if v == nil {
 				return nil
 			}
-			ds.v.Set(reflect.ValueOf(v))
+			ds.V.Set(reflect.ValueOf(v))
 			return nil
 		}
 	case "Vector":
-		elementBinding := buildDecodeBinding(dres, typeExpr[0], boundTypeParams)
-		return func(ctx decContext, ds *decodeState, v any) error {
+		elementBinding := buildDecodeBinding(dres, typeExpr[0])
+		return func(ds *DecodeState, v any) error {
 			rv := reflect.ValueOf(v)
 			l := rv.Len()
-			newSlice := reflect.MakeSlice(ds.v.Type(), l, l)
+			newSlice := reflect.MakeSlice(ds.V.Type(), l, l)
 			for i := 0; i < l; i++ {
-				ds0 := decodeState{v: newSlice.Index(i)}
-				ctx0 := decContext{
-					path: append(ctx.path, "["+strconv.Itoa(i)+"]"),
+				ds0 := DecodeState{
+					V:    newSlice.Index(i),
+					Path: append(ds.Path, "["+strconv.Itoa(i)+"]"),
 				}
-				err := elementBinding(ctx0, &ds0, rv.Index(i).Interface())
+				err := elementBinding(&ds0, rv.Index(i).Interface())
 				if err != nil {
 					return err
 				}
 			}
-			ds.v.Set(newSlice)
+			ds.V.Set(newSlice)
 
 			return nil
 		}
 	case "StringMap":
-		elementBinding := buildDecodeBinding(dres, typeExpr[0], boundTypeParams)
-		return func(ctx decContext, ds *decodeState, v any) error {
-			newM := reflect.MakeMap(ds.v.Type())
-			vT := ds.v.Type().Elem()
+		elementBinding := buildDecodeBinding(dres, typeExpr[0])
+		return func(ds *DecodeState, v any) error {
+			newM := reflect.MakeMap(ds.V.Type())
+			vT := ds.V.Type().Elem()
 			m := reflect.ValueOf(v)
 			iter := m.MapRange()
 			for iter.Next() {
 				k := iter.Key()
 				v0 := iter.Value()
-				ds0 := decodeState{v: reflect.New(vT).Elem()}
-				ctx0 := decContext{
-					path: append(ctx.path, k.String()+":"),
+				ds0 := DecodeState{
+					V:    reflect.New(vT).Elem(),
+					Path: append(ds.Path, k.String()+":"),
 				}
-				err := elementBinding(ctx0, &ds0, v0.Interface())
+				err := elementBinding(&ds0, v0.Interface())
 				if err != nil {
 					return err
 				}
-				newM.SetMapIndex(k, ds0.v)
+				newM.SetMapIndex(k, ds0.V)
 			}
-			ds.v.Set(newM)
+			ds.V.Set(newM)
 			return nil
 		}
 	case "Nullable":
-		elementBinding := buildDecodeBinding(dres, typeExpr[0], boundTypeParams)
-		return func(ctx decContext, ds *decodeState, v any) error {
+		elementBinding := buildDecodeBinding(dres, typeExpr[0])
+		return func(ds *DecodeState, v any) error {
 			if v == nil {
 				return nil
 			}
-			// ds0 := decodeState{v: ds.v}
-			ds0 := decodeState{v: reflect.New(ds.v.Type().Elem()).Elem()}
-			err := elementBinding(ctx, &ds0, v)
+			// ds0 := DecodeState{v: ds.V}
+			ds0 := DecodeState{
+				V:    reflect.New(ds.V.Type().Elem()).Elem(),
+				Path: ds.Path,
+			}
+			err := elementBinding(&ds0, v)
 			if err != nil {
 				return err
 			}
-			ds.v.Set(ds0.v.Addr())
+			ds.V.Set(ds0.V.Addr())
 			return nil
 		}
 	}
@@ -324,59 +318,57 @@ func primitiveDecodeBinding(
 func structDecodeBinding(
 	dres Resolver,
 	struct_ adlast.Struct,
-	fbind map[string]decodeFunc,
-	tbind map[string]adlast.TypeExpr,
-) decodeFunc {
-	fieldJB := make([]decodeFunc, 0, len(struct_.Fields))
+	tbind []TypeBinding,
+) DecodeFunc {
+	fieldJB := make([]DecodeFunc, 0, len(struct_.Fields))
 	for _, field := range struct_.Fields {
 		// field.TypeExpr.Parameters
 		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
-		jb := buildDecodeBinding(dres, monoTe, fbind)
+		jb := buildDecodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
-	return func(ctx decContext, ds *decodeState, v any) error {
+	return func(ds *DecodeState, v any) error {
 		switch t := v.(type) {
 		case map[string]any:
 			for i, f := range struct_.Fields {
 				if v0, ok := t[f.SerializedName]; ok {
-					ds0 := decodeState{}
-					ds0.v = ds.v.Field(i)
-					ctx0 := decContext{
-						path: append(ctx.path, f.Name),
+					ds0 := DecodeState{
+						V:    ds.V.Field(i),
+						Path: append(ds.Path, f.Name),
 					}
-					err := fieldJB[i](ctx0, &ds0, v0)
+					err := fieldJB[i](&ds0, v0)
 					if err != nil {
 						return err
 					}
 				} else {
 					if _, ok := any(f.Default).(types.Maybe_Nothing); ok {
-						return fmt.Errorf("path %v, required field missing '%v'", ctx.path, f.SerializedName)
+						return fmt.Errorf("path %v, required field missing '%v'", ds.Path, f.SerializedName)
 					}
 					// TODO set from default
 				}
 			}
 			return nil
 		}
-		return fmt.Errorf("path %v, struct: expect an object received %v '%v'", ctx.path, reflect.TypeOf(v), v)
+		return fmt.Errorf("path %v, struct: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
 	}
 }
 
 func enumDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
-) decodeFunc {
+) DecodeFunc {
 	decMap := make(map[string]boundDecField)
 	for _, f := range union_.Fields {
 		bf := boundDecField{
-			buildDecodeBinding(dres, Texpr_Void().Value, map[string]decodeFunc{}),
+			buildDecodeBinding(dres, Texpr_Void().Value),
 			f,
 		}
-		if bf.decodeFunc == nil {
-			panic(fmt.Errorf("decodeFunc == nil - %#+v", f.TypeExpr))
+		if bf.DecodeFunc == nil {
+			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
 		}
 		decMap[f.SerializedName] = bf
 	}
-	return func(ctx decContext, ds *decodeState, v any) error {
+	return func(ds *DecodeState, v any) error {
 		var (
 			key string
 			val any
@@ -387,76 +379,73 @@ func enumDecodeBinding(
 			val = nil
 		case map[string]any:
 			if len(t) != 1 {
-				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ctx.path, len(t))
+				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ds.Path, len(t))
 			}
 			for k0, v0 := range t {
 				key = k0
 				val = v0
 			}
 		default:
-			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ctx.path, reflect.TypeOf(v), v)
+			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
 		}
 
 		if bf, ok := decMap[key]; ok {
 			var vn reflect.Value
-			if ds.v.CanAddr() && ds.v.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := ds.v.Addr().MethodByName("MakeNewBranch")
+			if ds.V.CanAddr() && ds.V.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := ds.V.Addr().MethodByName("MakeNewBranch")
 				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
 				if resps[1].Interface() != nil {
-					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ctx.path, key)
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ds.Path, key)
 				}
 				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ctx.path, ds.v.Type())
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ds.Path, ds.V.Type())
 			}
-			ds0 := decodeState{
-				v: vn.Elem().Field(0),
+			ds0 := DecodeState{
+				V:    vn.Elem().Field(0),
+				Path: append(ds.Path, key),
 			}
-			ctx0 := decContext{
-				path: append(ctx.path, key),
+			if bf.DecodeFunc == nil {
+				panic(fmt.Errorf("path: %v, DecodeFunc == nil '%v'\n%+v", ds.Path, key, decMap))
 			}
-			if bf.decodeFunc == nil {
-				panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
-			}
-			err := bf.decodeFunc(ctx0, &ds0, val)
+			err := bf.DecodeFunc(&ds0, val)
 			if err != nil {
 				return err
 			}
-			r0 := ds.v // for top level Elem() is already called
+			r0 := ds.V // for top level Elem() is already called
 			r0 = r0.Field(0)
 			// r0 = r0.Field(0)
 			r0.Set(vn.Elem())
 			return nil
 		} else {
-			return fmt.Errorf("path: %v, unexpected branch '%v'", ctx.path, key)
+			return fmt.Errorf("path: %v, unexpected branch '%v'", ds.Path, key)
 		}
 	}
 }
 
 type boundDecField struct {
-	decodeFunc decodeFunc
+	DecodeFunc DecodeFunc
 	field      adlast.Field
 }
 
 func unionDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
-	fbind map[string]decodeFunc,
-	tbind map[string]adlast.TypeExpr,
-) decodeFunc {
+	tbind []TypeBinding,
+) DecodeFunc {
 	decMap := make(map[string]boundDecField)
 	for _, f := range union_.Fields {
 		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
 		bf := boundDecField{
-			buildDecodeBinding(dres, monoTe, fbind),
+			buildDecodeBinding(dres, monoTe),
 			f,
 		}
-		if bf.decodeFunc == nil {
-			panic(fmt.Errorf("decodeFunc == nil - %#+v", f.TypeExpr))
+		if bf.DecodeFunc == nil {
+			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
 		}
 		decMap[f.SerializedName] = bf
 	}
-	return func(ctx decContext, ds *decodeState, v any) error {
+	return func(ds *DecodeState, v any) error {
 		var (
 			key string
 			val any
@@ -468,43 +457,41 @@ func unionDecodeBinding(
 			val = nil
 		case map[string]any:
 			if len(t) != 1 {
-				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ctx.path, len(t))
+				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ds.Path, len(t))
 			}
 			for k0, v0 := range t {
 				key = k0
 				val = v0
 			}
 		default:
-			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ctx.path, reflect.TypeOf(v), v)
+			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
 		}
 
 		if bf, ok := decMap[key]; ok {
 			var vn reflect.Value
-			if ds.v.CanAddr() && ds.v.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := ds.v.Addr().MethodByName("MakeNewBranch")
+			if ds.V.CanAddr() && ds.V.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := ds.V.Addr().MethodByName("MakeNewBranch")
 				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
 				if resps[1].Interface() != nil {
-					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ctx.path, key)
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ds.Path, key)
 				}
 				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ctx.path, ds.v.Type())
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ds.Path, ds.V.Type())
 			}
-			ds0 := decodeState{
-				v: vn.Elem().Field(0),
+			ds0 := DecodeState{
+				V:    vn.Elem().Field(0),
+				Path: append(ds.Path, key),
 			}
-			ctx0 := decContext{
-				path: append(ctx.path, key),
-			}
-			if bf.decodeFunc == nil {
-				panic(fmt.Errorf("path: %v, decodeFunc == nil '%v'\n%+v", ctx.path, key, decMap))
+			if bf.DecodeFunc == nil {
+				panic(fmt.Errorf("path: %v, DecodeFunc == nil '%v'\n%+v", ds.Path, key, decMap))
 
 			}
-			err := bf.decodeFunc(ctx0, &ds0, val)
+			err := bf.DecodeFunc(&ds0, val)
 			if err != nil {
 				return err
 			}
-			r0 := ds.v // for top level Elem() is already called
+			r0 := ds.V // for top level Elem() is already called
 
 			r0 = r0.Field(0)
 
@@ -513,44 +500,8 @@ func unionDecodeBinding(
 			return nil
 
 		} else {
-			return fmt.Errorf("path: %v, unexpected branch '%v'", ctx.path, key)
+			return fmt.Errorf("path: %v, unexpected branch '%v'", ds.Path, key)
 		}
 
 	}
-}
-
-func typedefDecodeBinding(
-	dres Resolver,
-	type_ adlast.TypeDef,
-	fbind map[string]decodeFunc,
-	tbind map[string]adlast.TypeExpr,
-) decodeFunc {
-	monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
-	return buildDecodeBinding(dres, monoTe, fbind)
-}
-
-func newtypeDecodeBinding(
-	dres Resolver,
-	newtype_ adlast.NewType,
-	fbind map[string]decodeFunc,
-	tbind map[string]adlast.TypeExpr,
-) decodeFunc {
-	monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
-	// TODO different default values
-	return buildDecodeBinding(dres, monoTe, fbind)
-}
-
-func createDecBoundTypeParams(
-	dres Resolver,
-	paramNames []string,
-	paramTypes []adlast.TypeExpr,
-	boundTypeParams map[string]decodeFunc,
-) (map[string]decodeFunc, map[string]adlast.TypeExpr) {
-	fbind := map[string]decodeFunc{}
-	tbind := map[string]adlast.TypeExpr{}
-	for i, paramName := range paramNames {
-		fbind[paramName] = buildDecodeBinding(dres, paramTypes[i], boundTypeParams)
-		tbind[paramName] = paramTypes[i]
-	}
-	return fbind, tbind
 }
