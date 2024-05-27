@@ -494,21 +494,21 @@ func init() {
 	)
 }
 
-func Texpr_Set[T any](t ATypeExpr[T]) ATypeExpr[Set[T]] {
-	return ATypeExpr[Set[T]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Set",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{t.Value},
-		},
-	}
-}
+// func Texpr_Set[T any](t ATypeExpr[T]) ATypeExpr[Set[T]] {
+// 	return ATypeExpr[Set[T]]{
+// 		Value: adlast.TypeExpr{
+// 			TypeRef: adlast.TypeRef{
+// 				Branch: adlast.TypeRef_Reference{
+// 					V: adlast.ScopedName{
+// 						ModuleName: "sys.types",
+// 						Name:       "Set",
+// 					},
+// 				},
+// 			},
+// 			Parameters: []adlast.TypeExpr{t.Value},
+// 		},
+// 	}
+// }
 
 func AST_Set() adlast.ScopedDecl {
 	decl := adlast.Decl{
@@ -544,7 +544,15 @@ func AST_Set() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{
+			MapEntry[adlast.ScopedName, any]{
+				Key: adlast.ScopedName{
+					ModuleName: "adlc.config.go_",
+					Name:       "GoCustomType",
+				},
+				Value: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "MapSet", "pkg": "goadl", "type_params": []interface{}{map[string]interface{}{"implements": "comparable", "name": "T"}}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "SetHelper", "pkg": "goadl"}},
+			},
+		}),
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",

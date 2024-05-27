@@ -64,7 +64,7 @@ func Handle_Either[T1 any, T2 any, T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Either")
+	panic("unhandled branch in : Either")
 }
 
 func HandleWithErr_Either[T1 any, T2 any, T any](
@@ -86,7 +86,7 @@ func HandleWithErr_Either[T1 any, T2 any, T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Either")
+	panic("unhandled branch in : Either")
 }
 
 type Map[K any, V any] []MapEntry[K, V]
@@ -125,6 +125,16 @@ type MaybeBranch[T any] interface {
 	isMaybeBranch()
 }
 
+func (*Maybe[T]) MakeNewBranch(key string) (any, error) {
+	switch key {
+	case "nothing":
+		return &Maybe_Nothing{}, nil
+	case "just":
+		return &Maybe_Just[T]{}, nil
+	}
+	return nil, fmt.Errorf("unknown branch is : %s", key)
+}
+
 type Maybe_Nothing struct {
 	V struct{} `branch:"nothing"`
 }
@@ -135,25 +145,16 @@ type Maybe_Just[T any] struct {
 func (Maybe_Nothing) isMaybeBranch() {}
 func (Maybe_Just[T]) isMaybeBranch() {}
 
-func Make_Maybe_nothing[T any]() Maybe[T] {
+func Make_Maybe_nothing[T any](v struct{}) Maybe[T] {
 	return Maybe[T]{
-		Maybe_Nothing{struct{}{}},
+		Maybe_Nothing{v},
 	}
 }
+
 func Make_Maybe_just[T any](v T) Maybe[T] {
 	return Maybe[T]{
 		Maybe_Just[T]{v},
 	}
-}
-
-func (*Maybe[T]) MakeNewBranch(key string) (any, error) {
-	switch key {
-	case "nothing":
-		return &Maybe_Nothing{}, nil
-	case "just":
-		return &Maybe_Just[T]{}, nil
-	}
-	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
 func Handle_Maybe[T any, T2 any](
@@ -285,7 +286,7 @@ func Handle_Result[T any, E any, T2 any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Result")
+	panic("unhandled branch in : Result")
 }
 
 func HandleWithErr_Result[T any, E any, T2 any](
@@ -307,7 +308,7 @@ func HandleWithErr_Result[T any, E any, T2 any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Result")
+	panic("unhandled branch in : Result")
 }
 
-type Set[T any] []T
+// type Set[T any] []T

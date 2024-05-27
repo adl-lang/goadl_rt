@@ -137,7 +137,7 @@ func Handle_DeclType[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : DeclType")
+	panic("unhandled branch in : DeclType")
 }
 
 func HandleWithErr_DeclType[T any](
@@ -169,7 +169,7 @@ func HandleWithErr_DeclType[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : DeclType")
+	panic("unhandled branch in : DeclType")
 }
 
 type DeclVersions = []Decl
@@ -276,7 +276,7 @@ func Handle_Import[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Import")
+	panic("unhandled branch in : Import")
 }
 
 func HandleWithErr_Import[T any](
@@ -298,7 +298,7 @@ func HandleWithErr_Import[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : Import")
+	panic("unhandled branch in : Import")
 }
 
 type Module struct {
@@ -576,7 +576,7 @@ func Handle_TypeRef[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : TypeRef")
+	panic("unhandled branch in : TypeRef")
 }
 
 func HandleWithErr_TypeRef[T any](
@@ -603,7 +603,7 @@ func HandleWithErr_TypeRef[T any](
 	if _default != nil {
 		return _default()
 	}
-	panic("code gen error unhandled branch in : TypeRef")
+	panic("unhandled branch in : TypeRef")
 }
 
 type Union struct {

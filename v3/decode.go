@@ -12,6 +12,79 @@ import (
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
+type JsonDecodeBinder[T any] struct {
+	binding DecodeFunc
+}
+
+func CreateJsonDecodeBinding[T any](
+	texpr ATypeExpr[T],
+	dres Resolver,
+) JsonDecodeBinder[T] {
+	return JsonDecodeBinder[T]{
+		binding: buildDecodeBinding(dres, texpr.Value),
+	}
+}
+
+func CreateUncheckedJsonDecodeBinding[T any](
+	texpr ATypeExpr[T],
+	dres Resolver,
+) JsonDecodeBinder[T] {
+	return JsonDecodeBinder[T]{
+		binding: buildDecodeBinding(dres, texpr.Value),
+	}
+}
+
+func (jdb *JsonDecodeBinder[T]) Decode(
+	r io.Reader,
+	dst *T,
+) error {
+	// for now encode into a Go any and pull pieces out into ADL decls
+	var src any
+	jd := json.NewDecoder(r)
+	// jd.UseNumber()
+	err := jd.Decode(&src)
+	if err != nil {
+		return err
+	}
+	return jdb.DecodeFromAny(src, dst)
+}
+
+func (jdb *JsonDecodeBinder[any]) DecodeUnchecked(
+	r io.Reader,
+	dst any,
+) error {
+	// for now encode into a Go any and pull pieces out into ADL decls
+	var src any
+	jd := json.NewDecoder(r)
+	err := jd.Decode(&src)
+	if err != nil {
+		return err
+	}
+	return jdb.DecodeFromAnyUnchecked(src, dst)
+}
+
+func (jdb *JsonDecodeBinder[T]) DecodeFromAny(
+	src any,
+	dst *T,
+) error {
+	ds := DecodeState{
+		V:    unwrap(reflect.ValueOf(dst)),
+		Path: []string{"$"},
+	}
+	return jdb.binding(&ds, src)
+}
+
+func (jdb *JsonDecodeBinder[any]) DecodeFromAnyUnchecked(
+	src any,
+	dst any,
+) error {
+	ds := DecodeState{
+		V:    unwrap(reflect.ValueOf(dst)),
+		Path: []string{"$"},
+	}
+	return jdb.binding(&ds, src)
+}
+
 type Decoder[T any] struct {
 	r       io.Reader
 	binding DecodeFunc
@@ -181,6 +254,7 @@ func buildNewDecodeBinding(
 				typeparamDec := make([]DecodeFunc, len(texpr.Parameters))
 				for i := range texpr.Parameters {
 					monoTe := SubstituteTypeBindings(tbind, texpr.Parameters[i])
+					fmt.Printf("helper buildDecodeBinding -- %+v\n", monoTe)
 					typeparamDec[i] = buildDecodeBinding(dres, monoTe)
 				}
 				return helper.BuildDecodeFunc(typeparamDec...)
