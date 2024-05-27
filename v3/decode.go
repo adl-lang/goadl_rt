@@ -16,6 +16,10 @@ type JsonDecodeBinder[T any] struct {
 	binding DecodeFunc
 }
 
+type JsonDecodeBinderUnchecked struct {
+	binding DecodeFunc
+}
+
 func CreateJsonDecodeBinding[T any](
 	texpr ATypeExpr[T],
 	dres Resolver,
@@ -25,12 +29,12 @@ func CreateJsonDecodeBinding[T any](
 	}
 }
 
-func CreateUncheckedJsonDecodeBinding[T any](
-	texpr ATypeExpr[T],
+func CreateUncheckedJsonDecodeBinding(
+	texpr adlast.TypeExpr,
 	dres Resolver,
-) JsonDecodeBinder[T] {
-	return JsonDecodeBinder[T]{
-		binding: buildDecodeBinding(dres, texpr.Value),
+) JsonDecodeBinderUnchecked {
+	return JsonDecodeBinderUnchecked{
+		binding: buildDecodeBinding(dres, texpr),
 	}
 }
 
@@ -49,7 +53,7 @@ func (jdb *JsonDecodeBinder[T]) Decode(
 	return jdb.DecodeFromAny(src, dst)
 }
 
-func (jdb *JsonDecodeBinder[any]) DecodeUnchecked(
+func (jdb *JsonDecodeBinderUnchecked) Decode(
 	r io.Reader,
 	dst any,
 ) error {
@@ -60,7 +64,7 @@ func (jdb *JsonDecodeBinder[any]) DecodeUnchecked(
 	if err != nil {
 		return err
 	}
-	return jdb.DecodeFromAnyUnchecked(src, dst)
+	return jdb.DecodeFromAny(src, dst)
 }
 
 func (jdb *JsonDecodeBinder[T]) DecodeFromAny(
@@ -74,7 +78,7 @@ func (jdb *JsonDecodeBinder[T]) DecodeFromAny(
 	return jdb.binding(&ds, src)
 }
 
-func (jdb *JsonDecodeBinder[any]) DecodeFromAnyUnchecked(
+func (jdb *JsonDecodeBinderUnchecked) DecodeFromAny(
 	src any,
 	dst any,
 ) error {
@@ -254,7 +258,6 @@ func buildNewDecodeBinding(
 				typeparamDec := make([]DecodeFunc, len(texpr.Parameters))
 				for i := range texpr.Parameters {
 					monoTe := SubstituteTypeBindings(tbind, texpr.Parameters[i])
-					fmt.Printf("helper buildDecodeBinding -- %+v\n", monoTe)
 					typeparamDec[i] = buildDecodeBinding(dres, monoTe)
 				}
 				return helper.BuildDecodeFunc(typeparamDec...)
@@ -414,11 +417,20 @@ func structDecodeBinding(
 					if err != nil {
 						return err
 					}
-				} else {
-					if _, ok := any(f.Default).(types.Maybe_Nothing); ok {
-						return fmt.Errorf("path %v, required field missing '%v'", ds.Path, f.SerializedName)
-					}
-					// TODO set from default
+					continue
+				}
+				if _, ok := any(f.Default.Branch).(types.Maybe_Nothing); ok {
+					return fmt.Errorf("path %v, required field missing '%v'", ds.Path, f.SerializedName)
+				}
+				// set from default field value
+				rv := reflect.ValueOf(f.Default.Branch).Field(0)
+				ds0 := DecodeState{
+					V:    ds.V.Field(i),
+					Path: append(ds.Path, f.Name),
+				}
+				err := fieldJB[i](&ds0, rv.Interface())
+				if err != nil {
+					return err
 				}
 			}
 			return nil

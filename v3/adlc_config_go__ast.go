@@ -285,33 +285,6 @@ func AST_GoType() adlast.ScopedDecl {
 							},
 							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
 						},
-						adlast.Field{
-							Name:           "type_params",
-							SerializedName: "type_params",
-							TypeExpr: adlast.TypeExpr{
-								TypeRef: adlast.TypeRef{
-									Branch: adlast.TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []adlast.TypeExpr{
-									adlast.TypeExpr{
-										TypeRef: adlast.TypeRef{
-											Branch: adlast.TypeRef_Reference{
-												V: adlast.ScopedName{
-													ModuleName: "adlc.config.go_",
-													Name:       "TypeParam",
-												}},
-										},
-										Parameters: []adlast.TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
-						},
 					},
 				}},
 		},
@@ -327,83 +300,5 @@ func init() {
 	RESOLVER.Register(
 		adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoType"},
 		AST_GoType(),
-	)
-}
-
-func Texpr_TypeParam() ATypeExpr[TypeParam] {
-	return ATypeExpr[TypeParam]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "adlc.config.go_",
-						Name:       "TypeParam",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{},
-		},
-	}
-}
-
-func AST_TypeParam() adlast.ScopedDecl {
-	decl := adlast.Decl{
-		Name: "TypeParam",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: adlast.DeclType{
-			Branch: adlast.DeclType_Struct_{
-				V: adlast.Struct{
-					TypeParams: []adlast.Ident{},
-					Fields: []adlast.Field{
-						adlast.Field{
-							Name:           "name",
-							SerializedName: "name",
-							TypeExpr: adlast.TypeExpr{
-								TypeRef: adlast.TypeRef{
-									Branch: adlast.TypeRef_Primitive{
-										V: "String"},
-								},
-								Parameters: []adlast.TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
-						},
-						adlast.Field{
-							Name:           "implements",
-							SerializedName: "implements",
-							TypeExpr: adlast.TypeExpr{
-								TypeRef: adlast.TypeRef{
-									Branch: adlast.TypeRef_Primitive{
-										V: "String"},
-								},
-								Parameters: []adlast.TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
-						},
-					},
-				}},
-		},
-		Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
-	}
-	return adlast.ScopedDecl{
-		ModuleName: "adlc.config.go_",
-		Decl:       decl,
-	}
-}
-
-func init() {
-	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "TypeParam"},
-		AST_TypeParam(),
 	)
 }

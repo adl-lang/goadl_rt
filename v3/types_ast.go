@@ -534,7 +534,7 @@ func AST_Set() adlast.ScopedDecl {
 					ModuleName: "adlc.config.go_",
 					Name:       "GoCustomType",
 				},
-				Value: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "MapSet", "pkg": "goadl", "type_params": []interface{}{map[string]interface{}{"implements": "comparable", "name": "T"}}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "SetHelper", "pkg": "goadl"}},
+				Value: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "MapSet", "pkg": "goadl"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "SetHelper", "pkg": "goadl"}},
 			},
 		}),
 	}

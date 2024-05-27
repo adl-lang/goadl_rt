@@ -61,23 +61,20 @@ func Make_GoHelperType(
 }
 
 type GoType struct {
-	Name        string      `json:"name"`
-	Pkg         string      `json:"pkg"`
-	Import_path string      `json:"import_path"`
-	Type_params []TypeParam `json:"type_params"`
+	Name        string `json:"name"`
+	Pkg         string `json:"pkg"`
+	Import_path string `json:"import_path"`
 }
 
 func New_GoType(
 	name string,
 	pkg string,
 	import_path string,
-	type_params []TypeParam,
 ) GoType {
 	return GoType{
 		Name:        name,
 		Pkg:         pkg,
 		Import_path: import_path,
-		Type_params: type_params,
 	}
 }
 
@@ -85,39 +82,11 @@ func Make_GoType(
 	name string,
 	pkg string,
 	import_path string,
-	type_params []TypeParam,
 ) GoType {
 	ret := GoType{
 		Name:        name,
 		Pkg:         pkg,
 		Import_path: import_path,
-		Type_params: type_params,
-	}
-	return ret
-}
-
-type TypeParam struct {
-	Name       string `json:"name"`
-	Implements string `json:"implements"`
-}
-
-func New_TypeParam(
-	name string,
-	implements string,
-) TypeParam {
-	return TypeParam{
-		Name:       name,
-		Implements: implements,
-	}
-}
-
-func Make_TypeParam(
-	name string,
-	implements string,
-) TypeParam {
-	ret := TypeParam{
-		Name:       name,
-		Implements: implements,
 	}
 	return ret
 }
