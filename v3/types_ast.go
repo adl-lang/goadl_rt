@@ -494,22 +494,6 @@ func init() {
 	)
 }
 
-// func Texpr_Set[T any](t ATypeExpr[T]) ATypeExpr[Set[T]] {
-// 	return ATypeExpr[Set[T]]{
-// 		Value: adlast.TypeExpr{
-// 			TypeRef: adlast.TypeRef{
-// 				Branch: adlast.TypeRef_Reference{
-// 					V: adlast.ScopedName{
-// 						ModuleName: "sys.types",
-// 						Name:       "Set",
-// 					},
-// 				},
-// 			},
-// 			Parameters: []adlast.TypeExpr{t.Value},
-// 		},
-// 	}
-// }
-
 func AST_Set() adlast.ScopedDecl {
 	decl := adlast.Decl{
 		Name: "Set",

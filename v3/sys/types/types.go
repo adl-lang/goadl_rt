@@ -310,5 +310,3 @@ func HandleWithErr_Result[T any, E any, T2 any](
 	}
 	panic("unhandled branch in : Result")
 }
-
-// type Set[T any] []T
