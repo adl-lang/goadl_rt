@@ -43,7 +43,7 @@ func (jdb *JsonDecodeBinder[T]) Decode(
 	r io.Reader,
 	dst *T,
 ) error {
-	// for now encode into a Go any and pull pieces out into ADL decls
+	// for now encode into a Go any and pull pieces out into ADL
 	var src any
 	jd := json.NewDecoder(r)
 	// jd.UseNumber()
@@ -58,7 +58,7 @@ func (jdb *JsonDecodeBinderUnchecked) Decode(
 	r io.Reader,
 	dst any,
 ) error {
-	// for now encode into a Go any and pull pieces out into ADL decls
+	// for now encode into a Go any and pull pieces out into ADL
 	var src any
 	jd := json.NewDecoder(r)
 	err := jd.Decode(&src)
@@ -89,81 +89,6 @@ func (jdb *JsonDecodeBinderUnchecked) DecodeFromAny(
 	}
 	return jdb.binding(&ds, src)
 }
-
-type Decoder[T any] struct {
-	r       io.Reader
-	binding DecodeFunc
-}
-
-type UncheckedDecoder struct {
-	r       io.Reader
-	binding DecodeFunc
-}
-
-func NewDecoder[T any](
-	r io.Reader,
-	texpr ATypeExpr[T],
-	dres Resolver,
-) *Decoder[T] {
-	binding := buildDecodeBinding(dres, texpr.Value)
-	return &Decoder[T]{
-		r:       r,
-		binding: binding,
-	}
-}
-
-func NewDecoderUnchecked(
-	r io.Reader,
-	texpr adlast.TypeExpr,
-	dres Resolver,
-) *UncheckedDecoder {
-	binding := buildDecodeBinding(dres, texpr)
-	return &UncheckedDecoder{
-		r:       r,
-		binding: binding,
-	}
-}
-
-type JsonDecoder[T any] interface {
-	Decode(v *T) error
-}
-
-var _ JsonDecoder[any] = &Decoder[any]{}
-
-func (dec *Decoder[T]) Decode(v *T) error {
-	// for now encode into a Go any and pull pieces out into ADL decls
-	var v0 any
-	jd := json.NewDecoder(dec.r)
-	// jd.UseNumber()
-	err := jd.Decode(&v0)
-	if err != nil {
-		return err
-	}
-	ds := DecodeState{
-		V:    reflect.ValueOf(v).Elem(),
-		Path: []string{"$"},
-	}
-	return dec.binding(&ds, v0)
-}
-
-func (dec *UncheckedDecoder) Decode(v any) error {
-	// for now encode into a Go any and pull pieces out into ADL decls
-	var v0 any
-	jd := json.NewDecoder(dec.r)
-	err := jd.Decode(&v0)
-	if err != nil {
-		return err
-	}
-	rv := reflect.ValueOf(v)
-	rv = unwrap(rv)
-	ds := DecodeState{
-		V:    rv,
-		Path: []string{"$"},
-	}
-	return dec.binding(&ds, v0)
-}
-
-// type map[string]DecodeFunc map[string]DecodeFunc
 
 func texprDecKey(
 	te adlast.TypeExpr,
@@ -206,7 +131,6 @@ var decoderCache sync.Map // map[reflect.Type]DecodeFunc
 func buildDecodeBinding(
 	dres Resolver,
 	texpr adlast.TypeExpr,
-	// boundTypeParams map[string]DecodeFunc,
 ) DecodeFunc {
 	key := texprDecKey(texpr)
 	// taken from golang stdlib src/encoding/json/encode.go
@@ -282,13 +206,11 @@ func buildNewDecodeBinding(
 				func(type_ adlast.TypeDef) DecodeFunc {
 					monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
 					return buildDecodeBinding(dres, monoTe)
-					// return typedefDecodeBinding(dres, type_, tbind)
 				},
 				func(newtype_ adlast.NewType) DecodeFunc {
 					monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
 					// TODO different default values
 					return buildDecodeBinding(dres, monoTe)
-					// return newtypeDecodeBinding(dres, newtype_, tbind)
 				},
 				nil,
 			)
@@ -405,7 +327,6 @@ func structDecodeBinding(
 ) DecodeFunc {
 	fieldJB := make([]DecodeFunc, 0, len(struct_.Fields))
 	for _, field := range struct_.Fields {
-		// field.TypeExpr.Parameters
 		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
 		jb := buildDecodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
@@ -449,13 +370,10 @@ func enumDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
 ) DecodeFunc {
-	decMap := make(map[string]boundDecField)
+	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
-		bf := boundDecField{
-			buildDecodeBinding(dres, Texpr_Void().Value),
-			f,
-		}
-		if bf.DecodeFunc == nil {
+		bf := buildDecodeBinding(dres, Texpr_Void().Value)
+		if bf == nil {
 			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
 		}
 		decMap[f.SerializedName] = bf
@@ -497,10 +415,7 @@ func enumDecodeBinding(
 				V:    vn.Elem().Field(0),
 				Path: append(ds.Path, key),
 			}
-			if bf.DecodeFunc == nil {
-				panic(fmt.Errorf("path: %v, DecodeFunc == nil '%v'\n%+v", ds.Path, key, decMap))
-			}
-			err := bf.DecodeFunc(&ds0, val)
+			err := bf(&ds0, val)
 			if err != nil {
 				return err
 			}
@@ -515,24 +430,16 @@ func enumDecodeBinding(
 	}
 }
 
-type boundDecField struct {
-	DecodeFunc DecodeFunc
-	field      adlast.Field
-}
-
 func unionDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
 	tbind []TypeBinding,
 ) DecodeFunc {
-	decMap := make(map[string]boundDecField)
+	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
 		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
-		bf := boundDecField{
-			buildDecodeBinding(dres, monoTe),
-			f,
-		}
-		if bf.DecodeFunc == nil {
+		bf := buildDecodeBinding(dres, monoTe)
+		if bf == nil {
 			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
 		}
 		decMap[f.SerializedName] = bf
@@ -575,22 +482,15 @@ func unionDecodeBinding(
 				V:    vn.Elem().Field(0),
 				Path: append(ds.Path, key),
 			}
-			if bf.DecodeFunc == nil {
-				panic(fmt.Errorf("path: %v, DecodeFunc == nil '%v'\n%+v", ds.Path, key, decMap))
-
-			}
-			err := bf.DecodeFunc(&ds0, val)
+			err := bf(&ds0, val)
 			if err != nil {
 				return err
 			}
 			r0 := ds.V // for top level Elem() is already called
-
 			r0 = r0.Field(0)
-
 			// r0 = r0.Field(0)
 			r0.Set(vn.Elem())
 			return nil
-
 		} else {
 			return fmt.Errorf("path: %v, unexpected branch '%v'", ds.Path, key)
 		}
