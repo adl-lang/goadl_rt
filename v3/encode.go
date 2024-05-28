@@ -17,31 +17,30 @@ import (
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 
-type Encoder[T any] struct {
-	w       io.Writer
+type JsonEncodeBinder[T any] struct {
 	binding EncoderFunc
 }
 
-func NewEncoder[T any](
-	w io.Writer,
+type JsonEncodeBinderUncheck struct {
+	binding EncoderFunc
+}
+
+func CreateJsonEncodeBinding[T any](
 	texpr ATypeExpr[T],
 	dres Resolver,
-) *Encoder[T] {
+) JsonEncodeBinder[T] {
 	binding := buildEncodeBinding(dres, texpr.Value)
-	return &Encoder[T]{
-		w:       w,
+	return JsonEncodeBinder[T]{
 		binding: binding,
 	}
 }
 
-func NewEncoderUnchecked(
-	w io.Writer,
+func CreateUncheckedJsonEncodeBinding(
 	texpr adlast.TypeExpr,
 	dres Resolver,
-) *Encoder[any] {
+) JsonEncodeBinderUncheck {
 	binding := buildEncodeBinding(dres, texpr)
-	return &Encoder[any]{
-		w:       w,
+	return JsonEncodeBinderUncheck{
 		binding: binding,
 	}
 }
@@ -57,7 +56,7 @@ func unwrap(rv reflect.Value) reflect.Value {
 	return rv
 }
 
-func (enc *Encoder[T]) Encode(v T) error {
+func (enc *JsonEncodeBinder[T]) Encode(w io.Writer, v T) error {
 	es := &EncodeState{}
 	rv := reflect.ValueOf(v)
 	rv = unwrap(rv)
@@ -66,7 +65,20 @@ func (enc *Encoder[T]) Encode(v T) error {
 		return err
 	}
 	b := es.Bytes()
-	_, err = enc.w.Write(b)
+	_, err = w.Write(b)
+	return err
+}
+
+func (enc *JsonEncodeBinderUncheck) Encode(w io.Writer, v any) error {
+	es := &EncodeState{}
+	rv := reflect.ValueOf(v)
+	rv = unwrap(rv)
+	err := enc.binding(es, rv)
+	if err != nil {
+		return err
+	}
+	b := es.Bytes()
+	_, err = w.Write(b)
 	return err
 }
 
