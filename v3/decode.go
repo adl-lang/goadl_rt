@@ -6,6 +6,7 @@ import (
 	"io"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
@@ -164,35 +165,40 @@ func (dec *UncheckedDecoder) Decode(v any) error {
 
 // type map[string]DecodeFunc map[string]DecodeFunc
 
-func texprDecKey(te adlast.TypeExpr) string {
-	ref := adlast.Handle_TypeRef[string](
-		te.TypeRef.Branch,
-		func(primitive string) string {
-			if len(te.Parameters) == 0 {
-				return primitive + ":"
-			}
-			return primitive + ":" + texprDecKey(te.Parameters[0])
-		},
-		func(typeParam string) string {
-			panic("type params cannot have params")
-			// if len(te.Parameters) != 0 {
-			// 	panic("type params cannot have params")
-			// }
-			// return "[" + typeParam + "]"
-		},
-		func(reference adlast.ScopedName) string {
-			sn := reference.ModuleName + "." + reference.Name + "::"
-			for i := range te.Parameters {
-				if i != 0 {
-					sn = sn + ","
+func texprDecKey(
+	te adlast.TypeExpr,
+) string {
+	sb := strings.Builder{}
+	sb.Grow(100)
+	var recurse func(te adlast.TypeExpr)
+	recurse = func(te adlast.TypeExpr) {
+		adlast.Handle_TypeRef[*struct{}](
+			te.TypeRef.Branch,
+			func(primitive string) *struct{} {
+				sb.WriteString(primitive + ":")
+				if len(te.Parameters) == 1 {
+					recurse(te.Parameters[0])
 				}
-				sn = sn + texprDecKey(te.Parameters[i])
-			}
-			return sn
-		},
-		nil,
-	)
-	return ref
+				return nil
+			},
+			func(typeParam string) *struct{} {
+				panic(fmt.Errorf("%s", typeParam))
+			},
+			func(reference adlast.ScopedName) *struct{} {
+				sb.WriteString(reference.ModuleName + "." + reference.Name + "::")
+				for i := range te.Parameters {
+					if i != 0 {
+						sb.WriteString(",")
+					}
+					recurse(te.Parameters[i])
+				}
+				return nil
+			},
+			nil,
+		)
+	}
+	recurse(te)
+	return sb.String()
 }
 
 var decoderCache sync.Map // map[reflect.Type]DecodeFunc

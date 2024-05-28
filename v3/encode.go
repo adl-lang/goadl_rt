@@ -73,55 +73,39 @@ func (enc *Encoder[T]) Encode(v T) error {
 var encoderCache sync.Map // map[reflect.Type]decodeFunc
 
 func texprEncKey(
-	// dres Resolver,
 	te adlast.TypeExpr,
-	// tpMap map[string]adlast.TypeExpr,
 ) string {
-	defer func() {
-		if r := recover(); r != nil {
-			panic(fmt.Errorf("%v%w", te.TypeRef.Branch, r.(error)))
-		}
-	}()
-	// te := defunctionalizeTe(tpMap, te0)
-	ref := adlast.Handle_TypeRef[string](
-		te.TypeRef.Branch,
-		func(primitive string) string {
-			if len(te.Parameters) == 0 {
-				return primitive + ":"
-			}
-			return primitive + ":" + texprEncKey(te.Parameters[0])
-			// return primitive + ":" + texprEncKey(dres, te.Parameters[0], tpMap)
-		},
-		func(typeParam string) string {
-			panic(fmt.Errorf("%s", typeParam))
-			// if len(te.Parameters) != 0 {
-			// 	panic("type params cannot have params")
-			// }
-			// return "[" + typeParam + "]"
-		},
-		func(reference adlast.ScopedName) string {
-			// si := dres.Resolve(reference)
-			// if si == nil {
-			// 	panic(fmt.Errorf("cannot resolve %v", reference))
-			// }
-			// tp := typeParamsFromDecl(si.SD.Decl)
-			// tpMap1 := map[string]adlast.TypeExpr{}
-			// for i, tp := range typeParamsFromDecl(si.SD.Decl) {
-			// 	tpMap1[tp] = te.Parameters[i]
-			// }
-
-			sn := reference.ModuleName + "." + reference.Name + "::"
-			for i := range te.Parameters {
-				if i != 0 {
-					sn = sn + ","
+	sb := strings.Builder{}
+	sb.Grow(100)
+	var recurse func(te adlast.TypeExpr)
+	recurse = func(te adlast.TypeExpr) {
+		adlast.Handle_TypeRef[*struct{}](
+			te.TypeRef.Branch,
+			func(primitive string) *struct{} {
+				sb.WriteString(primitive + ":")
+				if len(te.Parameters) == 1 {
+					recurse(te.Parameters[0])
 				}
-				sn = sn + texprEncKey(te.Parameters[i])
-			}
-			return sn
-		},
-		nil,
-	)
-	return ref
+				return nil
+			},
+			func(typeParam string) *struct{} {
+				panic(fmt.Errorf("%s", typeParam))
+			},
+			func(reference adlast.ScopedName) *struct{} {
+				sb.WriteString(reference.ModuleName + "." + reference.Name + "::")
+				for i := range te.Parameters {
+					if i != 0 {
+						sb.WriteString(",")
+					}
+					recurse(te.Parameters[i])
+				}
+				return nil
+			},
+			nil,
+		)
+	}
+	recurse(te)
+	return sb.String()
 }
 
 func buildEncodeBinding(
