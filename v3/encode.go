@@ -14,6 +14,7 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	. "github.com/adl-lang/goadl_rt/v3/adljson"
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 

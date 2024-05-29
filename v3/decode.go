@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	. "github.com/adl-lang/goadl_rt/v3/adljson"
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
@@ -37,6 +38,10 @@ func CreateUncheckedJsonDecodeBinding(
 	return JsonDecodeBinderUnchecked{
 		binding: buildDecodeBinding(dres, texpr),
 	}
+}
+
+func (binder JsonDecodeBinderUnchecked) Binder() DecodeFunc {
+	return binder.binding
 }
 
 func (jdb *JsonDecodeBinder[T]) Decode(
@@ -72,22 +77,18 @@ func (jdb *JsonDecodeBinder[T]) DecodeFromAny(
 	src any,
 	dst *T,
 ) error {
-	ds := DecodeState{
-		V:    unwrap(reflect.ValueOf(dst)),
-		Path: []string{"$"},
-	}
-	return jdb.binding(&ds, src)
+	v := unwrap(reflect.ValueOf(dst))
+	path := []string{"$"}
+	return jdb.binding(path, &v, src)
 }
 
 func (jdb *JsonDecodeBinderUnchecked) DecodeFromAny(
 	src any,
 	dst any,
 ) error {
-	ds := DecodeState{
-		V:    unwrap(reflect.ValueOf(dst)),
-		Path: []string{"$"},
-	}
-	return jdb.binding(&ds, src)
+	v := unwrap(reflect.ValueOf(dst))
+	path := []string{"$"}
+	return jdb.binding(path, &v, src)
 }
 
 func texprDecKey(
@@ -146,9 +147,9 @@ func buildDecodeBinding(
 		f  DecodeFunc
 	)
 	wg.Add(1)
-	fi, loaded := decoderCache.LoadOrStore(key, DecodeFunc(func(e *DecodeState, v any) error {
+	fi, loaded := decoderCache.LoadOrStore(key, DecodeFunc(func(path []string, rval *reflect.Value, v any) error {
 		wg.Wait()
-		return f(e, v)
+		return f(path, rval, v)
 	}))
 	if loaded {
 		return fi.(DecodeFunc)
@@ -231,89 +232,80 @@ func primitiveDecodeBinding(
 		"Float",
 		"Double",
 		"String":
-		return func(ds *DecodeState, v any) error {
-			// fmt.Println(v, ds.V)
+		return func(path []string, rval *reflect.Value, v any) error {
 			ro := reflect.ValueOf(v)
-			if !ro.CanConvert(ds.V.Type()) {
+			if !ro.CanConvert(rval.Type()) {
 				return fmt.Errorf("path: %v, received value cannot be convert to expected type. expected %s:%v received type:'%v' val:'%+#v'",
-					ds.Path, ds.V.Type(), primitive, ro.Kind(), ro.Interface())
+					path, rval.Type(), primitive, ro.Kind(), ro.Interface())
 			}
-			ro = ro.Convert(ds.V.Type())
-			ds.V.Set(ro)
+			ro = ro.Convert(rval.Type())
+			rval.Set(ro)
 			return nil
 		}
 	// case "ByteVector":
 	case "Void":
-		return func(ds *DecodeState, v any) error {
+		return func(path []string, rval *reflect.Value, v any) error {
 			return nil
 		}
 	case "Json":
-		return func(ds *DecodeState, v any) error {
+		return func(path []string, rval *reflect.Value, v any) error {
 			if v == nil {
 				return nil
 			}
-			ds.V.Set(reflect.ValueOf(v))
+			rval.Set(reflect.ValueOf(v))
 			return nil
 		}
 	case "Vector":
 		elementBinding := buildDecodeBinding(dres, typeExpr[0])
-		return func(ds *DecodeState, v any) error {
+		return func(path []string, rval *reflect.Value, v any) error {
 			rv := reflect.ValueOf(v)
 			l := rv.Len()
-			newSlice := reflect.MakeSlice(ds.V.Type(), l, l)
+			newSlice := reflect.MakeSlice(rval.Type(), l, l)
 			for i := 0; i < l; i++ {
-				ds0 := DecodeState{
-					V:    newSlice.Index(i),
-					Path: append(ds.Path, "["+strconv.Itoa(i)+"]"),
-				}
-				err := elementBinding(&ds0, rv.Index(i).Interface())
+				rv0 := newSlice.Index(i)
+				path0 := append(path, "["+strconv.Itoa(i)+"]")
+				err := elementBinding(path0, &rv0, rv.Index(i).Interface())
 				if err != nil {
 					return err
 				}
 			}
-			ds.V.Set(newSlice)
+			rval.Set(newSlice)
 
 			return nil
 		}
 	case "StringMap":
 		elementBinding := buildDecodeBinding(dres, typeExpr[0])
-		return func(ds *DecodeState, v any) error {
-			newM := reflect.MakeMap(ds.V.Type())
-			vT := ds.V.Type().Elem()
+		return func(path []string, rval *reflect.Value, v any) error {
+			newM := reflect.MakeMap(rval.Type())
+			vT := rval.Type().Elem()
 			m := reflect.ValueOf(v)
 			iter := m.MapRange()
 			for iter.Next() {
 				k := iter.Key()
 				v0 := iter.Value()
-				ds0 := DecodeState{
-					V:    reflect.New(vT).Elem(),
-					Path: append(ds.Path, k.String()+":"),
-				}
-				err := elementBinding(&ds0, v0.Interface())
+				rv0 := reflect.New(vT).Elem()
+				path0 := append(path, k.String()+":")
+				err := elementBinding(path0, &rv0, v0.Interface())
 				if err != nil {
 					return err
 				}
-				newM.SetMapIndex(k, ds0.V)
+				newM.SetMapIndex(k, rv0)
 			}
-			ds.V.Set(newM)
+			rval.Set(newM)
 			return nil
 		}
 	case "Nullable":
 		elementBinding := buildDecodeBinding(dres, typeExpr[0])
-		return func(ds *DecodeState, v any) error {
+		return func(path []string, rval *reflect.Value, v any) error {
 			if v == nil {
 				return nil
 			}
-			// ds0 := DecodeState{v: ds.V}
-			ds0 := DecodeState{
-				V:    reflect.New(ds.V.Type().Elem()).Elem(),
-				Path: ds.Path,
-			}
-			err := elementBinding(&ds0, v)
+			rv0 := reflect.New(rval.Type().Elem()).Elem()
+			err := elementBinding(path, &rv0, v)
 			if err != nil {
 				return err
 			}
-			ds.V.Set(ds0.V.Addr())
+			rval.Set(rv0.Addr())
 			return nil
 		}
 	}
@@ -331,38 +323,34 @@ func structDecodeBinding(
 		jb := buildDecodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
-	return func(ds *DecodeState, v any) error {
+	return func(path []string, rval *reflect.Value, v any) error {
 		switch t := v.(type) {
 		case map[string]any:
 			for i, f := range struct_.Fields {
 				if v0, ok := t[f.SerializedName]; ok {
-					ds0 := DecodeState{
-						V:    ds.V.Field(i),
-						Path: append(ds.Path, f.Name),
-					}
-					err := fieldJB[i](&ds0, v0)
+					rv0 := rval.Field(i)
+					path0 := append(path, f.Name)
+					err := fieldJB[i](path0, &rv0, v0)
 					if err != nil {
 						return err
 					}
 					continue
 				}
 				if _, ok := any(f.Default.Branch).(types.Maybe_Nothing); ok {
-					return fmt.Errorf("path %v, required field missing '%v'", ds.Path, f.SerializedName)
+					return fmt.Errorf("path %v, required field missing '%v'", path, f.SerializedName)
 				}
 				// set from default field value
 				rv := reflect.ValueOf(f.Default.Branch).Field(0)
-				ds0 := DecodeState{
-					V:    ds.V.Field(i),
-					Path: append(ds.Path, f.Name),
-				}
-				err := fieldJB[i](&ds0, rv.Interface())
+				rv0 := rval.Field(i)
+				path0 := append(path, f.Name)
+				err := fieldJB[i](path0, &rv0, rv.Interface())
 				if err != nil {
 					return err
 				}
 			}
 			return nil
 		}
-		return fmt.Errorf("path %v, struct: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
+		panic(fmt.Errorf("path %v, struct: expect an object received %v '%v'", path, reflect.TypeOf(v), v))
 	}
 }
 
@@ -378,7 +366,7 @@ func enumDecodeBinding(
 		}
 		decMap[f.SerializedName] = bf
 	}
-	return func(ds *DecodeState, v any) error {
+	return func(path []string, rval *reflect.Value, v any) error {
 		var (
 			key string
 			val any
@@ -389,43 +377,41 @@ func enumDecodeBinding(
 			val = nil
 		case map[string]any:
 			if len(t) != 1 {
-				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ds.Path, len(t))
+				return fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t))
 			}
 			for k0, v0 := range t {
 				key = k0
 				val = v0
 			}
 		default:
-			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
+			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", path, reflect.TypeOf(v), v)
 		}
 
 		if bf, ok := decMap[key]; ok {
 			var vn reflect.Value
-			if ds.V.CanAddr() && ds.V.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := ds.V.Addr().MethodByName("MakeNewBranch")
+			if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := rval.Addr().MethodByName("MakeNewBranch")
 				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
 				if resps[1].Interface() != nil {
-					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ds.Path, key)
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
 				}
 				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ds.Path, ds.V.Type())
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
 			}
-			ds0 := DecodeState{
-				V:    vn.Elem().Field(0),
-				Path: append(ds.Path, key),
-			}
-			err := bf(&ds0, val)
+			rv0 := vn.Elem().Field(0)
+			path0 := append(path, key)
+			err := bf(path0, &rv0, val)
 			if err != nil {
 				return err
 			}
-			r0 := ds.V // for top level Elem() is already called
+			r0 := *rval // for top level Elem() is already called
 			r0 = r0.Field(0)
 			// r0 = r0.Field(0)
 			r0.Set(vn.Elem())
 			return nil
 		} else {
-			return fmt.Errorf("path: %v, unexpected branch '%v'", ds.Path, key)
+			return fmt.Errorf("path: %v, unexpected branch '%v'", path, key)
 		}
 	}
 }
@@ -444,7 +430,7 @@ func unionDecodeBinding(
 		}
 		decMap[f.SerializedName] = bf
 	}
-	return func(ds *DecodeState, v any) error {
+	return func(path []string, rval *reflect.Value, v any) error {
 		var (
 			key string
 			val any
@@ -456,43 +442,41 @@ func unionDecodeBinding(
 			val = nil
 		case map[string]any:
 			if len(t) != 1 {
-				return fmt.Errorf("path: %v, expect an object with one and only element received %v", ds.Path, len(t))
+				return fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t))
 			}
 			for k0, v0 := range t {
 				key = k0
 				val = v0
 			}
 		default:
-			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", ds.Path, reflect.TypeOf(v), v)
+			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", path, reflect.TypeOf(v), v)
 		}
 
 		if bf, ok := decMap[key]; ok {
 			var vn reflect.Value
-			if ds.V.CanAddr() && ds.V.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := ds.V.Addr().MethodByName("MakeNewBranch")
+			if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+				meth := rval.Addr().MethodByName("MakeNewBranch")
 				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
 				if resps[1].Interface() != nil {
-					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", ds.Path, key)
+					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
 				}
 				vn = resps[0].Elem()
 			} else {
-				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", ds.Path, ds.V.Type())
+				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
 			}
-			ds0 := DecodeState{
-				V:    vn.Elem().Field(0),
-				Path: append(ds.Path, key),
-			}
-			err := bf(&ds0, val)
+			rv0 := vn.Elem().Field(0)
+			path0 := append(path, key)
+			err := bf(path0, &rv0, val)
 			if err != nil {
 				return err
 			}
-			r0 := ds.V // for top level Elem() is already called
+			r0 := *rval // for top level Elem() is already called
 			r0 = r0.Field(0)
 			// r0 = r0.Field(0)
 			r0.Set(vn.Elem())
 			return nil
 		} else {
-			return fmt.Errorf("path: %v, unexpected branch '%v'", ds.Path, key)
+			return fmt.Errorf("path: %v, unexpected branch '%v'", path, key)
 		}
 
 	}

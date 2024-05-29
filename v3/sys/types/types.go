@@ -89,8 +89,6 @@ func HandleWithErr_Either[T1 any, T2 any, T any](
 	panic("unhandled branch in : Either")
 }
 
-type Map[K any, V any] []MapEntry[K, V]
-
 type MapEntry[K any, V any] struct {
 	Key   K `json:"k"`
 	Value V `json:"v"`

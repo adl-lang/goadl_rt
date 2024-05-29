@@ -3,7 +3,8 @@ package goadl
 
 import (
 	. "github.com/adl-lang/goadl_rt/v3/adlc/config/go_"
-	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
+	"github.com/adl-lang/goadl_rt/v3/customtypes"
+	"github.com/adl-lang/goadl_rt/v3/sys/adlast"
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
@@ -52,15 +53,7 @@ func AST_GoCustomType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{
-								types.MapEntry[adlast.ScopedName, any]{
-									Key: adlast.ScopedName{
-										ModuleName: "sys.annotations",
-										Name:       "Doc",
-									},
-									Value: "The Go struct to use\n\nNote currently interfaces are not supported\n",
-								},
-							}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{ /**/ adlast.ScopedName{ModuleName: "sys.annotations", Name: "Doc"}: "The Go struct to use\n\nNote currently interfaces are not supported\n"},
 						},
 						adlast.Field{
 							Name:           "helpers",
@@ -79,28 +72,12 @@ func AST_GoCustomType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{
-								types.MapEntry[adlast.ScopedName, any]{
-									Key: adlast.ScopedName{
-										ModuleName: "sys.annotations",
-										Name:       "Doc",
-									},
-									Value: "The Go structed which implements json Marshal and Unmarshal for the gotype.\n\nNote Marshal and Unmarshal must be implemented for the specified struct's nil ptr\n",
-								},
-							}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{ /**/ adlast.ScopedName{ModuleName: "sys.annotations", Name: "Doc"}: "The Go structed which implements json Marshal and Unmarshal for the gotype.\n\nNote Marshal and Unmarshal must be implemented for the specified struct's nil ptr\n"},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{
-			types.MapEntry[adlast.ScopedName, any]{
-				Key: adlast.ScopedName{
-					ModuleName: "sys.annotations",
-					Name:       "Doc",
-				},
-				Value: "ADL declaration annotation to specify the custom type to use\n",
-			},
-		}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{ /**/ adlast.ScopedName{ModuleName: "sys.annotations", Name: "Doc"}: "ADL declaration annotation to specify the custom type to use\n"},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "adlc.config.go_",
@@ -157,7 +134,7 @@ func AST_GoHelperType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "pkg",
@@ -173,7 +150,7 @@ func AST_GoHelperType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "import_path",
@@ -189,12 +166,12 @@ func AST_GoHelperType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "adlc.config.go_",
@@ -251,7 +228,7 @@ func AST_GoType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "pkg",
@@ -267,7 +244,7 @@ func AST_GoType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "import_path",
@@ -283,12 +260,12 @@ func AST_GoType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[adlast.ScopedName, any]([]types.MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "adlc.config.go_",

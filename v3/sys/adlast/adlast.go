@@ -3,10 +3,11 @@ package adlast
 
 import (
 	"fmt"
+	"github.com/adl-lang/goadl_rt/v3/customtypes"
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
-type Annotations = types.Map[ScopedName, any]
+type Annotations = customtypes.MapMap[ScopedName, any]
 
 type Decl struct {
 	Name        Ident               `json:"name"`

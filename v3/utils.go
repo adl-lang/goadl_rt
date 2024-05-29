@@ -74,22 +74,47 @@ func TypeParamsFromDecl(decl adlast.Decl) []string {
 	)
 }
 
+// func HasAnnotation(anns adlast.Annotations, sn adlast.ScopedName) bool {
+// 	for i := range anns {
+// 		ann := anns[i]
+// 		if ScopedNamesEqual(ann.Key, sn) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+// func GetAnnotation[T any](anns adlast.Annotations, sn adlast.ScopedName, jb JsonDecodeBinder[T]) (*T, error) {
+// 	for i := range anns {
+// 		ann := anns[i]
+// 		if ScopedNamesEqual(ann.Key, sn) {
+// 			var dst T
+// 			err := jb.DecodeFromAny(ann.Value, &dst)
+// 			if err != nil {
+// 				return nil, err
+// 			}
+// 			return &dst, nil
+// 		}
+// 	}
+// 	return nil, nil
+// }
+
 func GetAnnotation[T any](anns adlast.Annotations, sn adlast.ScopedName, jb JsonDecodeBinder[T]) (*T, error) {
-	for i := range anns {
-		ann := anns[i]
-		if ScopedNamesEqual(ann.Key, sn) {
-			var dst T
-			err := jb.DecodeFromAny(ann.Value, &dst)
-			if err != nil {
-				return nil, err
-			}
-			return &dst, nil
+	if val, ok := anns[sn]; ok {
+		var dst T
+		err := jb.DecodeFromAny(val, &dst)
+		if err != nil {
+			return nil, err
 		}
+		return &dst, nil
 	}
 	return nil, nil
 }
 
-// var errNoMatchingAnn = fmt.Errorf("no matching annotation")
+func HasAnnotation(anns adlast.Annotations, sn adlast.ScopedName) bool {
+	_, ok := anns[sn]
+	return ok
+}
 
 func ScopedNamesEqual(sn1 adlast.ScopedName, sn2 adlast.ScopedName) bool {
 	return sn1.ModuleName == sn2.ModuleName && sn1.Name == sn2.Name

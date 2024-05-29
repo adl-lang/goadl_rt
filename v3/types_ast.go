@@ -2,7 +2,8 @@
 package goadl
 
 import (
-	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
+	"github.com/adl-lang/goadl_rt/v3/customtypes"
+	"github.com/adl-lang/goadl_rt/v3/sys/adlast"
 	. "github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
@@ -51,7 +52,7 @@ func AST_Either() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "right",
@@ -67,12 +68,12 @@ func AST_Either() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -85,22 +86,6 @@ func init() {
 		adlast.ScopedName{ModuleName: "sys.types", Name: "Either"},
 		AST_Either(),
 	)
-}
-
-func Texpr_Map[K any, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[Map[K, V]] {
-	return ATypeExpr[Map[K, V]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Map",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{k.Value, v.Value},
-		},
-	}
 }
 
 func AST_Map() adlast.ScopedDecl {
@@ -156,7 +141,7 @@ func AST_Map() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{ /**/ adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoCustomType"}: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -168,6 +153,10 @@ func init() {
 	RESOLVER.Register(
 		adlast.ScopedName{ModuleName: "sys.types", Name: "Map"},
 		AST_Map(),
+	)
+	RESOLVER.RegisterHelper(
+		adlast.ScopedName{ModuleName: "sys.types", Name: "Map"},
+		(*customtypes.MapHelper)(nil),
 	)
 }
 
@@ -216,7 +205,7 @@ func AST_MapEntry() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "value",
@@ -232,12 +221,12 @@ func AST_MapEntry() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -296,7 +285,7 @@ func AST_Maybe() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "just",
@@ -312,12 +301,12 @@ func AST_Maybe() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -377,7 +366,7 @@ func AST_Pair() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "v2",
@@ -393,12 +382,12 @@ func AST_Pair() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -458,7 +447,7 @@ func AST_Result() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						adlast.Field{
 							Name:           "error",
@@ -474,12 +463,12 @@ func AST_Result() adlast.ScopedDecl {
 								Branch: Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -528,15 +517,7 @@ func AST_Set() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: Map[adlast.ScopedName, any]([]MapEntry[adlast.ScopedName, any]{
-			MapEntry[adlast.ScopedName, any]{
-				Key: adlast.ScopedName{
-					ModuleName: "adlc.config.go_",
-					Name:       "GoCustomType",
-				},
-				Value: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "MapSet", "pkg": "goadl"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3", "name": "SetHelper", "pkg": "goadl"}},
-			},
-		}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{ /**/ adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoCustomType"}: map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -551,6 +532,6 @@ func init() {
 	)
 	RESOLVER.RegisterHelper(
 		adlast.ScopedName{ModuleName: "sys.types", Name: "Set"},
-		(*SetHelper)(nil),
+		(*customtypes.SetHelper)(nil),
 	)
 }

@@ -2,8 +2,9 @@
 package goadl
 
 import (
+	"github.com/adl-lang/goadl_rt/v3/customtypes"
+	"github.com/adl-lang/goadl_rt/v3/sys/adlast"
 	. "github.com/adl-lang/goadl_rt/v3/sys/adlast"
-	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
@@ -64,7 +65,7 @@ func AST_Annotations() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -124,7 +125,7 @@ func AST_Decl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "version",
@@ -151,7 +152,7 @@ func AST_Decl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "type_",
@@ -170,7 +171,7 @@ func AST_Decl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "annotations",
@@ -189,12 +190,12 @@ func AST_Decl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -254,7 +255,7 @@ func AST_DeclType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "union_",
@@ -273,7 +274,7 @@ func AST_DeclType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "type_",
@@ -292,7 +293,7 @@ func AST_DeclType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "newtype_",
@@ -311,12 +312,12 @@ func AST_DeclType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -378,7 +379,7 @@ func AST_DeclVersions() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -438,7 +439,7 @@ func AST_Field() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "serializedName",
@@ -457,7 +458,7 @@ func AST_Field() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "typeExpr",
@@ -476,7 +477,7 @@ func AST_Field() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "default",
@@ -503,7 +504,7 @@ func AST_Field() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "annotations",
@@ -522,12 +523,12 @@ func AST_Field() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -578,7 +579,7 @@ func AST_Ident() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -638,7 +639,7 @@ func AST_Import() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "scopedName",
@@ -657,12 +658,12 @@ func AST_Import() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -722,7 +723,7 @@ func AST_Module() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "imports",
@@ -749,7 +750,7 @@ func AST_Module() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "decls",
@@ -776,7 +777,7 @@ func AST_Module() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "annotations",
@@ -795,12 +796,12 @@ func AST_Module() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -851,7 +852,7 @@ func AST_ModuleName() adlast.ScopedDecl {
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -919,7 +920,7 @@ func AST_NewType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "typeExpr",
@@ -938,7 +939,7 @@ func AST_NewType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "default",
@@ -965,12 +966,12 @@ func AST_NewType() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1030,7 +1031,7 @@ func AST_ScopedDecl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "decl",
@@ -1049,12 +1050,12 @@ func AST_ScopedDecl() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1114,7 +1115,7 @@ func AST_ScopedName() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "name",
@@ -1133,12 +1134,12 @@ func AST_ScopedName() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1206,7 +1207,7 @@ func AST_Struct() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "fields",
@@ -1233,12 +1234,12 @@ func AST_Struct() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1306,7 +1307,7 @@ func AST_TypeDef() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "typeExpr",
@@ -1325,12 +1326,12 @@ func AST_TypeDef() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1390,7 +1391,7 @@ func AST_TypeExpr() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "parameters",
@@ -1417,12 +1418,12 @@ func AST_TypeExpr() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1482,7 +1483,7 @@ func AST_TypeRef() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "typeParam",
@@ -1501,7 +1502,7 @@ func AST_TypeRef() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "reference",
@@ -1520,12 +1521,12 @@ func AST_TypeRef() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
@@ -1593,7 +1594,7 @@ func AST_Union() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 						Field{
 							Name:           "fields",
@@ -1620,12 +1621,12 @@ func AST_Union() adlast.ScopedDecl {
 								Branch: types.Maybe_Nothing{
 									V: struct{}{}},
 							},
-							Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 						},
 					},
 				}},
 		},
-		Annotations: types.Map[ScopedName, any]([]types.MapEntry[ScopedName, any]{}),
+		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
 	}
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",

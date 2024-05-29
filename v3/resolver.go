@@ -1,6 +1,7 @@
 package goadl
 
 import (
+	"github.com/adl-lang/goadl_rt/v3/adljson"
 	. "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 
@@ -8,14 +9,9 @@ type BranchFactory interface {
 	MakeNewBranch(key string) (any, error)
 }
 
-type CustomTypeHelper interface {
-	BuildEncodeFunc(typeparamEnc ...EncoderFunc) EncoderFunc
-	BuildDecodeFunc(typeparamDec ...DecodeFunc) DecodeFunc
-}
-
 type Resolver interface {
 	Resolve(ScopedName) *ScopedDecl
-	ResolveHelper(name ScopedName) (CustomTypeHelper, bool)
+	ResolveHelper(name ScopedName) (adljson.CustomTypeHelper, bool)
 }
 
 type Registry interface {
@@ -24,12 +20,12 @@ type Registry interface {
 
 type ResolverType struct {
 	store   map[ScopedName]*ScopedDecl
-	helpers map[ScopedName]CustomTypeHelper
+	helpers map[ScopedName]adljson.CustomTypeHelper
 }
 
 var RESOLVER *ResolverType = &ResolverType{
 	store:   make(map[ScopedName]*ScopedDecl),
-	helpers: make(map[ScopedName]CustomTypeHelper),
+	helpers: make(map[ScopedName]adljson.CustomTypeHelper),
 }
 
 func (rt *ResolverType) Resolve(name ScopedName) *ScopedDecl {
@@ -40,7 +36,7 @@ func (rt *ResolverType) Resolve(name ScopedName) *ScopedDecl {
 	return sd
 }
 
-func (rt *ResolverType) ResolveHelper(name ScopedName) (CustomTypeHelper, bool) {
+func (rt *ResolverType) ResolveHelper(name ScopedName) (adljson.CustomTypeHelper, bool) {
 	cth, has := rt.helpers[name]
 	if !has {
 		return cth, false
@@ -52,6 +48,6 @@ func (rt *ResolverType) Register(name ScopedName, sd ScopedDecl) {
 	rt.store[name] = &sd
 }
 
-func (rt *ResolverType) RegisterHelper(name ScopedName, cth CustomTypeHelper) {
+func (rt *ResolverType) RegisterHelper(name ScopedName, cth adljson.CustomTypeHelper) {
 	rt.helpers[name] = cth
 }
