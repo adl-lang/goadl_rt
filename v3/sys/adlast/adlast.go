@@ -56,76 +56,76 @@ type DeclTypeBranch interface {
 func (*DeclType) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "struct_":
-		return &DeclType_Struct_{}, nil
+		return &_DeclType_Struct_{}, nil
 	case "union_":
-		return &DeclType_Union_{}, nil
+		return &_DeclType_Union_{}, nil
 	case "type_":
-		return &DeclType_Type_{}, nil
+		return &_DeclType_Type_{}, nil
 	case "newtype_":
-		return &DeclType_Newtype_{}, nil
+		return &_DeclType_Newtype_{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type DeclType_Struct_ struct {
+type _DeclType_Struct_ struct {
 	V Struct `branch:"struct_"`
 }
-type DeclType_Union_ struct {
+type _DeclType_Union_ struct {
 	V Union `branch:"union_"`
 }
-type DeclType_Type_ struct {
+type _DeclType_Type_ struct {
 	V TypeDef `branch:"type_"`
 }
-type DeclType_Newtype_ struct {
+type _DeclType_Newtype_ struct {
 	V NewType `branch:"newtype_"`
 }
 
-func (DeclType_Struct_) isDeclTypeBranch()  {}
-func (DeclType_Union_) isDeclTypeBranch()   {}
-func (DeclType_Type_) isDeclTypeBranch()    {}
-func (DeclType_Newtype_) isDeclTypeBranch() {}
+func (_DeclType_Struct_) isDeclTypeBranch()  {}
+func (_DeclType_Union_) isDeclTypeBranch()   {}
+func (_DeclType_Type_) isDeclTypeBranch()    {}
+func (_DeclType_Newtype_) isDeclTypeBranch() {}
 
 func Make_DeclType_struct_(v Struct) DeclType {
 	return DeclType{
-		DeclType_Struct_{v},
+		_DeclType_Struct_{v},
 	}
 }
 
 func Make_DeclType_union_(v Union) DeclType {
 	return DeclType{
-		DeclType_Union_{v},
+		_DeclType_Union_{v},
 	}
 }
 
 func Make_DeclType_type_(v TypeDef) DeclType {
 	return DeclType{
-		DeclType_Type_{v},
+		_DeclType_Type_{v},
 	}
 }
 
 func Make_DeclType_newtype_(v NewType) DeclType {
 	return DeclType{
-		DeclType_Newtype_{v},
+		_DeclType_Newtype_{v},
 	}
 }
 
 func (un DeclType) Cast_struct_() (Struct, bool) {
-	br, ok := un.Branch.(DeclType_Struct_)
+	br, ok := un.Branch.(_DeclType_Struct_)
 	return br.V, ok
 }
 
 func (un DeclType) Cast_union_() (Union, bool) {
-	br, ok := un.Branch.(DeclType_Union_)
+	br, ok := un.Branch.(_DeclType_Union_)
 	return br.V, ok
 }
 
 func (un DeclType) Cast_type_() (TypeDef, bool) {
-	br, ok := un.Branch.(DeclType_Type_)
+	br, ok := un.Branch.(_DeclType_Type_)
 	return br.V, ok
 }
 
 func (un DeclType) Cast_newtype_() (NewType, bool) {
-	br, ok := un.Branch.(DeclType_Newtype_)
+	br, ok := un.Branch.(_DeclType_Newtype_)
 	return br.V, ok
 }
 
@@ -138,19 +138,19 @@ func Handle_DeclType[T any](
 	_default func() T,
 ) T {
 	switch _b := _in.Branch.(type) {
-	case DeclType_Struct_:
+	case _DeclType_Struct_:
 		if struct_ != nil {
 			return struct_(_b.V)
 		}
-	case DeclType_Union_:
+	case _DeclType_Union_:
 		if union_ != nil {
 			return union_(_b.V)
 		}
-	case DeclType_Type_:
+	case _DeclType_Type_:
 		if type_ != nil {
 			return type_(_b.V)
 		}
-	case DeclType_Newtype_:
+	case _DeclType_Newtype_:
 		if newtype_ != nil {
 			return newtype_(_b.V)
 		}
@@ -170,19 +170,19 @@ func HandleWithErr_DeclType[T any](
 	_default func() (T, error),
 ) (T, error) {
 	switch _b := _in.Branch.(type) {
-	case DeclType_Struct_:
+	case _DeclType_Struct_:
 		if struct_ != nil {
 			return struct_(_b.V)
 		}
-	case DeclType_Union_:
+	case _DeclType_Union_:
 		if union_ != nil {
 			return union_(_b.V)
 		}
-	case DeclType_Type_:
+	case _DeclType_Type_:
 		if type_ != nil {
 			return type_(_b.V)
 		}
-	case DeclType_Newtype_:
+	case _DeclType_Newtype_:
 		if newtype_ != nil {
 			return newtype_(_b.V)
 		}
@@ -249,42 +249,42 @@ type ImportBranch interface {
 func (*Import) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "moduleName":
-		return &Import_ModuleName{}, nil
+		return &_Import_ModuleName{}, nil
 	case "scopedName":
-		return &Import_ScopedName{}, nil
+		return &_Import_ScopedName{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type Import_ModuleName struct {
+type _Import_ModuleName struct {
 	V ModuleName `branch:"moduleName"`
 }
-type Import_ScopedName struct {
+type _Import_ScopedName struct {
 	V ScopedName `branch:"scopedName"`
 }
 
-func (Import_ModuleName) isImportBranch() {}
-func (Import_ScopedName) isImportBranch() {}
+func (_Import_ModuleName) isImportBranch() {}
+func (_Import_ScopedName) isImportBranch() {}
 
 func Make_Import_moduleName(v ModuleName) Import {
 	return Import{
-		Import_ModuleName{v},
+		_Import_ModuleName{v},
 	}
 }
 
 func Make_Import_scopedName(v ScopedName) Import {
 	return Import{
-		Import_ScopedName{v},
+		_Import_ScopedName{v},
 	}
 }
 
 func (un Import) Cast_moduleName() (ModuleName, bool) {
-	br, ok := un.Branch.(Import_ModuleName)
+	br, ok := un.Branch.(_Import_ModuleName)
 	return br.V, ok
 }
 
 func (un Import) Cast_scopedName() (ScopedName, bool) {
-	br, ok := un.Branch.(Import_ScopedName)
+	br, ok := un.Branch.(_Import_ScopedName)
 	return br.V, ok
 }
 
@@ -295,11 +295,11 @@ func Handle_Import[T any](
 	_default func() T,
 ) T {
 	switch _b := _in.Branch.(type) {
-	case Import_ModuleName:
+	case _Import_ModuleName:
 		if moduleName != nil {
 			return moduleName(_b.V)
 		}
-	case Import_ScopedName:
+	case _Import_ScopedName:
 		if scopedName != nil {
 			return scopedName(_b.V)
 		}
@@ -317,11 +317,11 @@ func HandleWithErr_Import[T any](
 	_default func() (T, error),
 ) (T, error) {
 	switch _b := _in.Branch.(type) {
-	case Import_ModuleName:
+	case _Import_ModuleName:
 		if moduleName != nil {
 			return moduleName(_b.V)
 		}
-	case Import_ScopedName:
+	case _Import_ScopedName:
 		if scopedName != nil {
 			return scopedName(_b.V)
 		}
@@ -542,59 +542,59 @@ type TypeRefBranch interface {
 func (*TypeRef) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "primitive":
-		return &TypeRef_Primitive{}, nil
+		return &_TypeRef_Primitive{}, nil
 	case "typeParam":
-		return &TypeRef_TypeParam{}, nil
+		return &_TypeRef_TypeParam{}, nil
 	case "reference":
-		return &TypeRef_Reference{}, nil
+		return &_TypeRef_Reference{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type TypeRef_Primitive struct {
+type _TypeRef_Primitive struct {
 	V Ident `branch:"primitive"`
 }
-type TypeRef_TypeParam struct {
+type _TypeRef_TypeParam struct {
 	V Ident `branch:"typeParam"`
 }
-type TypeRef_Reference struct {
+type _TypeRef_Reference struct {
 	V ScopedName `branch:"reference"`
 }
 
-func (TypeRef_Primitive) isTypeRefBranch() {}
-func (TypeRef_TypeParam) isTypeRefBranch() {}
-func (TypeRef_Reference) isTypeRefBranch() {}
+func (_TypeRef_Primitive) isTypeRefBranch() {}
+func (_TypeRef_TypeParam) isTypeRefBranch() {}
+func (_TypeRef_Reference) isTypeRefBranch() {}
 
 func Make_TypeRef_primitive(v Ident) TypeRef {
 	return TypeRef{
-		TypeRef_Primitive{v},
+		_TypeRef_Primitive{v},
 	}
 }
 
 func Make_TypeRef_typeParam(v Ident) TypeRef {
 	return TypeRef{
-		TypeRef_TypeParam{v},
+		_TypeRef_TypeParam{v},
 	}
 }
 
 func Make_TypeRef_reference(v ScopedName) TypeRef {
 	return TypeRef{
-		TypeRef_Reference{v},
+		_TypeRef_Reference{v},
 	}
 }
 
 func (un TypeRef) Cast_primitive() (Ident, bool) {
-	br, ok := un.Branch.(TypeRef_Primitive)
+	br, ok := un.Branch.(_TypeRef_Primitive)
 	return br.V, ok
 }
 
 func (un TypeRef) Cast_typeParam() (Ident, bool) {
-	br, ok := un.Branch.(TypeRef_TypeParam)
+	br, ok := un.Branch.(_TypeRef_TypeParam)
 	return br.V, ok
 }
 
 func (un TypeRef) Cast_reference() (ScopedName, bool) {
-	br, ok := un.Branch.(TypeRef_Reference)
+	br, ok := un.Branch.(_TypeRef_Reference)
 	return br.V, ok
 }
 
@@ -606,15 +606,15 @@ func Handle_TypeRef[T any](
 	_default func() T,
 ) T {
 	switch _b := _in.Branch.(type) {
-	case TypeRef_Primitive:
+	case _TypeRef_Primitive:
 		if primitive != nil {
 			return primitive(_b.V)
 		}
-	case TypeRef_TypeParam:
+	case _TypeRef_TypeParam:
 		if typeParam != nil {
 			return typeParam(_b.V)
 		}
-	case TypeRef_Reference:
+	case _TypeRef_Reference:
 		if reference != nil {
 			return reference(_b.V)
 		}
@@ -633,15 +633,15 @@ func HandleWithErr_TypeRef[T any](
 	_default func() (T, error),
 ) (T, error) {
 	switch _b := _in.Branch.(type) {
-	case TypeRef_Primitive:
+	case _TypeRef_Primitive:
 		if primitive != nil {
 			return primitive(_b.V)
 		}
-	case TypeRef_TypeParam:
+	case _TypeRef_TypeParam:
 		if typeParam != nil {
 			return typeParam(_b.V)
 		}
-	case TypeRef_Reference:
+	case _TypeRef_Reference:
 		if reference != nil {
 			return reference(_b.V)
 		}

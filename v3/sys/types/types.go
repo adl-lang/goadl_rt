@@ -16,42 +16,42 @@ type EitherBranch[T1 any, T2 any] interface {
 func (*Either[T1, T2]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "left":
-		return &Either_Left[T1]{}, nil
+		return &_Either_Left[T1]{}, nil
 	case "right":
-		return &Either_Right[T2]{}, nil
+		return &_Either_Right[T2]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type Either_Left[T1 any] struct {
+type _Either_Left[T1 any] struct {
 	V T1 `branch:"left"`
 }
-type Either_Right[T2 any] struct {
+type _Either_Right[T2 any] struct {
 	V T2 `branch:"right"`
 }
 
-func (Either_Left[T1]) isEitherBranch()  {}
-func (Either_Right[T2]) isEitherBranch() {}
+func (_Either_Left[T1]) isEitherBranch()  {}
+func (_Either_Right[T2]) isEitherBranch() {}
 
 func Make_Either_left[T1 any, T2 any](v T1) Either[T1, T2] {
 	return Either[T1, T2]{
-		Either_Left[T1]{v},
+		_Either_Left[T1]{v},
 	}
 }
 
 func Make_Either_right[T1 any, T2 any](v T2) Either[T1, T2] {
 	return Either[T1, T2]{
-		Either_Right[T2]{v},
+		_Either_Right[T2]{v},
 	}
 }
 
 func (un Either[T1, T2]) Cast_left() (T1, bool) {
-	br, ok := un.Branch.(Either_Left[T1])
+	br, ok := un.Branch.(_Either_Left[T1])
 	return br.V, ok
 }
 
 func (un Either[T1, T2]) Cast_right() (T2, bool) {
-	br, ok := un.Branch.(Either_Right[T2])
+	br, ok := un.Branch.(_Either_Right[T2])
 	return br.V, ok
 }
 
@@ -62,11 +62,11 @@ func Handle_Either[T1 any, T2 any, T any](
 	_default func() T,
 ) T {
 	switch _b := _in.Branch.(type) {
-	case Either_Left[T1]:
+	case _Either_Left[T1]:
 		if left != nil {
 			return left(_b.V)
 		}
-	case Either_Right[T2]:
+	case _Either_Right[T2]:
 		if right != nil {
 			return right(_b.V)
 		}
@@ -84,11 +84,11 @@ func HandleWithErr_Either[T1 any, T2 any, T any](
 	_default func() (T, error),
 ) (T, error) {
 	switch _b := _in.Branch.(type) {
-	case Either_Left[T1]:
+	case _Either_Left[T1]:
 		if left != nil {
 			return left(_b.V)
 		}
-	case Either_Right[T2]:
+	case _Either_Right[T2]:
 		if right != nil {
 			return right(_b.V)
 		}
@@ -136,42 +136,42 @@ type MaybeBranch[T any] interface {
 func (*Maybe[T]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "nothing":
-		return &Maybe_Nothing{}, nil
+		return &_Maybe_Nothing{}, nil
 	case "just":
-		return &Maybe_Just[T]{}, nil
+		return &_Maybe_Just[T]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type Maybe_Nothing struct {
+type _Maybe_Nothing struct {
 	V struct{} `branch:"nothing"`
 }
-type Maybe_Just[T any] struct {
+type _Maybe_Just[T any] struct {
 	V T `branch:"just"`
 }
 
-func (Maybe_Nothing) isMaybeBranch() {}
-func (Maybe_Just[T]) isMaybeBranch() {}
+func (_Maybe_Nothing) isMaybeBranch() {}
+func (_Maybe_Just[T]) isMaybeBranch() {}
 
 func Make_Maybe_nothing[T any](v struct{}) Maybe[T] {
 	return Maybe[T]{
-		Maybe_Nothing{v},
+		_Maybe_Nothing{v},
 	}
 }
 
 func Make_Maybe_just[T any](v T) Maybe[T] {
 	return Maybe[T]{
-		Maybe_Just[T]{v},
+		_Maybe_Just[T]{v},
 	}
 }
 
 func (un Maybe[T]) Cast_nothing() (struct{}, bool) {
-	br, ok := un.Branch.(Maybe_Nothing)
+	br, ok := un.Branch.(_Maybe_Nothing)
 	return br.V, ok
 }
 
 func (un Maybe[T]) Cast_just() (T, bool) {
-	br, ok := un.Branch.(Maybe_Just[T])
+	br, ok := un.Branch.(_Maybe_Just[T])
 	return br.V, ok
 }
 
@@ -182,11 +182,11 @@ func Handle_Maybe[T any, T2 any](
 	_default func() T2,
 ) T2 {
 	switch _b := _in.Branch.(type) {
-	case Maybe_Nothing:
+	case _Maybe_Nothing:
 		if nothing != nil {
 			return nothing(_b.V)
 		}
-	case Maybe_Just[T]:
+	case _Maybe_Just[T]:
 		if just != nil {
 			return just(_b.V)
 		}
@@ -204,11 +204,11 @@ func HandleWithErr_Maybe[T any, T2 any](
 	_default func() (T2, error),
 ) (T2, error) {
 	switch _b := _in.Branch.(type) {
-	case Maybe_Nothing:
+	case _Maybe_Nothing:
 		if nothing != nil {
 			return nothing(_b.V)
 		}
-	case Maybe_Just[T]:
+	case _Maybe_Just[T]:
 		if just != nil {
 			return just(_b.V)
 		}
@@ -256,42 +256,42 @@ type ResultBranch[T any, E any] interface {
 func (*Result[T, E]) MakeNewBranch(key string) (any, error) {
 	switch key {
 	case "ok":
-		return &Result_Ok[T]{}, nil
+		return &_Result_Ok[T]{}, nil
 	case "error":
-		return &Result_Error[E]{}, nil
+		return &_Result_Error[E]{}, nil
 	}
 	return nil, fmt.Errorf("unknown branch is : %s", key)
 }
 
-type Result_Ok[T any] struct {
+type _Result_Ok[T any] struct {
 	V T `branch:"ok"`
 }
-type Result_Error[E any] struct {
+type _Result_Error[E any] struct {
 	V E `branch:"error"`
 }
 
-func (Result_Ok[T]) isResultBranch()    {}
-func (Result_Error[E]) isResultBranch() {}
+func (_Result_Ok[T]) isResultBranch()    {}
+func (_Result_Error[E]) isResultBranch() {}
 
 func Make_Result_ok[T any, E any](v T) Result[T, E] {
 	return Result[T, E]{
-		Result_Ok[T]{v},
+		_Result_Ok[T]{v},
 	}
 }
 
 func Make_Result_error[T any, E any](v E) Result[T, E] {
 	return Result[T, E]{
-		Result_Error[E]{v},
+		_Result_Error[E]{v},
 	}
 }
 
 func (un Result[T, E]) Cast_ok() (T, bool) {
-	br, ok := un.Branch.(Result_Ok[T])
+	br, ok := un.Branch.(_Result_Ok[T])
 	return br.V, ok
 }
 
 func (un Result[T, E]) Cast_error() (E, bool) {
-	br, ok := un.Branch.(Result_Error[E])
+	br, ok := un.Branch.(_Result_Error[E])
 	return br.V, ok
 }
 
@@ -302,11 +302,11 @@ func Handle_Result[T any, E any, T2 any](
 	_default func() T2,
 ) T2 {
 	switch _b := _in.Branch.(type) {
-	case Result_Ok[T]:
+	case _Result_Ok[T]:
 		if ok != nil {
 			return ok(_b.V)
 		}
-	case Result_Error[E]:
+	case _Result_Error[E]:
 		if error != nil {
 			return error(_b.V)
 		}
@@ -324,11 +324,11 @@ func HandleWithErr_Result[T any, E any, T2 any](
 	_default func() (T2, error),
 ) (T2, error) {
 	switch _b := _in.Branch.(type) {
-	case Result_Ok[T]:
+	case _Result_Ok[T]:
 		if ok != nil {
 			return ok(_b.V)
 		}
-	case Result_Error[E]:
+	case _Result_Error[E]:
 		if error != nil {
 			return error(_b.V)
 		}
