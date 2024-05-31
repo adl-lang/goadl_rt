@@ -153,9 +153,9 @@ type _Maybe_Just[T any] struct {
 func (_Maybe_Nothing) isMaybeBranch() {}
 func (_Maybe_Just[T]) isMaybeBranch() {}
 
-func Make_Maybe_nothing[T any](v struct{}) Maybe[T] {
+func Make_Maybe_nothing[T any]() Maybe[T] {
 	return Maybe[T]{
-		_Maybe_Nothing{v},
+		_Maybe_Nothing{struct{}{}},
 	}
 }
 

@@ -23,9 +23,7 @@ func Texpr_GoCustomType() ATypeExpr[GoCustomType] {
 func AST_GoCustomType() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"GoCustomType",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_struct_(
 			adlast.MakeAll_Struct(
 				[]adlast.Ident{},
@@ -42,9 +40,7 @@ func AST_GoCustomType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "The Go struct to use\n\nNote currently interfaces are not supported\n"},
 					),
 					adlast.MakeAll_Field(
@@ -59,9 +55,7 @@ func AST_GoCustomType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "The Go structed which implements json Marshal and Unmarshal for the gotype.\n\nNote Marshal and Unmarshal must be implemented for the specified struct's nil ptr\n"},
 					),
 				},
@@ -97,9 +91,7 @@ func Texpr_GoHelperType() ATypeExpr[GoHelperType] {
 func AST_GoHelperType() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"GoHelperType",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_struct_(
 			adlast.MakeAll_Struct(
 				[]adlast.Ident{},
@@ -113,9 +105,7 @@ func AST_GoHelperType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -127,9 +117,7 @@ func AST_GoHelperType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -141,9 +129,7 @@ func AST_GoHelperType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -179,9 +165,7 @@ func Texpr_GoType() ATypeExpr[GoType] {
 func AST_GoType() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"GoType",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_struct_(
 			adlast.MakeAll_Struct(
 				[]adlast.Ident{},
@@ -195,9 +179,7 @@ func AST_GoType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -209,9 +191,7 @@ func AST_GoType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -223,9 +203,7 @@ func AST_GoType() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},

@@ -23,9 +23,7 @@ func Texpr_Annotations() ATypeExpr[Annotations] {
 func AST_Annotations() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Annotations",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_type_(
 			MakeAll_TypeDef(
 				[]Ident{},
@@ -86,9 +84,7 @@ func Texpr_Decl() ATypeExpr[Decl] {
 func AST_Decl() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Decl",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -105,9 +101,7 @@ func AST_Decl() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -129,9 +123,7 @@ func AST_Decl() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -146,9 +138,7 @@ func AST_Decl() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -163,9 +153,7 @@ func AST_Decl() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -201,9 +189,7 @@ func Texpr_DeclType() ATypeExpr[DeclType] {
 func AST_DeclType() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"DeclType",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_union_(
 			MakeAll_Union(
 				[]Ident{},
@@ -220,9 +206,7 @@ func AST_DeclType() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -237,9 +221,7 @@ func AST_DeclType() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -254,9 +236,7 @@ func AST_DeclType() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -271,9 +251,7 @@ func AST_DeclType() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -309,9 +287,7 @@ func Texpr_DeclVersions() ATypeExpr[DeclVersions] {
 func AST_DeclVersions() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"DeclVersions",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_type_(
 			MakeAll_TypeDef(
 				[]Ident{},
@@ -363,9 +339,7 @@ func Texpr_Field() ATypeExpr[Field] {
 func AST_Field() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Field",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -382,9 +356,7 @@ func AST_Field() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -399,9 +371,7 @@ func AST_Field() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -416,9 +386,7 @@ func AST_Field() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -440,9 +408,7 @@ func AST_Field() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -457,9 +423,7 @@ func AST_Field() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -495,9 +459,7 @@ func Texpr_Ident() ATypeExpr[Ident] {
 func AST_Ident() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Ident",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_type_(
 			MakeAll_TypeDef(
 				[]Ident{},
@@ -539,9 +501,7 @@ func Texpr_Import() ATypeExpr[Import] {
 func AST_Import() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Import",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_union_(
 			MakeAll_Union(
 				[]Ident{},
@@ -558,9 +518,7 @@ func AST_Import() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -575,9 +533,7 @@ func AST_Import() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -613,9 +569,7 @@ func Texpr_Module() ATypeExpr[Module] {
 func AST_Module() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Module",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -632,9 +586,7 @@ func AST_Module() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -656,9 +608,7 @@ func AST_Module() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -680,9 +630,7 @@ func AST_Module() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -697,9 +645,7 @@ func AST_Module() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -735,9 +681,7 @@ func Texpr_ModuleName() ATypeExpr[ModuleName] {
 func AST_ModuleName() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"ModuleName",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_type_(
 			MakeAll_TypeDef(
 				[]Ident{},
@@ -779,9 +723,7 @@ func Texpr_NewType() ATypeExpr[NewType] {
 func AST_NewType() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"NewType",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -805,9 +747,7 @@ func AST_NewType() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -822,9 +762,7 @@ func AST_NewType() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -846,9 +784,7 @@ func AST_NewType() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -884,9 +820,7 @@ func Texpr_ScopedDecl() ATypeExpr[ScopedDecl] {
 func AST_ScopedDecl() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"ScopedDecl",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -903,9 +837,7 @@ func AST_ScopedDecl() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -920,9 +852,7 @@ func AST_ScopedDecl() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -958,9 +888,7 @@ func Texpr_ScopedName() ATypeExpr[ScopedName] {
 func AST_ScopedName() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"ScopedName",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -977,9 +905,7 @@ func AST_ScopedName() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -994,9 +920,7 @@ func AST_ScopedName() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -1032,9 +956,7 @@ func Texpr_Struct() ATypeExpr[Struct] {
 func AST_Struct() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Struct",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -1058,9 +980,7 @@ func AST_Struct() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1082,9 +1002,7 @@ func AST_Struct() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -1120,9 +1038,7 @@ func Texpr_TypeDef() ATypeExpr[TypeDef] {
 func AST_TypeDef() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"TypeDef",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -1146,9 +1062,7 @@ func AST_TypeDef() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1163,9 +1077,7 @@ func AST_TypeDef() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -1201,9 +1113,7 @@ func Texpr_TypeExpr() ATypeExpr[TypeExpr] {
 func AST_TypeExpr() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"TypeExpr",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -1220,9 +1130,7 @@ func AST_TypeExpr() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1244,9 +1152,7 @@ func AST_TypeExpr() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -1282,9 +1188,7 @@ func Texpr_TypeRef() ATypeExpr[TypeRef] {
 func AST_TypeRef() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"TypeRef",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_union_(
 			MakeAll_Union(
 				[]Ident{},
@@ -1301,9 +1205,7 @@ func AST_TypeRef() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1318,9 +1220,7 @@ func AST_TypeRef() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1335,9 +1235,7 @@ func AST_TypeRef() adlast.ScopedDecl {
 							),
 							[]TypeExpr{},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -1373,9 +1271,7 @@ func Texpr_Union() ATypeExpr[Union] {
 func AST_Union() adlast.ScopedDecl {
 	decl := MakeAll_Decl(
 		"Union",
-		types.Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		types.Make_Maybe_nothing[uint32](),
 		Make_DeclType_struct_(
 			MakeAll_Struct(
 				[]Ident{},
@@ -1399,9 +1295,7 @@ func AST_Union() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					MakeAll_Field(
@@ -1423,9 +1317,7 @@ func AST_Union() adlast.ScopedDecl {
 								),
 							},
 						),
-						types.Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						types.Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},

@@ -22,9 +22,7 @@ func Texpr_Either[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[
 func AST_Either() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Either",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_union_(
 			adlast.MakeAll_Union(
 				[]adlast.Ident{
@@ -41,9 +39,7 @@ func AST_Either() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -55,9 +51,7 @@ func AST_Either() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -81,9 +75,7 @@ func init() {
 func AST_Map() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Map",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_newtype_(
 			adlast.MakeAll_NewType(
 				[]adlast.Ident{
@@ -119,9 +111,7 @@ func AST_Map() adlast.ScopedDecl {
 						),
 					},
 				),
-				Make_Maybe_nothing[any](
-					struct{}{},
-				),
+				Make_Maybe_nothing[any](),
 			),
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
@@ -158,9 +148,7 @@ func Texpr_MapEntry[K any, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[MapE
 func AST_MapEntry() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"MapEntry",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_struct_(
 			adlast.MakeAll_Struct(
 				[]adlast.Ident{
@@ -177,9 +165,7 @@ func AST_MapEntry() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -191,9 +177,7 @@ func AST_MapEntry() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -229,9 +213,7 @@ func Texpr_Maybe[T any](t ATypeExpr[T]) ATypeExpr[Maybe[T]] {
 func AST_Maybe() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Maybe",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_union_(
 			adlast.MakeAll_Union(
 				[]adlast.Ident{
@@ -247,9 +229,7 @@ func AST_Maybe() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -261,9 +241,7 @@ func AST_Maybe() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -299,9 +277,7 @@ func Texpr_Pair[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[Pa
 func AST_Pair() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Pair",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_struct_(
 			adlast.MakeAll_Struct(
 				[]adlast.Ident{
@@ -318,9 +294,7 @@ func AST_Pair() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -332,9 +306,7 @@ func AST_Pair() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -370,9 +342,7 @@ func Texpr_Result[T any, E any](t ATypeExpr[T], e ATypeExpr[E]) ATypeExpr[Result
 func AST_Result() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Result",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_union_(
 			adlast.MakeAll_Union(
 				[]adlast.Ident{
@@ -389,9 +359,7 @@ func AST_Result() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
@@ -403,9 +371,7 @@ func AST_Result() adlast.ScopedDecl {
 							),
 							[]adlast.TypeExpr{},
 						),
-						Make_Maybe_nothing[any](
-							struct{}{},
-						),
+						Make_Maybe_nothing[any](),
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 				},
@@ -429,9 +395,7 @@ func init() {
 func AST_Set() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Set",
-		Make_Maybe_nothing[uint32](
-			struct{}{},
-		),
+		Make_Maybe_nothing[uint32](),
 		adlast.Make_DeclType_newtype_(
 			adlast.MakeAll_NewType(
 				[]adlast.Ident{
@@ -450,9 +414,7 @@ func AST_Set() adlast.ScopedDecl {
 						),
 					},
 				),
-				Make_Maybe_nothing[any](
-					struct{}{},
-				),
+				Make_Maybe_nothing[any](),
 			),
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
