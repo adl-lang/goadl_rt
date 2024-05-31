@@ -46,12 +46,12 @@ func Make_Either_right[T1 any, T2 any](v T2) Either[T1, T2] {
 }
 
 func Handle_Either[T1 any, T2 any, T any](
-	_in EitherBranch[T1, T2],
+	_in Either[T1, T2],
 	left func(left T1) T,
 	right func(right T2) T,
 	_default func() T,
 ) T {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Either_Left[T1]:
 		if left != nil {
 			return left(_b.V)
@@ -68,12 +68,12 @@ func Handle_Either[T1 any, T2 any, T any](
 }
 
 func HandleWithErr_Either[T1 any, T2 any, T any](
-	_in EitherBranch[T1, T2],
+	_in Either[T1, T2],
 	left func(left T1) (T, error),
 	right func(right T2) (T, error),
 	_default func() (T, error),
 ) (T, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Either_Left[T1]:
 		if left != nil {
 			return left(_b.V)
@@ -156,12 +156,12 @@ func Make_Maybe_just[T any](v T) Maybe[T] {
 }
 
 func Handle_Maybe[T any, T2 any](
-	_in MaybeBranch[T],
+	_in Maybe[T],
 	nothing func(nothing struct{}) T2,
 	just func(just T) T2,
 	_default func() T2,
 ) T2 {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Maybe_Nothing:
 		if nothing != nil {
 			return nothing(_b.V)
@@ -178,12 +178,12 @@ func Handle_Maybe[T any, T2 any](
 }
 
 func HandleWithErr_Maybe[T any, T2 any](
-	_in MaybeBranch[T],
+	_in Maybe[T],
 	nothing func(nothing struct{}) (T2, error),
 	just func(just T) (T2, error),
 	_default func() (T2, error),
 ) (T2, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Maybe_Nothing:
 		if nothing != nil {
 			return nothing(_b.V)
@@ -266,12 +266,12 @@ func Make_Result_error[T any, E any](v E) Result[T, E] {
 }
 
 func Handle_Result[T any, E any, T2 any](
-	_in ResultBranch[T, E],
+	_in Result[T, E],
 	ok func(ok T) T2,
 	error func(error E) T2,
 	_default func() T2,
 ) T2 {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Result_Ok[T]:
 		if ok != nil {
 			return ok(_b.V)
@@ -288,12 +288,12 @@ func Handle_Result[T any, E any, T2 any](
 }
 
 func HandleWithErr_Result[T any, E any, T2 any](
-	_in ResultBranch[T, E],
+	_in Result[T, E],
 	ok func(ok T) (T2, error),
 	error func(error E) (T2, error),
 	_default func() (T2, error),
 ) (T2, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Result_Ok[T]:
 		if ok != nil {
 			return ok(_b.V)

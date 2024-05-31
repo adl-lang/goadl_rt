@@ -57,7 +57,7 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 
 func TypeParamsFromDecl(decl adlast.Decl) []string {
 	return adlast.Handle_DeclType[[]string](
-		decl.Type_.Branch,
+		decl.Type_,
 		func(struct_ adlast.Struct) []string {
 			return struct_.TypeParams
 		},

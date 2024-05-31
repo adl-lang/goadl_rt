@@ -99,7 +99,7 @@ func texprDecKey(
 	var recurse func(te adlast.TypeExpr)
 	recurse = func(te adlast.TypeExpr) {
 		adlast.Handle_TypeRef[*struct{}](
-			te.TypeRef.Branch,
+			te.TypeRef,
 			func(primitive string) *struct{} {
 				sb.WriteString(primitive + ":")
 				if len(te.Parameters) == 1 {
@@ -167,7 +167,7 @@ func buildNewDecodeBinding(
 	texpr adlast.TypeExpr,
 ) DecodeFunc {
 	return adlast.Handle_TypeRef[DecodeFunc](
-		texpr.TypeRef.Branch,
+		texpr.TypeRef,
 		func(primitive string) DecodeFunc {
 			return primitiveDecodeBinding(dres, primitive, texpr.Parameters)
 		},
@@ -194,7 +194,7 @@ func buildNewDecodeBinding(
 				return helper.BuildDecodeFunc(typeparamDec...)
 			}
 			return adlast.Handle_DeclType[DecodeFunc](
-				ast.Decl.Type_.Branch,
+				ast.Decl.Type_,
 				func(struct_ adlast.Struct) DecodeFunc {
 					return structDecodeBinding(dres, struct_, tbind)
 				},

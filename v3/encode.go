@@ -93,7 +93,7 @@ func texprEncKey(
 	var recurse func(te adlast.TypeExpr)
 	recurse = func(te adlast.TypeExpr) {
 		adlast.Handle_TypeRef[*struct{}](
-			te.TypeRef.Branch,
+			te.TypeRef,
 			func(primitive string) *struct{} {
 				sb.WriteString(primitive + ":")
 				if len(te.Parameters) == 1 {
@@ -160,7 +160,7 @@ func buildNewEncodeBinding(
 	texpr adlast.TypeExpr,
 ) EncoderFunc {
 	return adlast.Handle_TypeRef[EncoderFunc](
-		texpr.TypeRef.Branch,
+		texpr.TypeRef,
 		func(primitive string) EncoderFunc {
 			return primitiveEncodeBinding(dres, primitive, texpr.Parameters)
 		},
@@ -180,7 +180,7 @@ func buildNewEncodeBinding(
 				return helper.BuildEncodeFunc(typeparamEnc...)
 			}
 			return adlast.Handle_DeclType[EncoderFunc](
-				ast.Decl.Type_.Branch,
+				ast.Decl.Type_,
 				func(struct_ adlast.Struct) EncoderFunc {
 					return structEncodeBinding(dres, struct_, tbind)
 				},
@@ -599,7 +599,7 @@ func resolveKeyName(k reflect.Value) (string, error) {
 func isEnum(union adlast.Union) bool {
 	for _, field := range union.Fields {
 		isv := adlast.Handle_TypeRef[bool](
-			field.TypeExpr.TypeRef.Branch,
+			field.TypeExpr.TypeRef,
 			func(primitive string) bool {
 				return primitive == "Void"
 			},

@@ -110,14 +110,14 @@ func Make_DeclType_newtype_(v NewType) DeclType {
 }
 
 func Handle_DeclType[T any](
-	_in DeclTypeBranch,
+	_in DeclType,
 	struct_ func(struct_ Struct) T,
 	union_ func(union_ Union) T,
 	type_ func(type_ TypeDef) T,
 	newtype_ func(newtype_ NewType) T,
 	_default func() T,
 ) T {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case DeclType_Struct_:
 		if struct_ != nil {
 			return struct_(_b.V)
@@ -142,14 +142,14 @@ func Handle_DeclType[T any](
 }
 
 func HandleWithErr_DeclType[T any](
-	_in DeclTypeBranch,
+	_in DeclType,
 	struct_ func(struct_ Struct) (T, error),
 	union_ func(union_ Union) (T, error),
 	type_ func(type_ TypeDef) (T, error),
 	newtype_ func(newtype_ NewType) (T, error),
 	_default func() (T, error),
 ) (T, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case DeclType_Struct_:
 		if struct_ != nil {
 			return struct_(_b.V)
@@ -259,12 +259,12 @@ func Make_Import_scopedName(v ScopedName) Import {
 }
 
 func Handle_Import[T any](
-	_in ImportBranch,
+	_in Import,
 	moduleName func(moduleName ModuleName) T,
 	scopedName func(scopedName ScopedName) T,
 	_default func() T,
 ) T {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Import_ModuleName:
 		if moduleName != nil {
 			return moduleName(_b.V)
@@ -281,12 +281,12 @@ func Handle_Import[T any](
 }
 
 func HandleWithErr_Import[T any](
-	_in ImportBranch,
+	_in Import,
 	moduleName func(moduleName ModuleName) (T, error),
 	scopedName func(scopedName ScopedName) (T, error),
 	_default func() (T, error),
 ) (T, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case Import_ModuleName:
 		if moduleName != nil {
 			return moduleName(_b.V)
@@ -554,13 +554,13 @@ func Make_TypeRef_reference(v ScopedName) TypeRef {
 }
 
 func Handle_TypeRef[T any](
-	_in TypeRefBranch,
+	_in TypeRef,
 	primitive func(primitive Ident) T,
 	typeParam func(typeParam Ident) T,
 	reference func(reference ScopedName) T,
 	_default func() T,
 ) T {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case TypeRef_Primitive:
 		if primitive != nil {
 			return primitive(_b.V)
@@ -581,13 +581,13 @@ func Handle_TypeRef[T any](
 }
 
 func HandleWithErr_TypeRef[T any](
-	_in TypeRefBranch,
+	_in TypeRef,
 	primitive func(primitive Ident) (T, error),
 	typeParam func(typeParam Ident) (T, error),
 	reference func(reference ScopedName) (T, error),
 	_default func() (T, error),
 ) (T, error) {
-	switch _b := _in.(type) {
+	switch _b := _in.Branch.(type) {
 	case TypeRef_Primitive:
 		if primitive != nil {
 			return primitive(_b.V)
