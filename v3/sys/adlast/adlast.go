@@ -109,6 +109,26 @@ func Make_DeclType_newtype_(v NewType) DeclType {
 	}
 }
 
+func (un DeclType) Cast_struct_() (Struct, bool) {
+	br, ok := un.Branch.(DeclType_Struct_)
+	return br.V, ok
+}
+
+func (un DeclType) Cast_union_() (Union, bool) {
+	br, ok := un.Branch.(DeclType_Union_)
+	return br.V, ok
+}
+
+func (un DeclType) Cast_type_() (TypeDef, bool) {
+	br, ok := un.Branch.(DeclType_Type_)
+	return br.V, ok
+}
+
+func (un DeclType) Cast_newtype_() (NewType, bool) {
+	br, ok := un.Branch.(DeclType_Newtype_)
+	return br.V, ok
+}
+
 func Handle_DeclType[T any](
 	_in DeclType,
 	struct_ func(struct_ Struct) T,
@@ -256,6 +276,16 @@ func Make_Import_scopedName(v ScopedName) Import {
 	return Import{
 		Import_ScopedName{v},
 	}
+}
+
+func (un Import) Cast_moduleName() (ModuleName, bool) {
+	br, ok := un.Branch.(Import_ModuleName)
+	return br.V, ok
+}
+
+func (un Import) Cast_scopedName() (ScopedName, bool) {
+	br, ok := un.Branch.(Import_ScopedName)
+	return br.V, ok
 }
 
 func Handle_Import[T any](
@@ -551,6 +581,21 @@ func Make_TypeRef_reference(v ScopedName) TypeRef {
 	return TypeRef{
 		TypeRef_Reference{v},
 	}
+}
+
+func (un TypeRef) Cast_primitive() (Ident, bool) {
+	br, ok := un.Branch.(TypeRef_Primitive)
+	return br.V, ok
+}
+
+func (un TypeRef) Cast_typeParam() (Ident, bool) {
+	br, ok := un.Branch.(TypeRef_TypeParam)
+	return br.V, ok
+}
+
+func (un TypeRef) Cast_reference() (ScopedName, bool) {
+	br, ok := un.Branch.(TypeRef_Reference)
+	return br.V, ok
 }
 
 func Handle_TypeRef[T any](

@@ -34,9 +34,11 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 			parameters[i] = recurse(binding, te.Parameters[i])
 		}
 
-		if tp, ok := te.TypeRef.Branch.(adlast.TypeRef_TypeParam); ok {
+		if tp, ok := te.TypeRef.Cast_typeParam(); ok {
+			// if tp, ok := te.TypeRef.Branch.(adlast.TypeRef_TypeParam); ok {
+			// tp := tp.V
 			for i, b := range binding {
-				if b.Name == tp.V {
+				if b.Name == tp {
 					if len(te.Parameters) != 0 {
 						panic(fmt.Errorf("type param cannot have type params, not a concrete type"))
 					}
@@ -44,7 +46,7 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 					return b.Value
 				}
 			}
-			panic(fmt.Errorf("type param not found %v", tp.V))
+			panic(fmt.Errorf("type param not found %v", tp))
 		}
 
 		return adlast.TypeExpr{

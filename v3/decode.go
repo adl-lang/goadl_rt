@@ -11,7 +11,6 @@ import (
 
 	. "github.com/adl-lang/goadl_rt/v3/adljson"
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
-	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
 type JsonDecodeBinder[T any] struct {
@@ -336,7 +335,8 @@ func structDecodeBinding(
 					}
 					continue
 				}
-				if _, ok := any(f.Default.Branch).(types.Maybe_Nothing); ok {
+				if _, ok := f.Default.Cast_nothing(); ok {
+					// if _, ok := any(f.Default.Branch).(types.Maybe_Nothing); ok {
 					return fmt.Errorf("path %v, required field missing '%v'", path, f.SerializedName)
 				}
 				// set from default field value

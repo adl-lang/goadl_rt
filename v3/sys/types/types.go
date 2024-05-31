@@ -45,6 +45,16 @@ func Make_Either_right[T1 any, T2 any](v T2) Either[T1, T2] {
 	}
 }
 
+func (un Either[T1, T2]) Cast_left() (T1, bool) {
+	br, ok := un.Branch.(Either_Left[T1])
+	return br.V, ok
+}
+
+func (un Either[T1, T2]) Cast_right() (T2, bool) {
+	br, ok := un.Branch.(Either_Right[T2])
+	return br.V, ok
+}
+
 func Handle_Either[T1 any, T2 any, T any](
 	_in Either[T1, T2],
 	left func(left T1) T,
@@ -155,6 +165,16 @@ func Make_Maybe_just[T any](v T) Maybe[T] {
 	}
 }
 
+func (un Maybe[T]) Cast_nothing() (struct{}, bool) {
+	br, ok := un.Branch.(Maybe_Nothing)
+	return br.V, ok
+}
+
+func (un Maybe[T]) Cast_just() (T, bool) {
+	br, ok := un.Branch.(Maybe_Just[T])
+	return br.V, ok
+}
+
 func Handle_Maybe[T any, T2 any](
 	_in Maybe[T],
 	nothing func(nothing struct{}) T2,
@@ -263,6 +283,16 @@ func Make_Result_error[T any, E any](v E) Result[T, E] {
 	return Result[T, E]{
 		Result_Error[E]{v},
 	}
+}
+
+func (un Result[T, E]) Cast_ok() (T, bool) {
+	br, ok := un.Branch.(Result_Ok[T])
+	return br.V, ok
+}
+
+func (un Result[T, E]) Cast_error() (E, bool) {
+	br, ok := un.Branch.(Result_Error[E])
+	return br.V, ok
 }
 
 func Handle_Result[T any, E any, T2 any](
