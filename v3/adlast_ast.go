@@ -21,48 +21,43 @@ func Texpr_Annotations() ATypeExpr[Annotations] {
 }
 
 func AST_Annotations() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Annotations",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Type_{
-				V: TypeDef{
-					TypeParams: []Ident{},
-					TypeExpr: TypeExpr{
-						TypeRef: TypeRef{
-							Branch: TypeRef_Reference{
-								V: ScopedName{
-									ModuleName: "sys.types",
-									Name:       "Map",
-								}},
-						},
-						Parameters: []TypeExpr{
-							TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ScopedName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Json"},
-								},
-								Parameters: []TypeExpr{},
-							},
-						},
+	decl := MakeAll_Decl(
+		"Annotations",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_type_(
+			MakeAll_TypeDef(
+				[]Ident{},
+				MakeAll_TypeExpr(
+					Make_TypeRef_reference(
+						MakeAll_ScopedName(
+							"sys.types",
+							"Map",
+						),
+					),
+					[]TypeExpr{
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ScopedName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Json",
+							),
+							[]TypeExpr{},
+						),
 					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -89,106 +84,95 @@ func Texpr_Decl() ATypeExpr[Decl] {
 }
 
 func AST_Decl() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Decl",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "name",
-							SerializedName: "name",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
+	decl := MakeAll_Decl(
+		"Decl",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"name",
+						"name",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"version",
+						"version",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.types",
+									"Maybe",
+								),
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_primitive(
+										"Word32",
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "version",
-							SerializedName: "version",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.types",
-											Name:       "Maybe",
-										}},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Primitive{
-												V: "Word32"},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "type_",
-							SerializedName: "type_",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "DeclType",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "annotations",
-							SerializedName: "annotations",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Annotations",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"type_",
+						"type_",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"DeclType",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"annotations",
+						"annotations",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Annotations",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -215,98 +199,88 @@ func Texpr_DeclType() ATypeExpr[DeclType] {
 }
 
 func AST_DeclType() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "DeclType",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Union_{
-				V: Union{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "struct_",
-							SerializedName: "struct_",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Struct",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "union_",
-							SerializedName: "union_",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Union",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "type_",
-							SerializedName: "type_",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "TypeDef",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "newtype_",
-							SerializedName: "newtype_",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "NewType",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"DeclType",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_union_(
+			MakeAll_Union(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"struct_",
+						"struct_",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Struct",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"union_",
+						"union_",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Union",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"type_",
+						"type_",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeDef",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"newtype_",
+						"newtype_",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"NewType",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -333,38 +307,34 @@ func Texpr_DeclVersions() ATypeExpr[DeclVersions] {
 }
 
 func AST_DeclVersions() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "DeclVersions",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Type_{
-				V: TypeDef{
-					TypeParams: []Ident{},
-					TypeExpr: TypeExpr{
-						TypeRef: TypeRef{
-							Branch: TypeRef_Primitive{
-								V: "Vector"},
-						},
-						Parameters: []TypeExpr{
-							TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Decl",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-						},
+	decl := MakeAll_Decl(
+		"DeclVersions",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_type_(
+			MakeAll_TypeDef(
+				[]Ident{},
+				MakeAll_TypeExpr(
+					Make_TypeRef_primitive(
+						"Vector",
+					),
+					[]TypeExpr{
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Decl",
+								),
+							),
+							[]TypeExpr{},
+						),
 					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -391,125 +361,112 @@ func Texpr_Field() ATypeExpr[Field] {
 }
 
 func AST_Field() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Field",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "name",
-							SerializedName: "name",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
+	decl := MakeAll_Decl(
+		"Field",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"name",
+						"name",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"serializedName",
+						"serializedName",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"typeExpr",
+						"typeExpr",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeExpr",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"default",
+						"default",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.types",
+									"Maybe",
+								),
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_primitive(
+										"Json",
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "serializedName",
-							SerializedName: "serializedName",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "typeExpr",
-							SerializedName: "typeExpr",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "TypeExpr",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "default",
-							SerializedName: "default",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.types",
-											Name:       "Maybe",
-										}},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Primitive{
-												V: "Json"},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "annotations",
-							SerializedName: "annotations",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Annotations",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"annotations",
+						"annotations",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Annotations",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -536,27 +493,24 @@ func Texpr_Ident() ATypeExpr[Ident] {
 }
 
 func AST_Ident() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Ident",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Type_{
-				V: TypeDef{
-					TypeParams: []Ident{},
-					TypeExpr: TypeExpr{
-						TypeRef: TypeRef{
-							Branch: TypeRef_Primitive{
-								V: "String"},
-						},
-						Parameters: []TypeExpr{},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"Ident",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_type_(
+			MakeAll_TypeDef(
+				[]Ident{},
+				MakeAll_TypeExpr(
+					Make_TypeRef_primitive(
+						"String",
+					),
+					[]TypeExpr{},
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -583,60 +537,54 @@ func Texpr_Import() ATypeExpr[Import] {
 }
 
 func AST_Import() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Import",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Union_{
-				V: Union{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "moduleName",
-							SerializedName: "moduleName",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ModuleName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "scopedName",
-							SerializedName: "scopedName",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ScopedName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"Import",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_union_(
+			MakeAll_Union(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"moduleName",
+						"moduleName",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ModuleName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"scopedName",
+						"scopedName",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ScopedName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -663,114 +611,102 @@ func Texpr_Module() ATypeExpr[Module] {
 }
 
 func AST_Module() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Module",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "name",
-							SerializedName: "name",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ModuleName",
-										}},
-								},
-								Parameters: []TypeExpr{},
+	decl := MakeAll_Decl(
+		"Module",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"name",
+						"name",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ModuleName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"imports",
+						"imports",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Import",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"decls",
+						"decls",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"StringMap",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Decl",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "imports",
-							SerializedName: "imports",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Import",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "decls",
-							SerializedName: "decls",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "StringMap"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Decl",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "annotations",
-							SerializedName: "annotations",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Annotations",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"annotations",
+						"annotations",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Annotations",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -797,27 +733,24 @@ func Texpr_ModuleName() ATypeExpr[ModuleName] {
 }
 
 func AST_ModuleName() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "ModuleName",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Type_{
-				V: TypeDef{
-					TypeParams: []Ident{},
-					TypeExpr: TypeExpr{
-						TypeRef: TypeRef{
-							Branch: TypeRef_Primitive{
-								V: "String"},
-						},
-						Parameters: []TypeExpr{},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"ModuleName",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_type_(
+			MakeAll_TypeDef(
+				[]Ident{},
+				MakeAll_TypeExpr(
+					Make_TypeRef_primitive(
+						"String",
+					),
+					[]TypeExpr{},
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -844,95 +777,85 @@ func Texpr_NewType() ATypeExpr[NewType] {
 }
 
 func AST_NewType() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "NewType",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "typeParams",
-							SerializedName: "typeParams",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Ident",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
+	decl := MakeAll_Decl(
+		"NewType",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"typeParams",
+						"typeParams",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Ident",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"typeExpr",
+						"typeExpr",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeExpr",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"default",
+						"default",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.types",
+									"Maybe",
+								),
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_primitive(
+										"Json",
+									),
+									[]TypeExpr{},
+								),
 							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "typeExpr",
-							SerializedName: "typeExpr",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "TypeExpr",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "default",
-							SerializedName: "default",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.types",
-											Name:       "Maybe",
-										}},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Primitive{
-												V: "Json"},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -959,60 +882,54 @@ func Texpr_ScopedDecl() ATypeExpr[ScopedDecl] {
 }
 
 func AST_ScopedDecl() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "ScopedDecl",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "moduleName",
-							SerializedName: "moduleName",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ModuleName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "decl",
-							SerializedName: "decl",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Decl",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"ScopedDecl",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"moduleName",
+						"moduleName",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ModuleName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"decl",
+						"decl",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Decl",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1039,60 +956,54 @@ func Texpr_ScopedName() ATypeExpr[ScopedName] {
 }
 
 func AST_ScopedName() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "ScopedName",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "moduleName",
-							SerializedName: "moduleName",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ModuleName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "name",
-							SerializedName: "name",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"ScopedName",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"moduleName",
+						"moduleName",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ModuleName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"name",
+						"name",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1119,76 +1030,68 @@ func Texpr_Struct() ATypeExpr[Struct] {
 }
 
 func AST_Struct() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Struct",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "typeParams",
-							SerializedName: "typeParams",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Ident",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
+	decl := MakeAll_Decl(
+		"Struct",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"typeParams",
+						"typeParams",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Ident",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"fields",
+						"fields",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Field",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "fields",
-							SerializedName: "fields",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Field",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1215,68 +1118,61 @@ func Texpr_TypeDef() ATypeExpr[TypeDef] {
 }
 
 func AST_TypeDef() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "TypeDef",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "typeParams",
-							SerializedName: "typeParams",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Ident",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
+	decl := MakeAll_Decl(
+		"TypeDef",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"typeParams",
+						"typeParams",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Ident",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "typeExpr",
-							SerializedName: "typeExpr",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "TypeExpr",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"typeExpr",
+						"typeExpr",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeExpr",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1303,68 +1199,61 @@ func Texpr_TypeExpr() ATypeExpr[TypeExpr] {
 }
 
 func AST_TypeExpr() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "TypeExpr",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "typeRef",
-							SerializedName: "typeRef",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "TypeRef",
-										}},
-								},
-								Parameters: []TypeExpr{},
+	decl := MakeAll_Decl(
+		"TypeExpr",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"typeRef",
+						"typeRef",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeRef",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"parameters",
+						"parameters",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"TypeExpr",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "parameters",
-							SerializedName: "parameters",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "TypeExpr",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1391,79 +1280,71 @@ func Texpr_TypeRef() ATypeExpr[TypeRef] {
 }
 
 func AST_TypeRef() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "TypeRef",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Union_{
-				V: Union{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "primitive",
-							SerializedName: "primitive",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "typeParam",
-							SerializedName: "typeParam",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "Ident",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "reference",
-							SerializedName: "reference",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Reference{
-										V: ScopedName{
-											ModuleName: "sys.adlast",
-											Name:       "ScopedName",
-										}},
-								},
-								Parameters: []TypeExpr{},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+	decl := MakeAll_Decl(
+		"TypeRef",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_union_(
+			MakeAll_Union(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"primitive",
+						"primitive",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"typeParam",
+						"typeParam",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"Ident",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"reference",
+						"reference",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"ScopedName",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,
@@ -1490,76 +1371,68 @@ func Texpr_Union() ATypeExpr[Union] {
 }
 
 func AST_Union() adlast.ScopedDecl {
-	decl := Decl{
-		Name: "Union",
-		Version: types.Maybe[uint32]{
-			Branch: types.Maybe_Nothing{
-				V: struct{}{}},
-		},
-		Type_: DeclType{
-			Branch: DeclType_Struct_{
-				V: Struct{
-					TypeParams: []Ident{},
-					Fields: []Field{
-						Field{
-							Name:           "typeParams",
-							SerializedName: "typeParams",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Ident",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
+	decl := MakeAll_Decl(
+		"Union",
+		types.Make_Maybe_nothing[uint32](
+			struct{}{},
+		),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{},
+				[]Field{
+					MakeAll_Field(
+						"typeParams",
+						"typeParams",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Ident",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					MakeAll_Field(
+						"fields",
+						"fields",
+						MakeAll_TypeExpr(
+							Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]TypeExpr{
+								MakeAll_TypeExpr(
+									Make_TypeRef_reference(
+										MakeAll_ScopedName(
+											"sys.adlast",
+											"Field",
+										),
+									),
+									[]TypeExpr{},
+								),
 							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-						Field{
-							Name:           "fields",
-							SerializedName: "fields",
-							TypeExpr: TypeExpr{
-								TypeRef: TypeRef{
-									Branch: TypeRef_Primitive{
-										V: "Vector"},
-								},
-								Parameters: []TypeExpr{
-									TypeExpr{
-										TypeRef: TypeRef{
-											Branch: TypeRef_Reference{
-												V: ScopedName{
-													ModuleName: "sys.adlast",
-													Name:       "Field",
-												}},
-										},
-										Parameters: []TypeExpr{},
-									},
-								},
-							},
-							Default: types.Maybe[any]{
-								Branch: types.Maybe_Nothing{
-									V: struct{}{}},
-							},
-							Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-						},
-					},
-				}},
-		},
-		Annotations: customtypes.MapMap[adlast.ScopedName, any]{},
-	}
+						),
+						types.Make_Maybe_nothing[any](
+							struct{}{},
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.adlast",
 		Decl:       decl,

@@ -104,7 +104,7 @@ type MapEntry[K any, V any] struct {
 	Value V `json:"v"`
 }
 
-func New_MapEntry[K any, V any](
+func MakeAll_MapEntry[K any, V any](
 	key K,
 	value V,
 ) MapEntry[K, V] {
@@ -224,7 +224,7 @@ type Pair[T1 any, T2 any] struct {
 	V2 T2 `json:"v2"`
 }
 
-func New_Pair[T1 any, T2 any](
+func MakeAll_Pair[T1 any, T2 any](
 	v1 T1,
 	v2 T2,
 ) Pair[T1, T2] {

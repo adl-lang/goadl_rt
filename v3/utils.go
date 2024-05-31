@@ -11,6 +11,10 @@ type TypeBinding struct {
 	Value adlast.TypeExpr
 }
 
+func Addr[T any](v T) *T {
+	return &v
+}
+
 func CreateDecBoundTypeParams(
 	paramNames []string,
 	paramTypes []adlast.TypeExpr,

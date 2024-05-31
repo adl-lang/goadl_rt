@@ -16,7 +16,7 @@ type Decl struct {
 	Annotations Annotations         `json:"annotations"`
 }
 
-func New_Decl(
+func MakeAll_Decl(
 	name Ident,
 	version types.Maybe[uint32],
 	type_ DeclType,
@@ -203,7 +203,7 @@ type Field struct {
 	Annotations    Annotations      `json:"annotations"`
 }
 
-func New_Field(
+func MakeAll_Field(
 	name Ident,
 	serializedname Ident,
 	typeexpr TypeExpr,
@@ -339,7 +339,7 @@ type Module struct {
 	Annotations Annotations     `json:"annotations"`
 }
 
-func New_Module(
+func MakeAll_Module(
 	name ModuleName,
 	imports []Import,
 	decls map[string]Decl,
@@ -376,7 +376,7 @@ type NewType struct {
 	Default    types.Maybe[any] `json:"default"`
 }
 
-func New_NewType(
+func MakeAll_NewType(
 	typeparams []Ident,
 	typeexpr TypeExpr,
 	default_ types.Maybe[any],
@@ -406,7 +406,7 @@ type ScopedDecl struct {
 	Decl       Decl       `json:"decl"`
 }
 
-func New_ScopedDecl(
+func MakeAll_ScopedDecl(
 	modulename ModuleName,
 	decl Decl,
 ) ScopedDecl {
@@ -432,7 +432,7 @@ type ScopedName struct {
 	Name       Ident      `json:"name"`
 }
 
-func New_ScopedName(
+func MakeAll_ScopedName(
 	modulename ModuleName,
 	name Ident,
 ) ScopedName {
@@ -458,7 +458,7 @@ type Struct struct {
 	Fields     []Field `json:"fields"`
 }
 
-func New_Struct(
+func MakeAll_Struct(
 	typeparams []Ident,
 	fields []Field,
 ) Struct {
@@ -484,7 +484,7 @@ type TypeDef struct {
 	TypeExpr   TypeExpr `json:"typeExpr"`
 }
 
-func New_TypeDef(
+func MakeAll_TypeDef(
 	typeparams []Ident,
 	typeexpr TypeExpr,
 ) TypeDef {
@@ -510,7 +510,7 @@ type TypeExpr struct {
 	Parameters []TypeExpr `json:"parameters"`
 }
 
-func New_TypeExpr(
+func MakeAll_TypeExpr(
 	typeref TypeRef,
 	parameters []TypeExpr,
 ) TypeExpr {
@@ -657,7 +657,7 @@ type Union struct {
 	Fields     []Field `json:"fields"`
 }
 
-func New_Union(
+func MakeAll_Union(
 	typeparams []Ident,
 	fields []Field,
 ) Union {

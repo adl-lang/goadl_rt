@@ -8,7 +8,7 @@ type GoCustomType struct {
 	Helpers GoHelperType `json:"helpers"`
 }
 
-func New_GoCustomType(
+func MakeAll_GoCustomType(
 	gotype GoType,
 	helpers GoHelperType,
 ) GoCustomType {
@@ -35,7 +35,7 @@ type GoHelperType struct {
 	Import_path string `json:"import_path"`
 }
 
-func New_GoHelperType(
+func MakeAll_GoHelperType(
 	name string,
 	pkg string,
 	import_path string,
@@ -66,7 +66,7 @@ type GoType struct {
 	Import_path string `json:"import_path"`
 }
 
-func New_GoType(
+func MakeAll_GoType(
 	name string,
 	pkg string,
 	import_path string,
