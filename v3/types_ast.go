@@ -8,18 +8,14 @@ import (
 )
 
 func Texpr_Either[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[Either[T1, T2]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Either"),
+		),
+		[]adlast.TypeExpr{t1.Value, t2.Value},
+	)
 	return ATypeExpr[Either[T1, T2]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Either",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{t1.Value, t2.Value},
-		},
+		Value: te,
 	}
 }
 
@@ -161,18 +157,14 @@ func init() {
 }
 
 func Texpr_MapEntry[K any, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[MapEntry[K, V]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "MapEntry"),
+		),
+		[]adlast.TypeExpr{k.Value, v.Value},
+	)
 	return ATypeExpr[MapEntry[K, V]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "MapEntry",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{k.Value, v.Value},
-		},
+		Value: te,
 	}
 }
 
@@ -242,18 +234,14 @@ func init() {
 }
 
 func Texpr_Maybe[T any](t ATypeExpr[T]) ATypeExpr[Maybe[T]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Maybe"),
+		),
+		[]adlast.TypeExpr{t.Value},
+	)
 	return ATypeExpr[Maybe[T]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Maybe",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{t.Value},
-		},
+		Value: te,
 	}
 }
 
@@ -322,18 +310,14 @@ func init() {
 }
 
 func Texpr_Pair[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[Pair[T1, T2]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Pair"),
+		),
+		[]adlast.TypeExpr{t1.Value, t2.Value},
+	)
 	return ATypeExpr[Pair[T1, T2]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Pair",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{t1.Value, t2.Value},
-		},
+		Value: te,
 	}
 }
 
@@ -403,18 +387,14 @@ func init() {
 }
 
 func Texpr_Result[T any, E any](t ATypeExpr[T], e ATypeExpr[E]) ATypeExpr[Result[T, E]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Result"),
+		),
+		[]adlast.TypeExpr{t.Value, e.Value},
+	)
 	return ATypeExpr[Result[T, E]]{
-		Value: adlast.TypeExpr{
-			TypeRef: adlast.TypeRef{
-				Branch: adlast.TypeRef_Reference{
-					V: adlast.ScopedName{
-						ModuleName: "sys.types",
-						Name:       "Result",
-					},
-				},
-			},
-			Parameters: []adlast.TypeExpr{t.Value, e.Value},
-		},
+		Value: te,
 	}
 }
 
