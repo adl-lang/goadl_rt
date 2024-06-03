@@ -22,7 +22,7 @@ type JsonDecodeBinderUnchecked struct {
 }
 
 func CreateJsonDecodeBinding[T any](
-	texpr ATypeExpr[T],
+	texpr adlast.ATypeExpr[T],
 	dres Resolver,
 ) JsonDecodeBinder[T] {
 	return JsonDecodeBinder[T]{

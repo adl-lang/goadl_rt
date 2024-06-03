@@ -8,16 +8,14 @@ import (
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
-func Texpr_GoCustomType() ATypeExpr[GoCustomType] {
+func Texpr_GoCustomType() adlast.ATypeExpr[GoCustomType] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[GoCustomType]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[GoCustomType](te)
 }
 
 func AST_GoCustomType() adlast.ScopedDecl {
@@ -73,16 +71,14 @@ func init() {
 	)
 }
 
-func Texpr_GoHelperType() ATypeExpr[GoHelperType] {
+func Texpr_GoHelperType() adlast.ATypeExpr[GoHelperType] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("adlc.config.go_", "GoHelperType"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[GoHelperType]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[GoHelperType](te)
 }
 
 func AST_GoHelperType() adlast.ScopedDecl {
@@ -144,16 +140,14 @@ func init() {
 	)
 }
 
-func Texpr_GoType() ATypeExpr[GoType] {
+func Texpr_GoType() adlast.ATypeExpr[GoType] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("adlc.config.go_", "GoType"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[GoType]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[GoType](te)
 }
 
 func AST_GoType() adlast.ScopedDecl {

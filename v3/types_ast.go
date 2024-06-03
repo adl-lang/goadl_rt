@@ -7,16 +7,14 @@ import (
 	. "github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
-func Texpr_Either[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[Either[T1, T2]] {
+func Texpr_Either[T1 any, T2 any](t1 adlast.ATypeExpr[T1], t2 adlast.ATypeExpr[T2]) adlast.ATypeExpr[Either[T1, T2]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Either"),
 		),
 		[]adlast.TypeExpr{t1.Value, t2.Value},
 	)
-	return ATypeExpr[Either[T1, T2]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Either[T1, T2]](te)
 }
 
 func AST_Either() adlast.ScopedDecl {
@@ -69,16 +67,14 @@ func init() {
 	)
 }
 
-func Texpr_Map[K comparable, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[customtypes.MapMap[K, V]] {
+func Texpr_Map[K comparable, V any](k adlast.ATypeExpr[K], v adlast.ATypeExpr[V]) adlast.ATypeExpr[customtypes.MapMap[K, V]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Map"),
 		),
 		[]adlast.TypeExpr{k.Value, v.Value},
 	)
-	return ATypeExpr[customtypes.MapMap[K, V]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[customtypes.MapMap[K, V]](te)
 }
 
 func AST_Map() adlast.ScopedDecl {
@@ -139,16 +135,14 @@ func init() {
 	)
 }
 
-func Texpr_MapEntry[K any, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[MapEntry[K, V]] {
+func Texpr_MapEntry[K any, V any](k adlast.ATypeExpr[K], v adlast.ATypeExpr[V]) adlast.ATypeExpr[MapEntry[K, V]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "MapEntry"),
 		),
 		[]adlast.TypeExpr{k.Value, v.Value},
 	)
-	return ATypeExpr[MapEntry[K, V]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[MapEntry[K, V]](te)
 }
 
 func AST_MapEntry() adlast.ScopedDecl {
@@ -201,16 +195,14 @@ func init() {
 	)
 }
 
-func Texpr_Maybe[T any](t ATypeExpr[T]) ATypeExpr[Maybe[T]] {
+func Texpr_Maybe[T any](t adlast.ATypeExpr[T]) adlast.ATypeExpr[Maybe[T]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Maybe"),
 		),
 		[]adlast.TypeExpr{t.Value},
 	)
-	return ATypeExpr[Maybe[T]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Maybe[T]](te)
 }
 
 func AST_Maybe() adlast.ScopedDecl {
@@ -262,16 +254,14 @@ func init() {
 	)
 }
 
-func Texpr_Pair[T1 any, T2 any](t1 ATypeExpr[T1], t2 ATypeExpr[T2]) ATypeExpr[Pair[T1, T2]] {
+func Texpr_Pair[T1 any, T2 any](t1 adlast.ATypeExpr[T1], t2 adlast.ATypeExpr[T2]) adlast.ATypeExpr[Pair[T1, T2]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Pair"),
 		),
 		[]adlast.TypeExpr{t1.Value, t2.Value},
 	)
-	return ATypeExpr[Pair[T1, T2]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Pair[T1, T2]](te)
 }
 
 func AST_Pair() adlast.ScopedDecl {
@@ -324,16 +314,14 @@ func init() {
 	)
 }
 
-func Texpr_Result[T any, E any](t ATypeExpr[T], e ATypeExpr[E]) ATypeExpr[Result[T, E]] {
+func Texpr_Result[T any, E any](t adlast.ATypeExpr[T], e adlast.ATypeExpr[E]) adlast.ATypeExpr[Result[T, E]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Result"),
 		),
 		[]adlast.TypeExpr{t.Value, e.Value},
 	)
-	return ATypeExpr[Result[T, E]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Result[T, E]](te)
 }
 
 func AST_Result() adlast.ScopedDecl {
@@ -386,16 +374,14 @@ func init() {
 	)
 }
 
-func Texpr_Set[T comparable](t ATypeExpr[T]) ATypeExpr[customtypes.MapSet[T]] {
+func Texpr_Set[T comparable](t adlast.ATypeExpr[T]) adlast.ATypeExpr[customtypes.MapSet[T]] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.types", "Set"),
 		),
 		[]adlast.TypeExpr{t.Value},
 	)
-	return ATypeExpr[customtypes.MapSet[T]]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[customtypes.MapSet[T]](te)
 }
 
 func AST_Set() adlast.ScopedDecl {

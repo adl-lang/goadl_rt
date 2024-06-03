@@ -8,16 +8,64 @@ import (
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
-func Texpr_Annotations() ATypeExpr[Annotations] {
+func Texpr_ATypeExpr[T any](t adlast.ATypeExpr[T]) adlast.ATypeExpr[ATypeExpr[T]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.adlast", "ATypeExpr"),
+		),
+		[]adlast.TypeExpr{t.Value},
+	)
+	return adlast.Make_ATypeExpr[ATypeExpr[T]](te)
+}
+
+func AST_ATypeExpr() adlast.ScopedDecl {
+	decl := MakeAll_Decl(
+		"ATypeExpr",
+		types.Make_Maybe_nothing[uint32](),
+		Make_DeclType_struct_(
+			MakeAll_Struct(
+				[]Ident{
+					"T",
+				},
+				[]Field{
+					MakeAll_Field(
+						"value",
+						"value",
+						MakeAll_TypeExpr(
+							Make_TypeRef_reference(
+								MakeAll_ScopedName(
+									"sys.adlast",
+									"TypeExpr",
+								),
+							),
+							[]TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
+}
+
+func init() {
+	RESOLVER.Register(
+		adlast.Make_ScopedName("sys.adlast", "ATypeExpr"),
+		AST_ATypeExpr(),
+	)
+}
+
+func Texpr_Annotations() adlast.ATypeExpr[Annotations] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Annotations"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Annotations]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Annotations](te)
 }
 
 func AST_Annotations() adlast.ScopedDecl {
@@ -66,16 +114,14 @@ func init() {
 	)
 }
 
-func Texpr_Decl() ATypeExpr[Decl] {
+func Texpr_Decl() adlast.ATypeExpr[Decl] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Decl"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Decl]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Decl](te)
 }
 
 func AST_Decl() adlast.ScopedDecl {
@@ -168,16 +214,14 @@ func init() {
 	)
 }
 
-func Texpr_DeclType() ATypeExpr[DeclType] {
+func Texpr_DeclType() adlast.ATypeExpr[DeclType] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "DeclType"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[DeclType]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[DeclType](te)
 }
 
 func AST_DeclType() adlast.ScopedDecl {
@@ -263,16 +307,14 @@ func init() {
 	)
 }
 
-func Texpr_DeclVersions() ATypeExpr[DeclVersions] {
+func Texpr_DeclVersions() adlast.ATypeExpr[DeclVersions] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "DeclVersions"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[DeclVersions]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[DeclVersions](te)
 }
 
 func AST_DeclVersions() adlast.ScopedDecl {
@@ -312,16 +354,14 @@ func init() {
 	)
 }
 
-func Texpr_Field() ATypeExpr[Field] {
+func Texpr_Field() adlast.ATypeExpr[Field] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Field"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Field]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Field](te)
 }
 
 func AST_Field() adlast.ScopedDecl {
@@ -429,16 +469,14 @@ func init() {
 	)
 }
 
-func Texpr_Ident() ATypeExpr[Ident] {
+func Texpr_Ident() adlast.ATypeExpr[Ident] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Ident"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Ident]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Ident](te)
 }
 
 func AST_Ident() adlast.ScopedDecl {
@@ -468,16 +506,14 @@ func init() {
 	)
 }
 
-func Texpr_Import() ATypeExpr[Import] {
+func Texpr_Import() adlast.ATypeExpr[Import] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Import"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Import]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Import](te)
 }
 
 func AST_Import() adlast.ScopedDecl {
@@ -533,16 +569,14 @@ func init() {
 	)
 }
 
-func Texpr_Module() ATypeExpr[Module] {
+func Texpr_Module() adlast.ATypeExpr[Module] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Module"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Module]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Module](te)
 }
 
 func AST_Module() adlast.ScopedDecl {
@@ -642,16 +676,14 @@ func init() {
 	)
 }
 
-func Texpr_ModuleName() ATypeExpr[ModuleName] {
+func Texpr_ModuleName() adlast.ATypeExpr[ModuleName] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "ModuleName"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[ModuleName]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[ModuleName](te)
 }
 
 func AST_ModuleName() adlast.ScopedDecl {
@@ -681,16 +713,14 @@ func init() {
 	)
 }
 
-func Texpr_NewType() ATypeExpr[NewType] {
+func Texpr_NewType() adlast.ATypeExpr[NewType] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "NewType"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[NewType]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[NewType](te)
 }
 
 func AST_NewType() adlast.ScopedDecl {
@@ -775,16 +805,14 @@ func init() {
 	)
 }
 
-func Texpr_ScopedDecl() ATypeExpr[ScopedDecl] {
+func Texpr_ScopedDecl() adlast.ATypeExpr[ScopedDecl] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "ScopedDecl"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[ScopedDecl]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[ScopedDecl](te)
 }
 
 func AST_ScopedDecl() adlast.ScopedDecl {
@@ -840,16 +868,14 @@ func init() {
 	)
 }
 
-func Texpr_ScopedName() ATypeExpr[ScopedName] {
+func Texpr_ScopedName() adlast.ATypeExpr[ScopedName] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "ScopedName"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[ScopedName]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[ScopedName](te)
 }
 
 func AST_ScopedName() adlast.ScopedDecl {
@@ -905,16 +931,14 @@ func init() {
 	)
 }
 
-func Texpr_Struct() ATypeExpr[Struct] {
+func Texpr_Struct() adlast.ATypeExpr[Struct] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Struct"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Struct]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Struct](te)
 }
 
 func AST_Struct() adlast.ScopedDecl {
@@ -984,16 +1008,14 @@ func init() {
 	)
 }
 
-func Texpr_TypeDef() ATypeExpr[TypeDef] {
+func Texpr_TypeDef() adlast.ATypeExpr[TypeDef] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "TypeDef"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[TypeDef]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[TypeDef](te)
 }
 
 func AST_TypeDef() adlast.ScopedDecl {
@@ -1056,16 +1078,14 @@ func init() {
 	)
 }
 
-func Texpr_TypeExpr() ATypeExpr[TypeExpr] {
+func Texpr_TypeExpr() adlast.ATypeExpr[TypeExpr] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "TypeExpr"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[TypeExpr]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[TypeExpr](te)
 }
 
 func AST_TypeExpr() adlast.ScopedDecl {
@@ -1128,16 +1148,14 @@ func init() {
 	)
 }
 
-func Texpr_TypeRef() ATypeExpr[TypeRef] {
+func Texpr_TypeRef() adlast.ATypeExpr[TypeRef] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "TypeRef"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[TypeRef]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[TypeRef](te)
 }
 
 func AST_TypeRef() adlast.ScopedDecl {
@@ -1208,16 +1226,14 @@ func init() {
 	)
 }
 
-func Texpr_Union() ATypeExpr[Union] {
+func Texpr_Union() adlast.ATypeExpr[Union] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
 			adlast.Make_ScopedName("sys.adlast", "Union"),
 		),
 		[]adlast.TypeExpr{},
 	)
-	return ATypeExpr[Union]{
-		Value: te,
-	}
+	return adlast.Make_ATypeExpr[Union](te)
 }
 
 func AST_Union() adlast.ScopedDecl {

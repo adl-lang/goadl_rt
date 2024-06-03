@@ -27,7 +27,7 @@ type JsonEncodeBinderUncheck struct {
 }
 
 func CreateJsonEncodeBinding[T any](
-	texpr ATypeExpr[T],
+	texpr adlast.ATypeExpr[T],
 	dres Resolver,
 ) JsonEncodeBinder[T] {
 	binding := buildEncodeBinding(dres, texpr.Value)
