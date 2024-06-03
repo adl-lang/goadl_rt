@@ -362,7 +362,7 @@ func enumDecodeBinding(
 ) DecodeFunc {
 	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
-		bf := buildDecodeBinding(dres, Texpr_Void().Value)
+		bf := buildDecodeBinding(dres, adlast.Texpr_Void().Value)
 		if bf == nil {
 			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
 		}
