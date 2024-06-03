@@ -61,32 +61,37 @@ func Make_GoHelperType(
 }
 
 type GoType struct {
-	Name        string `json:"name"`
-	Pkg         string `json:"pkg"`
-	Import_path string `json:"import_path"`
+	Name             string   `json:"name"`
+	Pkg              string   `json:"pkg"`
+	Type_constraints []string `json:"type_constraints"`
+	Import_path      string   `json:"import_path"`
 }
 
 func MakeAll_GoType(
 	name string,
 	pkg string,
+	type_constraints []string,
 	import_path string,
 ) GoType {
 	return GoType{
-		Name:        name,
-		Pkg:         pkg,
-		Import_path: import_path,
+		Name:             name,
+		Pkg:              pkg,
+		Type_constraints: type_constraints,
+		Import_path:      import_path,
 	}
 }
 
 func Make_GoType(
 	name string,
 	pkg string,
+	type_constraints []string,
 	import_path string,
 ) GoType {
 	ret := GoType{
-		Name:        name,
-		Pkg:         pkg,
-		Import_path: import_path,
+		Name:             name,
+		Pkg:              pkg,
+		Type_constraints: type_constraints,
+		Import_path:      import_path,
 	}
 	return ret
 }

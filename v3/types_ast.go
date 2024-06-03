@@ -72,6 +72,18 @@ func init() {
 	)
 }
 
+func Texpr_Map[K comparable, V any](k ATypeExpr[K], v ATypeExpr[V]) ATypeExpr[customtypes.MapMap[K, V]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Map"),
+		),
+		[]adlast.TypeExpr{k.Value, v.Value},
+	)
+	return ATypeExpr[customtypes.MapMap[K, V]]{
+		Value: te,
+	}
+}
+
 func AST_Map() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Map",
@@ -114,7 +126,7 @@ func AST_Map() adlast.ScopedDecl {
 				Make_Maybe_nothing[any](),
 			),
 		),
-		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
+		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes", "type_constraints": []interface{}{"comparable", "any"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
 	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",
@@ -392,6 +404,18 @@ func init() {
 	)
 }
 
+func Texpr_Set[T comparable](t ATypeExpr[T]) ATypeExpr[customtypes.MapSet[T]] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.types", "Set"),
+		),
+		[]adlast.TypeExpr{t.Value},
+	)
+	return ATypeExpr[customtypes.MapSet[T]]{
+		Value: te,
+	}
+}
+
 func AST_Set() adlast.ScopedDecl {
 	decl := adlast.MakeAll_Decl(
 		"Set",
@@ -417,7 +441,7 @@ func AST_Set() adlast.ScopedDecl {
 				Make_Maybe_nothing[any](),
 			),
 		),
-		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes"}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
+		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes", "type_constraints": []interface{}{"comparable"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
 	)
 	return adlast.ScopedDecl{
 		ModuleName: "sys.types",

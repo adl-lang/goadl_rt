@@ -195,6 +195,25 @@ func AST_GoType() adlast.ScopedDecl {
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
+						"type_constraints",
+						"type_constraints",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]adlast.TypeExpr{
+								adlast.MakeAll_TypeExpr(
+									adlast.Make_TypeRef_primitive(
+										"String",
+									),
+									[]adlast.TypeExpr{},
+								),
+							},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "list of type constraints e.g. for Map this would be [comparable, any]\n"},
+					),
+					adlast.MakeAll_Field(
 						"import_path",
 						"import_path",
 						adlast.MakeAll_TypeExpr(
