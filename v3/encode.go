@@ -216,7 +216,8 @@ func structEncodeBinding(
 		jb := buildEncodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
-	return func(e *EncodeState, v reflect.Value) error {
+	return func(e *EncodeState, rval reflect.Value) error {
+		rv := rval.Field(0)
 		next := byte('{')
 		for i := range struct_.Fields {
 			f := struct_.Fields[i]
@@ -224,7 +225,7 @@ func structEncodeBinding(
 			e.WriteByte(next)
 			next = ','
 			e.WriteString(`"` + f.SerializedName + `":`)
-			err := fe(e, v.Field(i))
+			err := fe(e, rv.Field(i))
 			if err != nil {
 				return err
 			}

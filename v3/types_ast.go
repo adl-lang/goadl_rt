@@ -59,15 +59,12 @@ func AST_Either() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Either"},
+		adlast.Make_ScopedName("sys.types", "Either"),
 		AST_Either(),
 	)
 }
@@ -128,19 +125,16 @@ func AST_Map() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes", "type_constraints": []interface{}{"comparable", "any"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Map"},
+		adlast.Make_ScopedName("sys.types", "Map"),
 		AST_Map(),
 	)
 	RESOLVER.RegisterHelper(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Map"},
+		adlast.Make_ScopedName("sys.types", "Map"),
 		(*customtypes.MapHelper)(nil),
 	)
 }
@@ -197,15 +191,12 @@ func AST_MapEntry() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "MapEntry"},
+		adlast.Make_ScopedName("sys.types", "MapEntry"),
 		AST_MapEntry(),
 	)
 }
@@ -261,15 +252,12 @@ func AST_Maybe() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Maybe"},
+		adlast.Make_ScopedName("sys.types", "Maybe"),
 		AST_Maybe(),
 	)
 }
@@ -326,15 +314,12 @@ func AST_Pair() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Pair"},
+		adlast.Make_ScopedName("sys.types", "Pair"),
 		AST_Pair(),
 	)
 }
@@ -391,15 +376,12 @@ func AST_Result() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Result"},
+		adlast.Make_ScopedName("sys.types", "Result"),
 		AST_Result(),
 	)
 }
@@ -443,19 +425,16 @@ func AST_Set() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes", "type_constraints": []interface{}{"comparable"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.types",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.types", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Set"},
+		adlast.Make_ScopedName("sys.types", "Set"),
 		AST_Set(),
 	)
 	RESOLVER.RegisterHelper(
-		adlast.ScopedName{ModuleName: "sys.types", Name: "Set"},
+		adlast.Make_ScopedName("sys.types", "Set"),
 		(*customtypes.SetHelper)(nil),
 	)
 }

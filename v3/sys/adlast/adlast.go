@@ -10,6 +10,10 @@ import (
 type Annotations = customtypes.MapMap[ScopedName, any]
 
 type Decl struct {
+	_Decl
+}
+
+type _Decl struct {
 	Name        Ident               `json:"name"`
 	Version     types.Maybe[uint32] `json:"version"`
 	Type_       DeclType            `json:"type_"`
@@ -23,10 +27,12 @@ func MakeAll_Decl(
 	annotations Annotations,
 ) Decl {
 	return Decl{
-		Name:        name,
-		Version:     version,
-		Type_:       type_,
-		Annotations: annotations,
+		_Decl{
+			Name:        name,
+			Version:     version,
+			Type_:       type_,
+			Annotations: annotations,
+		},
 	}
 }
 
@@ -37,10 +43,12 @@ func Make_Decl(
 	annotations Annotations,
 ) Decl {
 	ret := Decl{
-		Name:        name,
-		Version:     version,
-		Type_:       type_,
-		Annotations: annotations,
+		_Decl{
+			Name:        name,
+			Version:     version,
+			Type_:       type_,
+			Annotations: annotations,
+		},
 	}
 	return ret
 }
@@ -196,6 +204,10 @@ func HandleWithErr_DeclType[T any](
 type DeclVersions = []Decl
 
 type Field struct {
+	_Field
+}
+
+type _Field struct {
 	Name           Ident            `json:"name"`
 	SerializedName Ident            `json:"serializedName"`
 	TypeExpr       TypeExpr         `json:"typeExpr"`
@@ -211,11 +223,13 @@ func MakeAll_Field(
 	annotations Annotations,
 ) Field {
 	return Field{
-		Name:           name,
-		SerializedName: serializedname,
-		TypeExpr:       typeexpr,
-		Default:        default_,
-		Annotations:    annotations,
+		_Field{
+			Name:           name,
+			SerializedName: serializedname,
+			TypeExpr:       typeexpr,
+			Default:        default_,
+			Annotations:    annotations,
+		},
 	}
 }
 
@@ -227,11 +241,13 @@ func Make_Field(
 	annotations Annotations,
 ) Field {
 	ret := Field{
-		Name:           name,
-		SerializedName: serializedname,
-		TypeExpr:       typeexpr,
-		Default:        default_,
-		Annotations:    annotations,
+		_Field{
+			Name:           name,
+			SerializedName: serializedname,
+			TypeExpr:       typeexpr,
+			Default:        default_,
+			Annotations:    annotations,
+		},
 	}
 	return ret
 }
@@ -333,6 +349,10 @@ func HandleWithErr_Import[T any](
 }
 
 type Module struct {
+	_Module
+}
+
+type _Module struct {
 	Name        ModuleName      `json:"name"`
 	Imports     []Import        `json:"imports"`
 	Decls       map[string]Decl `json:"decls"`
@@ -346,10 +366,12 @@ func MakeAll_Module(
 	annotations Annotations,
 ) Module {
 	return Module{
-		Name:        name,
-		Imports:     imports,
-		Decls:       decls,
-		Annotations: annotations,
+		_Module{
+			Name:        name,
+			Imports:     imports,
+			Decls:       decls,
+			Annotations: annotations,
+		},
 	}
 }
 
@@ -360,10 +382,12 @@ func Make_Module(
 	annotations Annotations,
 ) Module {
 	ret := Module{
-		Name:        name,
-		Imports:     imports,
-		Decls:       decls,
-		Annotations: annotations,
+		_Module{
+			Name:        name,
+			Imports:     imports,
+			Decls:       decls,
+			Annotations: annotations,
+		},
 	}
 	return ret
 }
@@ -371,6 +395,10 @@ func Make_Module(
 type ModuleName = string
 
 type NewType struct {
+	_NewType
+}
+
+type _NewType struct {
 	TypeParams []Ident          `json:"typeParams"`
 	TypeExpr   TypeExpr         `json:"typeExpr"`
 	Default    types.Maybe[any] `json:"default"`
@@ -382,9 +410,11 @@ func MakeAll_NewType(
 	default_ types.Maybe[any],
 ) NewType {
 	return NewType{
-		TypeParams: typeparams,
-		TypeExpr:   typeexpr,
-		Default:    default_,
+		_NewType{
+			TypeParams: typeparams,
+			TypeExpr:   typeexpr,
+			Default:    default_,
+		},
 	}
 }
 
@@ -394,14 +424,20 @@ func Make_NewType(
 	default_ types.Maybe[any],
 ) NewType {
 	ret := NewType{
-		TypeParams: typeparams,
-		TypeExpr:   typeexpr,
-		Default:    default_,
+		_NewType{
+			TypeParams: typeparams,
+			TypeExpr:   typeexpr,
+			Default:    default_,
+		},
 	}
 	return ret
 }
 
 type ScopedDecl struct {
+	_ScopedDecl
+}
+
+type _ScopedDecl struct {
 	ModuleName ModuleName `json:"moduleName"`
 	Decl       Decl       `json:"decl"`
 }
@@ -411,8 +447,10 @@ func MakeAll_ScopedDecl(
 	decl Decl,
 ) ScopedDecl {
 	return ScopedDecl{
-		ModuleName: modulename,
-		Decl:       decl,
+		_ScopedDecl{
+			ModuleName: modulename,
+			Decl:       decl,
+		},
 	}
 }
 
@@ -421,13 +459,19 @@ func Make_ScopedDecl(
 	decl Decl,
 ) ScopedDecl {
 	ret := ScopedDecl{
-		ModuleName: modulename,
-		Decl:       decl,
+		_ScopedDecl{
+			ModuleName: modulename,
+			Decl:       decl,
+		},
 	}
 	return ret
 }
 
 type ScopedName struct {
+	_ScopedName
+}
+
+type _ScopedName struct {
 	ModuleName ModuleName `json:"moduleName"`
 	Name       Ident      `json:"name"`
 }
@@ -437,8 +481,10 @@ func MakeAll_ScopedName(
 	name Ident,
 ) ScopedName {
 	return ScopedName{
-		ModuleName: modulename,
-		Name:       name,
+		_ScopedName{
+			ModuleName: modulename,
+			Name:       name,
+		},
 	}
 }
 
@@ -447,13 +493,19 @@ func Make_ScopedName(
 	name Ident,
 ) ScopedName {
 	ret := ScopedName{
-		ModuleName: modulename,
-		Name:       name,
+		_ScopedName{
+			ModuleName: modulename,
+			Name:       name,
+		},
 	}
 	return ret
 }
 
 type Struct struct {
+	_Struct
+}
+
+type _Struct struct {
 	TypeParams []Ident `json:"typeParams"`
 	Fields     []Field `json:"fields"`
 }
@@ -463,8 +515,10 @@ func MakeAll_Struct(
 	fields []Field,
 ) Struct {
 	return Struct{
-		TypeParams: typeparams,
-		Fields:     fields,
+		_Struct{
+			TypeParams: typeparams,
+			Fields:     fields,
+		},
 	}
 }
 
@@ -473,13 +527,19 @@ func Make_Struct(
 	fields []Field,
 ) Struct {
 	ret := Struct{
-		TypeParams: typeparams,
-		Fields:     fields,
+		_Struct{
+			TypeParams: typeparams,
+			Fields:     fields,
+		},
 	}
 	return ret
 }
 
 type TypeDef struct {
+	_TypeDef
+}
+
+type _TypeDef struct {
 	TypeParams []Ident  `json:"typeParams"`
 	TypeExpr   TypeExpr `json:"typeExpr"`
 }
@@ -489,8 +549,10 @@ func MakeAll_TypeDef(
 	typeexpr TypeExpr,
 ) TypeDef {
 	return TypeDef{
-		TypeParams: typeparams,
-		TypeExpr:   typeexpr,
+		_TypeDef{
+			TypeParams: typeparams,
+			TypeExpr:   typeexpr,
+		},
 	}
 }
 
@@ -499,13 +561,19 @@ func Make_TypeDef(
 	typeexpr TypeExpr,
 ) TypeDef {
 	ret := TypeDef{
-		TypeParams: typeparams,
-		TypeExpr:   typeexpr,
+		_TypeDef{
+			TypeParams: typeparams,
+			TypeExpr:   typeexpr,
+		},
 	}
 	return ret
 }
 
 type TypeExpr struct {
+	_TypeExpr
+}
+
+type _TypeExpr struct {
 	TypeRef    TypeRef    `json:"typeRef"`
 	Parameters []TypeExpr `json:"parameters"`
 }
@@ -515,8 +583,10 @@ func MakeAll_TypeExpr(
 	parameters []TypeExpr,
 ) TypeExpr {
 	return TypeExpr{
-		TypeRef:    typeref,
-		Parameters: parameters,
+		_TypeExpr{
+			TypeRef:    typeref,
+			Parameters: parameters,
+		},
 	}
 }
 
@@ -525,8 +595,10 @@ func Make_TypeExpr(
 	parameters []TypeExpr,
 ) TypeExpr {
 	ret := TypeExpr{
-		TypeRef:    typeref,
-		Parameters: parameters,
+		_TypeExpr{
+			TypeRef:    typeref,
+			Parameters: parameters,
+		},
 	}
 	return ret
 }
@@ -653,6 +725,10 @@ func HandleWithErr_TypeRef[T any](
 }
 
 type Union struct {
+	_Union
+}
+
+type _Union struct {
 	TypeParams []Ident `json:"typeParams"`
 	Fields     []Field `json:"fields"`
 }
@@ -662,8 +738,10 @@ func MakeAll_Union(
 	fields []Field,
 ) Union {
 	return Union{
-		TypeParams: typeparams,
-		Fields:     fields,
+		_Union{
+			TypeParams: typeparams,
+			Fields:     fields,
+		},
 	}
 }
 
@@ -672,8 +750,10 @@ func Make_Union(
 	fields []Field,
 ) Union {
 	ret := Union{
-		TypeParams: typeparams,
-		Fields:     fields,
+		_Union{
+			TypeParams: typeparams,
+			Fields:     fields,
+		},
 	}
 	return ret
 }

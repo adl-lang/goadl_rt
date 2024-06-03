@@ -100,6 +100,10 @@ func HandleWithErr_Either[T1 any, T2 any, T any](
 }
 
 type MapEntry[K any, V any] struct {
+	_MapEntry[K, V]
+}
+
+type _MapEntry[K any, V any] struct {
 	Key   K `json:"k"`
 	Value V `json:"v"`
 }
@@ -109,8 +113,10 @@ func MakeAll_MapEntry[K any, V any](
 	value V,
 ) MapEntry[K, V] {
 	return MapEntry[K, V]{
-		Key:   key,
-		Value: value,
+		_MapEntry[K, V]{
+			Key:   key,
+			Value: value,
+		},
 	}
 }
 
@@ -119,8 +125,10 @@ func Make_MapEntry[K any, V any](
 	value V,
 ) MapEntry[K, V] {
 	ret := MapEntry[K, V]{
-		Key:   key,
-		Value: value,
+		_MapEntry[K, V]{
+			Key:   key,
+			Value: value,
+		},
 	}
 	return ret
 }
@@ -220,6 +228,10 @@ func HandleWithErr_Maybe[T any, T2 any](
 }
 
 type Pair[T1 any, T2 any] struct {
+	_Pair[T1, T2]
+}
+
+type _Pair[T1 any, T2 any] struct {
 	V1 T1 `json:"v1"`
 	V2 T2 `json:"v2"`
 }
@@ -229,8 +241,10 @@ func MakeAll_Pair[T1 any, T2 any](
 	v2 T2,
 ) Pair[T1, T2] {
 	return Pair[T1, T2]{
-		V1: v1,
-		V2: v2,
+		_Pair[T1, T2]{
+			V1: v1,
+			V2: v2,
+		},
 	}
 }
 
@@ -239,8 +253,10 @@ func Make_Pair[T1 any, T2 any](
 	v2 T2,
 ) Pair[T1, T2] {
 	ret := Pair[T1, T2]{
-		V1: v1,
-		V2: v2,
+		_Pair[T1, T2]{
+			V1: v1,
+			V2: v2,
+		},
 	}
 	return ret
 }

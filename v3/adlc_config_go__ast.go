@@ -63,15 +63,12 @@ func AST_GoCustomType() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "ADL declaration annotation to specify the custom type to use\n"},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "adlc.config.go_",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("adlc.config.go_", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoCustomType"},
+		adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"),
 		AST_GoCustomType(),
 	)
 }
@@ -137,15 +134,12 @@ func AST_GoHelperType() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "adlc.config.go_",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("adlc.config.go_", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoHelperType"},
+		adlast.Make_ScopedName("adlc.config.go_", "GoHelperType"),
 		AST_GoHelperType(),
 	)
 }
@@ -230,15 +224,12 @@ func AST_GoType() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "adlc.config.go_",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("adlc.config.go_", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "adlc.config.go_", Name: "GoType"},
+		adlast.Make_ScopedName("adlc.config.go_", "GoType"),
 		AST_GoType(),
 	)
 }

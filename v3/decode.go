@@ -323,6 +323,8 @@ func structDecodeBinding(
 		fieldJB = append(fieldJB, jb)
 	}
 	return func(path []string, rval *reflect.Value, v any) error {
+		r_impl := rval.Field(0)
+		rval = &r_impl
 		switch t := v.(type) {
 		case map[string]any:
 			for i, f := range struct_.Fields {

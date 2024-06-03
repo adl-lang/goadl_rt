@@ -6,6 +6,10 @@ import (
 	adlast "github.com/adl-lang/goadl_rt/v3/sys/adlast"
 )
 
+type StructWrapper interface {
+	IsStructWrapper()
+}
+
 type TypeBinding struct {
 	Name  string
 	Value adlast.TypeExpr
@@ -53,10 +57,7 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 			panic(fmt.Errorf("type param not found %v", tp))
 		}
 
-		return adlast.TypeExpr{
-			TypeRef:    te.TypeRef,
-			Parameters: parameters,
-		}
+		return adlast.Make_TypeExpr(te.TypeRef, parameters)
 	}
 	return recurse(binding, te)
 }

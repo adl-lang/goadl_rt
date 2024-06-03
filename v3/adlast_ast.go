@@ -56,15 +56,12 @@ func AST_Annotations() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Annotations"},
+		adlast.Make_ScopedName("sys.adlast", "Annotations"),
 		AST_Annotations(),
 	)
 }
@@ -161,15 +158,12 @@ func AST_Decl() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Decl"},
+		adlast.Make_ScopedName("sys.adlast", "Decl"),
 		AST_Decl(),
 	)
 }
@@ -259,15 +253,12 @@ func AST_DeclType() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "DeclType"},
+		adlast.Make_ScopedName("sys.adlast", "DeclType"),
 		AST_DeclType(),
 	)
 }
@@ -311,15 +302,12 @@ func AST_DeclVersions() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "DeclVersions"},
+		adlast.Make_ScopedName("sys.adlast", "DeclVersions"),
 		AST_DeclVersions(),
 	)
 }
@@ -431,15 +419,12 @@ func AST_Field() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Field"},
+		adlast.Make_ScopedName("sys.adlast", "Field"),
 		AST_Field(),
 	)
 }
@@ -473,15 +458,12 @@ func AST_Ident() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Ident"},
+		adlast.Make_ScopedName("sys.adlast", "Ident"),
 		AST_Ident(),
 	)
 }
@@ -541,15 +523,12 @@ func AST_Import() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Import"},
+		adlast.Make_ScopedName("sys.adlast", "Import"),
 		AST_Import(),
 	)
 }
@@ -653,15 +632,12 @@ func AST_Module() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Module"},
+		adlast.Make_ScopedName("sys.adlast", "Module"),
 		AST_Module(),
 	)
 }
@@ -695,15 +671,12 @@ func AST_ModuleName() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "ModuleName"},
+		adlast.Make_ScopedName("sys.adlast", "ModuleName"),
 		AST_ModuleName(),
 	)
 }
@@ -792,15 +765,12 @@ func AST_NewType() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "NewType"},
+		adlast.Make_ScopedName("sys.adlast", "NewType"),
 		AST_NewType(),
 	)
 }
@@ -860,15 +830,12 @@ func AST_ScopedDecl() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "ScopedDecl"},
+		adlast.Make_ScopedName("sys.adlast", "ScopedDecl"),
 		AST_ScopedDecl(),
 	)
 }
@@ -928,15 +895,12 @@ func AST_ScopedName() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "ScopedName"},
+		adlast.Make_ScopedName("sys.adlast", "ScopedName"),
 		AST_ScopedName(),
 	)
 }
@@ -1010,15 +974,12 @@ func AST_Struct() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Struct"},
+		adlast.Make_ScopedName("sys.adlast", "Struct"),
 		AST_Struct(),
 	)
 }
@@ -1085,15 +1046,12 @@ func AST_TypeDef() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "TypeDef"},
+		adlast.Make_ScopedName("sys.adlast", "TypeDef"),
 		AST_TypeDef(),
 	)
 }
@@ -1160,15 +1118,12 @@ func AST_TypeExpr() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "TypeExpr"},
+		adlast.Make_ScopedName("sys.adlast", "TypeExpr"),
 		AST_TypeExpr(),
 	)
 }
@@ -1243,15 +1198,12 @@ func AST_TypeRef() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "TypeRef"},
+		adlast.Make_ScopedName("sys.adlast", "TypeRef"),
 		AST_TypeRef(),
 	)
 }
@@ -1325,15 +1277,12 @@ func AST_Union() adlast.ScopedDecl {
 		),
 		customtypes.MapMap[adlast.ScopedName, any]{},
 	)
-	return adlast.ScopedDecl{
-		ModuleName: "sys.adlast",
-		Decl:       decl,
-	}
+	return adlast.Make_ScopedDecl("sys.adlast", decl)
 }
 
 func init() {
 	RESOLVER.Register(
-		adlast.ScopedName{ModuleName: "sys.adlast", Name: "Union"},
+		adlast.Make_ScopedName("sys.adlast", "Union"),
 		AST_Union(),
 	)
 }

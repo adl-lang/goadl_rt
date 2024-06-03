@@ -4,6 +4,10 @@ package go_
 import ()
 
 type GoCustomType struct {
+	_GoCustomType
+}
+
+type _GoCustomType struct {
 	Gotype  GoType       `json:"gotype"`
 	Helpers GoHelperType `json:"helpers"`
 }
@@ -13,8 +17,10 @@ func MakeAll_GoCustomType(
 	helpers GoHelperType,
 ) GoCustomType {
 	return GoCustomType{
-		Gotype:  gotype,
-		Helpers: helpers,
+		_GoCustomType{
+			Gotype:  gotype,
+			Helpers: helpers,
+		},
 	}
 }
 
@@ -23,13 +29,19 @@ func Make_GoCustomType(
 	helpers GoHelperType,
 ) GoCustomType {
 	ret := GoCustomType{
-		Gotype:  gotype,
-		Helpers: helpers,
+		_GoCustomType{
+			Gotype:  gotype,
+			Helpers: helpers,
+		},
 	}
 	return ret
 }
 
 type GoHelperType struct {
+	_GoHelperType
+}
+
+type _GoHelperType struct {
 	Name        string `json:"name"`
 	Pkg         string `json:"pkg"`
 	Import_path string `json:"import_path"`
@@ -41,9 +53,11 @@ func MakeAll_GoHelperType(
 	import_path string,
 ) GoHelperType {
 	return GoHelperType{
-		Name:        name,
-		Pkg:         pkg,
-		Import_path: import_path,
+		_GoHelperType{
+			Name:        name,
+			Pkg:         pkg,
+			Import_path: import_path,
+		},
 	}
 }
 
@@ -53,14 +67,20 @@ func Make_GoHelperType(
 	import_path string,
 ) GoHelperType {
 	ret := GoHelperType{
-		Name:        name,
-		Pkg:         pkg,
-		Import_path: import_path,
+		_GoHelperType{
+			Name:        name,
+			Pkg:         pkg,
+			Import_path: import_path,
+		},
 	}
 	return ret
 }
 
 type GoType struct {
+	_GoType
+}
+
+type _GoType struct {
 	Name             string   `json:"name"`
 	Pkg              string   `json:"pkg"`
 	Type_constraints []string `json:"type_constraints"`
@@ -74,10 +94,12 @@ func MakeAll_GoType(
 	import_path string,
 ) GoType {
 	return GoType{
-		Name:             name,
-		Pkg:              pkg,
-		Type_constraints: type_constraints,
-		Import_path:      import_path,
+		_GoType{
+			Name:             name,
+			Pkg:              pkg,
+			Type_constraints: type_constraints,
+			Import_path:      import_path,
+		},
 	}
 }
 
@@ -88,10 +110,12 @@ func Make_GoType(
 	import_path string,
 ) GoType {
 	ret := GoType{
-		Name:             name,
-		Pkg:              pkg,
-		Type_constraints: type_constraints,
-		Import_path:      import_path,
+		_GoType{
+			Name:             name,
+			Pkg:              pkg,
+			Type_constraints: type_constraints,
+			Import_path:      import_path,
+		},
 	}
 	return ret
 }
