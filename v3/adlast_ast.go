@@ -8,56 +8,6 @@ import (
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
-func Texpr_ATypeExpr[T any](t adlast.ATypeExpr[T]) adlast.ATypeExpr[ATypeExpr[T]] {
-	te := adlast.Make_TypeExpr(
-		adlast.Make_TypeRef_reference(
-			adlast.Make_ScopedName("sys.adlast", "ATypeExpr"),
-		),
-		[]adlast.TypeExpr{t.Value},
-	)
-	return adlast.Make_ATypeExpr[ATypeExpr[T]](te)
-}
-
-func AST_ATypeExpr() adlast.ScopedDecl {
-	decl := MakeAll_Decl(
-		"ATypeExpr",
-		types.Make_Maybe_nothing[uint32](),
-		Make_DeclType_struct_(
-			MakeAll_Struct(
-				[]Ident{
-					"T",
-				},
-				[]Field{
-					MakeAll_Field(
-						"value",
-						"value",
-						MakeAll_TypeExpr(
-							Make_TypeRef_reference(
-								MakeAll_ScopedName(
-									"sys.adlast",
-									"TypeExpr",
-								),
-							),
-							[]TypeExpr{},
-						),
-						types.Make_Maybe_nothing[any](),
-						customtypes.MapMap[adlast.ScopedName, any]{},
-					),
-				},
-			),
-		),
-		customtypes.MapMap[adlast.ScopedName, any]{},
-	)
-	return adlast.Make_ScopedDecl("sys.adlast", decl)
-}
-
-func init() {
-	RESOLVER.Register(
-		adlast.Make_ScopedName("sys.adlast", "ATypeExpr"),
-		AST_ATypeExpr(),
-	)
-}
-
 func Texpr_Annotations() adlast.ATypeExpr[Annotations] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
