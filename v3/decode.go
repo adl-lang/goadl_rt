@@ -322,13 +322,16 @@ func structDecodeBinding(
 		jb := buildDecodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
-	return func(path []string, rval *reflect.Value, v any) error {
+	return func(path []string, rval *reflect.Value, val any) error {
 		r_impl := rval.Field(0)
 		rval = &r_impl
-		switch t := v.(type) {
+		switch typ := val.(type) {
 		case map[string]any:
+			usedFld := map[string]struct{}{}
 			for i, f := range struct_.Fields {
-				if v0, ok := t[f.SerializedName]; ok {
+				if v0, ok := typ[f.SerializedName]; ok {
+					// delete(typ, f.SerializedName)
+					usedFld[f.SerializedName] = struct{}{}
 					rv0 := rval.Field(i)
 					path0 := append(path, f.Name)
 					err := fieldJB[i](path0, &rv0, v0)
@@ -338,7 +341,6 @@ func structDecodeBinding(
 					continue
 				}
 				if _, ok := f.Default.Cast_nothing(); ok {
-					// if _, ok := any(f.Default.Branch).(types.Maybe_Nothing); ok {
 					return fmt.Errorf("path %v, required field missing '%v'", path, f.SerializedName)
 				}
 				// set from default field value
@@ -350,9 +352,18 @@ func structDecodeBinding(
 					return err
 				}
 			}
+			if len(typ) != len(usedFld) {
+				names := []string{}
+				for k := range typ {
+					if _, ok := usedFld[k]; !ok {
+						names = append(names, k)
+					}
+				}
+				return fmt.Errorf("path %v - unexpected fields '%v'", path, names)
+			}
 			return nil
 		}
-		panic(fmt.Errorf("path %v, struct: expect an object received %v '%v'", path, reflect.TypeOf(v), v))
+		panic(fmt.Errorf("path %v, struct: expect an object received %v '%v'", path, reflect.TypeOf(val), val))
 	}
 }
 
