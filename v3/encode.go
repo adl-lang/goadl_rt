@@ -174,7 +174,7 @@ func buildNewEncodeBinding(
 			if helper, has := dres.ResolveHelper(reference); has {
 				typeparamEnc := make([]EncoderFunc, len(texpr.Parameters))
 				for i := range texpr.Parameters {
-					monoTe := SubstituteTypeBindings(tbind, texpr.Parameters[i])
+					monoTe, _ := SubstituteTypeBindings(tbind, texpr.Parameters[i])
 					typeparamEnc[i] = buildEncodeBinding(dres, monoTe)
 				}
 				return helper.BuildEncodeFunc(typeparamEnc...)
@@ -191,11 +191,11 @@ func buildNewEncodeBinding(
 					return unionEncodeBinding(dres, union_, tbind)
 				},
 				func(type_ adlast.TypeDef) EncoderFunc {
-					monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
+					monoTe, _ := SubstituteTypeBindings(tbind, type_.TypeExpr)
 					return buildEncodeBinding(dres, monoTe)
 				},
 				func(newtype_ adlast.NewType) EncoderFunc {
-					monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
+					monoTe, _ := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
 					return buildEncodeBinding(dres, monoTe)
 				},
 				nil,
@@ -212,7 +212,7 @@ func structEncodeBinding(
 ) EncoderFunc {
 	fieldJB := make([]EncoderFunc, 0)
 	for _, field := range struct_.Fields {
-		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
+		monoTe, _ := SubstituteTypeBindings(tbind, field.TypeExpr)
 		jb := buildEncodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
@@ -261,7 +261,7 @@ func unionEncodeBinding(
 ) EncoderFunc {
 	encMap := make(map[string]boundEncField)
 	for _, f := range union_.Fields {
-		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
+		monoTe, _ := SubstituteTypeBindings(tbind, f.TypeExpr)
 		encMap[f.SerializedName] = boundEncField{
 			buildEncodeBinding(dres, monoTe),
 			f,
@@ -295,6 +295,11 @@ func primitiveEncodeBinding(
 	params []adlast.TypeExpr,
 ) EncoderFunc {
 	switch ptype {
+	case "TypeToken":
+		return func(e *EncodeState, v reflect.Value) error {
+			e.WriteString("null")
+			return nil
+		}
 	case "Int8", "Int16", "Int32", "Int64":
 		return func(e *EncodeState, v reflect.Value) error {
 			b := e.AvailableBuffer()

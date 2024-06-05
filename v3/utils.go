@@ -33,9 +33,10 @@ func CreateDecBoundTypeParams(
 	return binding
 }
 
-func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr {
-	usedTp := make([]*adlast.TypeExpr, len(binding))
-	var recurse func(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr
+func SubstituteTypeBindings(binding []TypeBinding, te0 adlast.TypeExpr) (adlast.TypeExpr, bool) {
+	var recurse func([]TypeBinding, adlast.TypeExpr) adlast.TypeExpr
+
+	concrete := true
 	recurse = func(binding []TypeBinding, te adlast.TypeExpr) adlast.TypeExpr {
 		parameters := make([]adlast.TypeExpr, len(te.Parameters))
 		for i := range te.Parameters {
@@ -43,14 +44,14 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 		}
 
 		if tp, ok := te.TypeRef.Cast_typeParam(); ok {
-			// if tp, ok := te.TypeRef.Branch.(adlast.TypeRef_TypeParam); ok {
-			// tp := tp.V
-			for i, b := range binding {
+			for _, b := range binding {
 				if b.Name == tp {
 					if len(te.Parameters) != 0 {
 						panic(fmt.Errorf("type param cannot have type params, not a concrete type"))
 					}
-					usedTp[i] = &b.Value
+					if _, ok := b.Value.TypeRef.Cast_typeParam(); ok {
+						concrete = false
+					}
 					return b.Value
 				}
 			}
@@ -59,7 +60,8 @@ func SubstituteTypeBindings(binding []TypeBinding, te adlast.TypeExpr) adlast.Ty
 
 		return adlast.Make_TypeExpr(te.TypeRef, parameters)
 	}
-	return recurse(binding, te)
+
+	return recurse(binding, te0), concrete
 }
 
 func TypeParamsFromDecl(decl adlast.Decl) []string {

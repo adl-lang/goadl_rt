@@ -187,7 +187,7 @@ func buildNewDecodeBinding(
 			if helper, has := dres.ResolveHelper(reference); has {
 				typeparamDec := make([]DecodeFunc, len(texpr.Parameters))
 				for i := range texpr.Parameters {
-					monoTe := SubstituteTypeBindings(tbind, texpr.Parameters[i])
+					monoTe, _ := SubstituteTypeBindings(tbind, texpr.Parameters[i])
 					typeparamDec[i] = buildDecodeBinding(dres, monoTe)
 				}
 				return helper.BuildDecodeFunc(typeparamDec...)
@@ -204,11 +204,11 @@ func buildNewDecodeBinding(
 					return unionDecodeBinding(dres, union_, tbind)
 				},
 				func(type_ adlast.TypeDef) DecodeFunc {
-					monoTe := SubstituteTypeBindings(tbind, type_.TypeExpr)
+					monoTe, _ := SubstituteTypeBindings(tbind, type_.TypeExpr)
 					return buildDecodeBinding(dres, monoTe)
 				},
 				func(newtype_ adlast.NewType) DecodeFunc {
-					monoTe := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
+					monoTe, _ := SubstituteTypeBindings(tbind, newtype_.TypeExpr)
 					// TODO different default values
 					return buildDecodeBinding(dres, monoTe)
 				},
@@ -225,6 +225,14 @@ func primitiveDecodeBinding(
 	typeExpr []adlast.TypeExpr,
 ) DecodeFunc {
 	switch primitive {
+	case "TypeToken":
+		return func(path []string, rval *reflect.Value, v any) error {
+			fmt.Printf("--> TypeToken")
+			if v == nil {
+				rval.Set(reflect.ValueOf(struct{}{}))
+			}
+			return fmt.Errorf("TypeToken can only be null, found %v", v)
+		}
 	case "Int8", "Int16", "Int32", "Int64",
 		"Word8", "Word16", "Word32", "Word64",
 		"Bool",
@@ -318,7 +326,7 @@ func structDecodeBinding(
 ) DecodeFunc {
 	fieldJB := make([]DecodeFunc, 0, len(struct_.Fields))
 	for _, field := range struct_.Fields {
-		monoTe := SubstituteTypeBindings(tbind, field.TypeExpr)
+		monoTe, _ := SubstituteTypeBindings(tbind, field.TypeExpr)
 		jb := buildDecodeBinding(dres, monoTe)
 		fieldJB = append(fieldJB, jb)
 	}
@@ -436,7 +444,7 @@ func unionDecodeBinding(
 ) DecodeFunc {
 	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
-		monoTe := SubstituteTypeBindings(tbind, f.TypeExpr)
+		monoTe, _ := SubstituteTypeBindings(tbind, f.TypeExpr)
 		bf := buildDecodeBinding(dres, monoTe)
 		if bf == nil {
 			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
