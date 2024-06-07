@@ -227,9 +227,9 @@ func primitiveDecodeBinding(
 	switch primitive {
 	case "TypeToken":
 		return func(path []string, rval *reflect.Value, v any) error {
-			fmt.Printf("--> TypeToken")
 			if v == nil {
-				rval.Set(reflect.ValueOf(struct{}{}))
+				// leave the zero value ATypeExpr[x] as is
+				return nil
 			}
 			return fmt.Errorf("TypeToken can only be null, found %v", v)
 		}
