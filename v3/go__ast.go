@@ -227,3 +227,47 @@ func init() {
 		AST_GoType(),
 	)
 }
+
+func Texpr_TypeParamConstraintList() adlast.ATypeExpr[TypeParamConstraintList] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("adlc.config.go_", "TypeParamConstraintList"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[TypeParamConstraintList](te)
+}
+
+func AST_TypeParamConstraintList() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"TypeParamConstraintList",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_type_(
+			adlast.MakeAll_TypeDef(
+				[]adlast.Ident{},
+				adlast.MakeAll_TypeExpr(
+					adlast.Make_TypeRef_primitive(
+						"Vector",
+					),
+					[]adlast.TypeExpr{
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"String",
+							),
+							[]adlast.TypeExpr{},
+						),
+					},
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("adlc.config.go_", decl)
+}
+
+func init() {
+	RESOLVER.Register(
+		adlast.Make_ScopedName("adlc.config.go_", "TypeParamConstraintList"),
+		AST_TypeParamConstraintList(),
+	)
+}

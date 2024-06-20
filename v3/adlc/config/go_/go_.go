@@ -119,3 +119,5 @@ func Make_GoType(
 	}
 	return ret
 }
+
+type TypeParamConstraintList = []string
