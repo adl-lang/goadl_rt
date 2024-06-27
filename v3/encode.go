@@ -221,6 +221,9 @@ func structEncodeBinding(
 		next := byte('{')
 		for i := range struct_.Fields {
 			f := struct_.Fields[i]
+			if f.SerializedName == "-" {
+				continue
+			}
 			fe := fieldJB[i]
 			e.WriteByte(next)
 			next = ','

@@ -307,7 +307,13 @@ func primitiveDecodeBinding(
 			if v == nil {
 				return nil
 			}
-			rv0 := reflect.New(rval.Type().Elem()).Elem()
+			var rv0 reflect.Value
+			//
+			if rval.IsNil() {
+				rv0 = reflect.New(rval.Type().Elem()).Elem()
+			} else {
+				rv0 = rval.Elem()
+			}
 			err := elementBinding(path, &rv0, v)
 			if err != nil {
 				return err
@@ -337,8 +343,7 @@ func structDecodeBinding(
 		case map[string]any:
 			usedFld := map[string]struct{}{}
 			for i, f := range struct_.Fields {
-				if v0, ok := typ[f.SerializedName]; ok {
-					// delete(typ, f.SerializedName)
+				if v0, ok := typ[f.SerializedName]; f.SerializedName != "-" && ok {
 					usedFld[f.SerializedName] = struct{}{}
 					rv0 := rval.Field(i)
 					path0 := append(path, f.Name)
@@ -381,6 +386,9 @@ func enumDecodeBinding(
 ) DecodeFunc {
 	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
+		if f.SerializedName == "-" {
+			continue
+		}
 		bf := buildDecodeBinding(dres, adlast.Texpr_Void().Value)
 		if bf == nil {
 			panic(fmt.Errorf("DecodeFunc == nil - %#+v", f.TypeExpr))
@@ -444,6 +452,9 @@ func unionDecodeBinding(
 ) DecodeFunc {
 	decMap := make(map[string]DecodeFunc)
 	for _, f := range union_.Fields {
+		if f.SerializedName == "-" {
+			continue
+		}
 		monoTe, _ := SubstituteTypeBindings(tbind, f.TypeExpr)
 		bf := buildDecodeBinding(dres, monoTe)
 		if bf == nil {
