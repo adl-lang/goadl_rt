@@ -102,6 +102,63 @@ func AST_GoHelperType() adlast.ScopedDecl {
 						customtypes.MapMap[adlast.ScopedName, any]{},
 					),
 					adlast.MakeAll_Field(
+						"ref",
+						"ref",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Nullable",
+							),
+							[]adlast.TypeExpr{
+								adlast.MakeAll_TypeExpr(
+									adlast.Make_TypeRef_reference(
+										adlast.MakeAll_ScopedName(
+											"adlc.config.go_",
+											"GoPkg",
+										),
+									),
+									[]adlast.TypeExpr{},
+								),
+							},
+						),
+						types.Make_Maybe_just[any](
+							nil,
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "use null if helper is in the same go package as the generated decl\n"},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("adlc.config.go_", decl)
+}
+
+func init() {
+	RESOLVER.Register(
+		adlast.Make_ScopedName("adlc.config.go_", "GoHelperType"),
+		AST_GoHelperType(),
+	)
+}
+
+func Texpr_GoPkg() adlast.ATypeExpr[GoPkg] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("adlc.config.go_", "GoPkg"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[GoPkg](te)
+}
+
+func AST_GoPkg() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"GoPkg",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_struct_(
+			adlast.MakeAll_Struct(
+				[]adlast.Ident{},
+				[]adlast.Field{
+					adlast.MakeAll_Field(
 						"pkg",
 						"pkg",
 						adlast.MakeAll_TypeExpr(
@@ -135,8 +192,8 @@ func AST_GoHelperType() adlast.ScopedDecl {
 
 func init() {
 	RESOLVER.Register(
-		adlast.Make_ScopedName("adlc.config.go_", "GoHelperType"),
-		AST_GoHelperType(),
+		adlast.Make_ScopedName("adlc.config.go_", "GoPkg"),
+		AST_GoPkg(),
 	)
 }
 

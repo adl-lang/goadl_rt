@@ -42,33 +42,65 @@ type GoHelperType struct {
 }
 
 type _GoHelperType struct {
-	Name        string `json:"name"`
-	Pkg         string `json:"pkg"`
-	Import_path string `json:"import_path"`
+	Name string `json:"name"`
+	Ref  *GoPkg `json:"ref"`
 }
 
 func MakeAll_GoHelperType(
 	name string,
-	pkg string,
-	import_path string,
+	ref *GoPkg,
 ) GoHelperType {
 	return GoHelperType{
 		_GoHelperType{
-			Name:        name,
-			Pkg:         pkg,
-			Import_path: import_path,
+			Name: name,
+			Ref:  ref,
 		},
 	}
 }
 
 func Make_GoHelperType(
 	name string,
-	pkg string,
-	import_path string,
 ) GoHelperType {
 	ret := GoHelperType{
 		_GoHelperType{
-			Name:        name,
+			Name: name,
+			Ref:  ((*GoHelperType)(nil)).Default_ref(),
+		},
+	}
+	return ret
+}
+
+func (*GoHelperType) Default_ref() *GoPkg {
+	return nil
+}
+
+type GoPkg struct {
+	_GoPkg
+}
+
+type _GoPkg struct {
+	Pkg         string `json:"pkg"`
+	Import_path string `json:"import_path"`
+}
+
+func MakeAll_GoPkg(
+	pkg string,
+	import_path string,
+) GoPkg {
+	return GoPkg{
+		_GoPkg{
+			Pkg:         pkg,
+			Import_path: import_path,
+		},
+	}
+}
+
+func Make_GoPkg(
+	pkg string,
+	import_path string,
+) GoPkg {
+	ret := GoPkg{
+		_GoPkg{
 			Pkg:         pkg,
 			Import_path: import_path,
 		},
