@@ -169,6 +169,9 @@ func buildNewEncodeBinding(
 		},
 		func(reference adlast.ScopedName) EncoderFunc {
 			ast := dres.Resolve(reference)
+			if ast == nil {
+				panic(fmt.Sprintf("can't resolve reference %v", reference))
+			}
 			tbind := CreateDecBoundTypeParams(TypeParamsFromDecl(ast.Decl), texpr.Parameters)
 			// custom types
 			if helper, has := dres.ResolveHelper(reference); has {

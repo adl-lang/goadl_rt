@@ -119,7 +119,7 @@ func AST_Map() adlast.ScopedDecl {
 				Make_Maybe_nothing[any](),
 			),
 		),
-		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes", "type_constraints": []interface{}{"comparable", "any"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapHelper", "pkg": "customtypes"}}},
+		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapMap", "pkg": "customtypes", "type_constraints": []interface{}{"comparable", "any"}}, "helpers": map[string]interface{}{"name": "MapHelper", "ref": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "pkg": "customtypes"}}}},
 	)
 	return adlast.Make_ScopedDecl("sys.types", decl)
 }
@@ -409,7 +409,7 @@ func AST_Set() adlast.ScopedDecl {
 				Make_Maybe_nothing[any](),
 			),
 		),
-		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes", "type_constraints": []interface{}{"comparable"}}, "helpers": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "SetHelper", "pkg": "customtypes"}}},
+		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("adlc.config.go_", "GoCustomType"): map[string]interface{}{"gotype": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "name": "MapSet", "pkg": "customtypes", "type_constraints": []interface{}{"comparable"}}, "helpers": map[string]interface{}{"name": "SetHelper", "ref": map[string]interface{}{"import_path": "github.com/adl-lang/goadl_rt/v3/customtypes", "pkg": "customtypes"}}}},
 	)
 	return adlast.Make_ScopedDecl("sys.types", decl)
 }
