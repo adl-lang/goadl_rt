@@ -201,7 +201,7 @@ func buildNewDecodeBinding(
 					if isEnum(union_) {
 						return enumDecodeBinding(dres, union_)
 					}
-					return unionDecodeBinding(dres, union_, tbind)
+					return unionDecodeBinding(dres, union_, ast.Decl.Annotations, tbind)
 				},
 				func(type_ adlast.TypeDef) DecodeFunc {
 					monoTe, _ := SubstituteTypeBindings(tbind, type_.TypeExpr)
@@ -448,6 +448,7 @@ func enumDecodeBinding(
 func unionDecodeBinding(
 	dres Resolver,
 	union_ adlast.Union,
+	anns adlast.Annotations,
 	tbind []TypeBinding,
 ) DecodeFunc {
 	decMap := make(map[string]DecodeFunc)
@@ -462,6 +463,22 @@ func unionDecodeBinding(
 		}
 		decMap[f.SerializedName] = bf
 	}
+	audofb := HasAnnotation(anns, sn_AllowUntaggedDeserializeOfFirstBranch)
+	fromLiftedFirstBranch := func(path []string, rval *reflect.Value, v any, e error) error {
+		if len(union_.Fields) == 0 {
+			return fmt.Errorf("union has no branches")
+		}
+		if audofb {
+			if bf, ok := decMap[union_.Fields[0].SerializedName]; ok {
+				err := setBranchValue(bf, path, union_.Fields[0].SerializedName, rval, v)
+				if err != nil {
+					return fmt.Errorf("%w (%w)", e, err)
+				}
+				return nil
+			}
+		}
+		return e
+	}
 	return func(path []string, rval *reflect.Value, v any) error {
 		var (
 			key string
@@ -474,42 +491,51 @@ func unionDecodeBinding(
 			val = nil
 		case map[string]any:
 			if len(t) != 1 {
-				return fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t))
+				return fromLiftedFirstBranch(path, rval, v, fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t)))
 			}
 			for k0, v0 := range t {
 				key = k0
 				val = v0
 			}
 		default:
-			return fmt.Errorf("path: %v, union: expect an object received %v '%v'", path, reflect.TypeOf(v), v)
+			return fromLiftedFirstBranch(path, rval, v, fmt.Errorf("path: %v, union: expect an object received %v '%v'", path, reflect.TypeOf(v), v))
 		}
 
 		if bf, ok := decMap[key]; ok {
-			var vn reflect.Value
-			if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := rval.Addr().MethodByName("MakeNewBranch")
-				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
-				if resps[1].Interface() != nil {
-					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
-				}
-				vn = resps[0].Elem()
-			} else {
-				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
-			}
-			rv0 := vn.Elem().Field(0)
-			path0 := append(path, key)
-			err := bf(path0, &rv0, val)
+			err := setBranchValue(bf, path, key, rval, val)
 			if err != nil {
-				return err
+				return fromLiftedFirstBranch(path, rval, v, err)
 			}
-			r0 := *rval // for top level Elem() is already called
-			r0 = r0.Field(0)
-			// r0 = r0.Field(0)
-			r0.Set(vn.Elem())
 			return nil
 		} else {
-			return fmt.Errorf("path: %v, unexpected branch '%v'", path, key)
+			return fromLiftedFirstBranch(path, rval, v, fmt.Errorf("path: %v, unexpected branch '%v'", path, key))
 		}
-
 	}
 }
+
+func setBranchValue(bf DecodeFunc, path []string, key string, rval *reflect.Value, val any) error {
+	var vn reflect.Value
+	if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
+		meth := rval.Addr().MethodByName("MakeNewBranch")
+		resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
+		if resps[1].Interface() != nil {
+			return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
+		}
+		vn = resps[0].Elem()
+	} else {
+		return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
+	}
+	rv0 := vn.Elem().Field(0)
+	path0 := append(path, key)
+	err := bf(path0, &rv0, val)
+	if err != nil {
+		return err
+	}
+	r0 := *rval // for top level Elem() is already called
+	r0 = r0.Field(0)
+	// r0 = r0.Field(0)
+	r0.Set(vn.Elem())
+	return nil
+}
+
+var sn_AllowUntaggedDeserializeOfFirstBranch = adlast.Make_ScopedName("sys.annotations", "AllowUntaggedDeserializeOfFirstBranch")
