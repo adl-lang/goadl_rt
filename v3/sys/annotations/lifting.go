@@ -22,7 +22,7 @@ func CreateLifter(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
 ) Lifter {
-	return buildLifter(resolver, texpr, map[string]Lifter{})
+	return buildLifter(resolver, texpr, map[string]lftr_texpr{})
 }
 
 var lifterCache sync.Map
@@ -63,13 +63,18 @@ func texpr2Key(
 	return sb.String()
 }
 
+type lftr_texpr struct {
+	lftr  Lifter
+	tepxr adlast.TypeExpr
+}
+
 func buildLifter(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]Lifter,
+	boundTypeParams map[string]lftr_texpr,
 ) Lifter {
 	if tp, ok := texpr.TypeRef.Cast_typeParam(); ok {
-		return boundTypeParams[tp]
+		return boundTypeParams[tp].lftr
 	}
 	key := texpr2Key(texpr)
 	// taken from golang stdlib src/encoding/json/encode.go
@@ -103,7 +108,7 @@ func buildLifter(
 func buildLifter0(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]Lifter,
+	boundTypeParams map[string]lftr_texpr,
 ) Lifter {
 	if !hasTypeDiscrimination(resolver, texpr) {
 		return idLifter
@@ -157,7 +162,7 @@ func buildLifter0(
 			panic(fmt.Errorf("unexpected primitive %s", primitive))
 		},
 		func(typeParam string) Lifter {
-			return boundTypeParams[typeParam]
+			return boundTypeParams[typeParam].lftr
 		},
 		func(reference adlast.ScopedName) Lifter {
 			ast := resolver.Resolve(reference)
@@ -176,8 +181,8 @@ func buildLifter0(
 					newBoundTypeParams := BindTypeParams(
 						type_.TypeParams,
 						texpr.Parameters,
-						func(te adlast.TypeExpr) Lifter {
-							return buildLifter(resolver, te, boundTypeParams)
+						func(te adlast.TypeExpr) lftr_texpr {
+							return lftr_texpr{buildLifter(resolver, te, boundTypeParams), te}
 						},
 					)
 					return buildLifter(resolver, type_.TypeExpr, newBoundTypeParams)
@@ -186,8 +191,8 @@ func buildLifter0(
 					newBoundTypeParams := BindTypeParams(
 						newtype_.TypeParams,
 						texpr.Parameters,
-						func(te adlast.TypeExpr) Lifter {
-							return buildLifter(resolver, te, boundTypeParams)
+						func(te adlast.TypeExpr) lftr_texpr {
+							return lftr_texpr{buildLifter(resolver, te, boundTypeParams), te}
 						},
 					)
 					return buildLifter(resolver, newtype_.TypeExpr, newBoundTypeParams)
@@ -215,18 +220,18 @@ func buildStructLifter(
 	resolver *goadl.ResolverType,
 	struct_ adlast.Struct,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]Lifter,
+	boundTypeParams map[string]lftr_texpr,
 ) Lifter {
 	newBoundTypeParams := BindTypeParams(
 		struct_.TypeParams,
 		texpr.Parameters,
-		func(te adlast.TypeExpr) Lifter {
-			return buildLifter(resolver, te, boundTypeParams)
+		func(te adlast.TypeExpr) lftr_texpr {
+			return lftr_texpr{buildLifter(resolver, te, boundTypeParams), te}
 		},
 	)
-	fieldDetails := map[string]Lifter{}
+	fieldDetails := map[string]func() Lifter{}
 	for _, fld := range struct_.Fields {
-		fieldDetails[fld.SerializedName] = buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
+		fieldDetails[fld.SerializedName] = once(func() Lifter { return buildLifter(resolver, fld.TypeExpr, newBoundTypeParams) })
 	}
 	return func(j Json) (Json, error) {
 		if jo, ok := j.(JsonObject); ok {
@@ -234,7 +239,7 @@ func buildStructLifter(
 			var err error
 			for k, v := range jo {
 				if elem_lifter, exists := fieldDetails[k]; exists {
-					jv2[k], err = elem_lifter(v)
+					jv2[k], err = elem_lifter()(v)
 					if err != nil {
 						return nil, err
 					}
@@ -257,7 +262,7 @@ type Ancestor struct {
 type UnionFieldDetails struct {
 	Ancestors  []Ancestor
 	MaxVersion int
-	Lifter     Lifter
+	Lifter     func() Lifter
 }
 
 type TypeDisc struct {
@@ -269,18 +274,18 @@ func buildUnionLifter(
 	resolver *goadl.ResolverType,
 	union_ adlast.Union,
 	texpr adlast.TypeExpr,
-	boundTypeParams map[string]Lifter,
+	boundTypeParams map[string]lftr_texpr,
 ) Lifter {
 	newBoundTypeParams := BindTypeParams(
 		union_.TypeParams,
 		texpr.Parameters,
-		func(te adlast.TypeExpr) Lifter {
-			return buildLifter(resolver, te, boundTypeParams)
+		func(te adlast.TypeExpr) lftr_texpr {
+			return lftr_texpr{buildLifter(resolver, te, boundTypeParams), te}
 		},
 	)
 	fields := make(map[string]UnionFieldDetails)
 	for _, fld := range union_.Fields {
-		lifter := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
+		lifter := once(func() Lifter { return buildLifter(resolver, fld.TypeExpr, newBoundTypeParams) })
 		fields[fld.SerializedName] = UnionFieldDetails{
 			Ancestors:  []Ancestor{},
 			MaxVersion: -1,
@@ -301,7 +306,14 @@ func buildUnionLifter(
 	}
 	for _, fld := range union_.Fields {
 		anc := Ancestor{Name: fld.SerializedName, MaxVersion: -1}
-		transDiscs := transitiveTypeDisc(resolver, fld.TypeExpr, []Ancestor{anc}, newBoundTypeParams, jb)
+		transDiscs := transitiveTypeDisc(
+			resolver,
+			fld.TypeExpr,
+			[]Ancestor{anc},
+			newBoundTypeParams,
+			jb,
+			map[string]struct{}{},
+		)
 		for _, td := range transDiscs {
 			fields[td.fld.Field.SerializedName] = td.ufd
 			typeDiscs = append(typeDiscs, td.fld)
@@ -315,14 +327,22 @@ func buildLiftUnion(
 	type_discs []TypeDisc,
 	fields map[string]UnionFieldDetails,
 ) Lifter {
-	lifter := func(json0 Json) (Json, error) {
-		// json1 := json0
-		mtd := lo.Filter[TypeDisc](type_discs, func(item TypeDisc, index int) bool {
-			expanded_texpr := expandTypes(resolver, item.Field.TypeExpr, map[string]adlast.TypeExpr{})
-			return matchTypeDiscrimination(resolver, json0, expanded_texpr)
-		})
+	return func(json0 Json) (Json, error) {
+		mtd := []TypeDisc{}
+		for _, td := range type_discs {
+			expanded_texpr := expandTypes(resolver, td.Field.TypeExpr, map[string]adlast.TypeExpr{})
+			mt, err := matchTypeDiscrimination(resolver, json0, expanded_texpr)
+			if err != nil {
+				return nil, err
+			}
+			if mt {
+				mtd = append(mtd, td)
+			}
+		}
 		if len(mtd) > 1 {
-			return nil, fmt.Errorf(`ambiguous matching type discriminators ${mtd.map(el => el.name)}`)
+			return nil, fmt.Errorf(`ambiguous matching type discriminators %v`, lo.Map[TypeDisc, string](mtd, func(item TypeDisc, index int) string {
+				return item.Field.Name
+			}))
 		}
 		if len(mtd) == 1 {
 			json1 := map[string]any{}
@@ -342,7 +362,7 @@ func buildLiftUnion(
 					json1["@v"] = ufd.MaxVersion
 				}
 				var err error
-				json1[keys[0]], err = ufd.Lifter(json1[keys[0]])
+				json1[keys[0]], err = ufd.Lifter()(json1[keys[0]])
 				if err != nil {
 					return nil, err
 				}
@@ -360,69 +380,70 @@ func buildLiftUnion(
 			return nil, fmt.Errorf("expecting union, value isn't even an object\n%v\n%v", json0, json1)
 		}
 	}
-	return lifter
 }
 
 func matchTypeDiscrimination(
 	resolver *goadl.ResolverType,
 	json Json,
 	texpr adlast.TypeExpr,
-) bool {
+) (bool, error) {
 	typeRef := texpr.TypeRef
 	if _, ok := texpr.TypeRef.Cast_typeParam(); ok {
-		return false
+		return false, nil
 	}
 	if primitive, ok := typeRef.Cast_primitive(); ok && (primitive == "Json" || primitive == "Void") {
-		panic(`cannot use Json or Void as a type discriminator`)
+		return false, fmt.Errorf(`cannot use Json or Void as a type discriminator`)
 	}
 	if json == nil {
 		if primitive, ok := typeRef.Cast_primitive(); ok && primitive == "Nullable" {
-			return true
+			return true, nil
 		}
-		panic(fmt.Errorf(`primitive type mismatch. expected "Nullable" received %v`, typeRef))
+		return false, fmt.Errorf(`primitive type mismatch. expected "Nullable" received %v`, typeRef)
 	}
 	if aj, ok := json.(JsonArray); ok {
 		if primitive, ok := typeRef.Cast_primitive(); !ok || primitive != "Vector" {
-			return false
+			return false, nil
 		}
 		for i := range aj {
-			if !matchTypeDiscrimination(resolver, aj[i], texpr.Parameters[0]) {
-				return false
+			if ok, err := matchTypeDiscrimination(resolver, aj[i], texpr.Parameters[0]); !ok && err == nil {
+				return false, nil
+			} else if err != nil {
+				return false, err
 			}
 		}
-		return true
+		return true, nil
 	}
 	if prim, ok := typeRef.Cast_primitive(); ok && prim == "Nullable" {
 		typeRef = texpr.Parameters[0].TypeRef
 		if prim, ok := typeRef.Cast_primitive(); ok {
 			if prim == "Vector" {
-				panic(fmt.Errorf("lifting of Nullable<Vector<>> not implemented"))
+				return false, fmt.Errorf("lifting of Nullable<Vector<>> not implemented")
 			}
 			if prim == "Nullable" {
-				panic(fmt.Errorf("lifting of Nullable<Nullable<>> not implemented"))
+				return false, fmt.Errorf("lifting of Nullable<Nullable<>> not implemented")
 			}
 		}
 	}
 	switch v := json.(type) {
 	case string:
 		if primitive, ok := typeRef.Cast_primitive(); ok && primitive == "String" {
-			return true
+			return true, nil
 		}
-		return false
+		return false, nil
 	case float64:
 		if primitive, ok := typeRef.Cast_primitive(); ok && lo.Contains(adlNumbers, primitive) {
-			return true
+			return true, nil
 		}
-		return false
+		return false, nil
 	case bool:
 		if primitive, ok := typeRef.Cast_primitive(); ok && primitive == "Bool" {
-			return true
+			return true, nil
 		}
-		return false
+		return false, nil
 	case map[string]any:
-		return matchObject(resolver, v, texpr)
+		return matchObject(resolver, v, texpr), nil
 	}
-	return false
+	return false, nil
 }
 
 func matchObject(
@@ -536,8 +557,9 @@ func transitiveTypeDisc(
 	resolver *goadl.ResolverType,
 	ftexpr adlast.TypeExpr,
 	ancestors []Ancestor,
-	boundTypeParams map[string]Lifter,
+	boundTypeParams map[string]lftr_texpr,
 	jb goadl.JsonDecodeBinder[TypeDiscrimination],
+	seen map[string]struct{},
 ) []ttdR {
 	return adlast.Handle_TypeRef[[]ttdR](
 		ftexpr.TypeRef,
@@ -559,8 +581,8 @@ func transitiveTypeDisc(
 					newBoundTypeParams := BindTypeParams(
 						union_.TypeParams,
 						ftexpr.Parameters,
-						func(te adlast.TypeExpr) Lifter {
-							return buildLifter(resolver, te, boundTypeParams)
+						func(te adlast.TypeExpr) lftr_texpr {
+							return lftr_texpr{buildLifter(resolver, te, boundTypeParams), te}
 						},
 					)
 					max_version := lo.Reduce[adlast.Field, int](union_.Fields,
@@ -579,12 +601,19 @@ func transitiveTypeDisc(
 						-1,
 					)
 					for _, fld := range union_.Fields {
+						te := fld.TypeExpr
+						if tp, ok := fld.TypeExpr.TypeRef.Cast_typeParam(); ok {
+							te = newBoundTypeParams[tp].tepxr
+						}
+						if _, ex := seen[texpr2Key(te)]; ex {
+							continue
+						}
 						disc, err := goadl.GetAnnotation(fld.Annotations, tdSN, jb)
 						if err != nil {
 							panic(err)
 						}
 						if disc != nil {
-							bldr := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
+							bldr := once(func() Lifter { return buildLifter(resolver, fld.TypeExpr, newBoundTypeParams) })
 							ret = append(ret, ttdR{
 								fld: TypeDisc{
 									Field: fld,
@@ -604,7 +633,15 @@ func transitiveTypeDisc(
 						ancestors0 := make([]Ancestor, 1, len(ancestors)+1)
 						ancestors0[0] = parent
 						ancestors0 = append(ancestors0, ancestors...)
-						decendants := transitiveTypeDisc(resolver, fld.TypeExpr, ancestors0, newBoundTypeParams, jb)
+						seen[texpr2Key(te)] = struct{}{}
+						decendants := transitiveTypeDisc(
+							resolver,
+							fld.TypeExpr,
+							ancestors0,
+							newBoundTypeParams,
+							jb,
+							seen,
+						)
 						ret = append(ret, decendants...)
 					}
 					return ret
@@ -616,6 +653,7 @@ func transitiveTypeDisc(
 						ancestors,
 						boundTypeParams,
 						jb,
+						seen,
 					)
 				},
 				func(newtype_ adlast.NewType) []ttdR {
@@ -625,6 +663,7 @@ func transitiveTypeDisc(
 						ancestors,
 						boundTypeParams,
 						jb,
+						seen,
 					)
 				},
 				nil,
@@ -638,64 +677,64 @@ func hasTypeDiscrimination(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
 ) bool {
-	return true
-	// switch (texpr.typeRef.kind) {
-	//   case "primitive":
-	// 	if (texpr.parameters.length == 0) {
-	// 	  return false
-	// 	}
-	// 	return hasTypeDiscrimination(dresolver, texpr.parameters[0])
-	//   case "typeParam":
-	// 	return false
-	//   case "reference":
-	// 	const ast = dresolver(texpr.typeRef.value)
-	// 	const dtype = ast.decl.type_
-	// 	switch (dtype.kind) {
-	// 	  case "struct_":
-	// 		return dtype.value.fields.find(fld => hasTypeDiscrimination(dresolver, fld.typeExpr)) !== undefined
-	// 	  case "union_":
-	// 		const hasTD = dtype.value.fields.find(fld => hasAnnotation(ANN.texprTypeDiscrimination().value, fld.annotations))
-	// 		if (hasTD) {
-	// 		  return true
-	// 		}
-	// 		return dtype.value.fields.find(fld => hasTypeDiscrimination(dresolver, fld.typeExpr)) !== undefined
-	// 	  case "type_":
-	// 		return hasTypeDiscrimination(dresolver, dtype.value.typeExpr)
-	// 	  case "newtype_":
-	// 		return hasTypeDiscrimination(dresolver, dtype.value.typeExpr)
-	// 	}
-	// }
+	return adlast.Handle_TypeRef[bool](
+		texpr.TypeRef,
+		func(primitive string) bool {
+			if len(texpr.Parameters) == 0 {
+				return false
+			}
+			return hasTypeDiscrimination(resolver, texpr.Parameters[0])
+		},
+		func(typeParam string) bool {
+			// todo use a binder to see if this is really needed
+			return true
+		},
+		func(reference adlast.ScopedName) bool {
+			ast := resolver.Resolve(reference)
+			return adlast.Handle_DeclType[bool](
+				ast.Decl.Type_,
+				func(struct_ adlast.Struct) bool {
+					for _, fld := range struct_.Fields {
+						if hasTypeDiscrimination(resolver, fld.TypeExpr) {
+							return true
+						}
+					}
+					return false
+				},
+				func(union_ adlast.Union) bool {
+					for _, fld := range union_.Fields {
+						if goadl.HasAnnotation(fld.Annotations, tdSN) {
+							return true
+						}
+					}
+					for _, fld := range union_.Fields {
+						if hasTypeDiscrimination(resolver, fld.TypeExpr) {
+							return true
+						}
+					}
+					return false
+				},
+				func(type_ adlast.TypeDef) bool {
+					return hasTypeDiscrimination(resolver, type_.TypeExpr)
+				},
+				func(newtype_ adlast.NewType) bool {
+					return hasTypeDiscrimination(resolver, newtype_.TypeExpr)
+				},
+				nil,
+			)
+		},
+		nil,
+	)
 }
 
-func LiftIntoUnion[T any](
-	resolver *goadl.ResolverType,
-	texpr adlast.ATypeExpr[T],
-	json Json,
-) (Json, error) {
-	tds := GetTypeDiscs(resolver, texpr.Value)
-	return LiftTypeDiscs(resolver, json, tds)
-}
+type Once[T any] func(fn func() T) func() T
 
-func GetTypeDiscs(
-	resolver *goadl.ResolverType,
-	texpr adlast.TypeExpr,
-) []TypeDisc {
-	ret := []TypeDisc{}
-	return ret
-}
-
-func LiftTypeDiscs(
-	resolver *goadl.ResolverType,
-	json Json,
-	type_discs []TypeDisc,
-) (Json, error) {
-	return nil, nil
-}
-
-func MatchTypeDisc(
-	resolver *goadl.ResolverType,
-	json Json,
-	type_disc TypeDisc,
-) (bool, error) {
-	return false, nil
+func once[T any](fn func() T) func() T {
+	var result *T = nil
+	return func() T {
+		if result == nil {
+			result = goadl.Addr(fn())
+		}
+		return *result
+	}
 }
