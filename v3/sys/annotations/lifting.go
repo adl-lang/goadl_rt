@@ -21,7 +21,7 @@ var idLifter = func(json Json) (Json, error) { return json, nil }
 func CreateLifter(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
-) (Lifter, error) {
+) Lifter {
 	return buildLifter(resolver, texpr, map[string]Lifter{})
 }
 
@@ -67,14 +67,14 @@ func buildLifter(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
 	boundTypeParams map[string]Lifter,
-) (Lifter, error) {
+) Lifter {
 	if tp, ok := texpr.TypeRef.Cast_typeParam(); ok {
-		return boundTypeParams[tp], nil
+		return boundTypeParams[tp]
 	}
 	key := texpr2Key(texpr)
 	// taken from golang stdlib src/encoding/json/encode.go
 	if fi, ok := lifterCache.Load(key); ok {
-		return fi.(Lifter), nil
+		return fi.(Lifter)
 	}
 	// To deal with recursive types, populate the map with an
 	// indirect func before we build it. This type waits on the
@@ -90,35 +90,31 @@ func buildLifter(
 		return f(json)
 	}))
 	if loaded {
-		return fi.(Lifter), nil
+		return fi.(Lifter)
 	}
 
 	// Compute the real encoder and replace the indirect func with it.
-	var err error
-	f, err = buildLifter0(resolver, texpr, boundTypeParams)
+	f = buildLifter0(resolver, texpr, boundTypeParams)
 	wg.Done()
 	lifterCache.Store(key, f)
-	return f, err
+	return f
 }
 
 func buildLifter0(
 	resolver *goadl.ResolverType,
 	texpr adlast.TypeExpr,
 	boundTypeParams map[string]Lifter,
-) (Lifter, error) {
+) Lifter {
 	if !hasTypeDiscrimination(resolver, texpr) {
-		return idLifter, nil
+		return idLifter
 	}
-	return adlast.HandleWithErr_TypeRef[Lifter](
+	return adlast.Handle_TypeRef[Lifter](
 		texpr.TypeRef,
-		func(primitive string) (Lifter, error) {
+		func(primitive string) Lifter {
 			if len(texpr.Parameters) == 0 {
-				return idLifter, nil
+				return idLifter
 			}
-			elem_lifter, err := buildLifter(resolver, texpr.Parameters[0], boundTypeParams)
-			if err != nil {
-				return nil, err
-			}
+			elem_lifter := buildLifter(resolver, texpr.Parameters[0], boundTypeParams)
 			switch primitive {
 			case "Nullable":
 				return func(j Json) (Json, error) {
@@ -126,11 +122,12 @@ func buildLifter0(
 						return nil, nil
 					}
 					return elem_lifter(j)
-				}, nil
+				}
 			case "Vector":
 				return func(j Json) (Json, error) {
 					if ja, ok := j.(JsonArray); ok {
 						res := make([]Json, len(ja))
+						var err error
 						for i := range ja {
 							res[i], err = elem_lifter(ja[i])
 							if err != nil {
@@ -140,11 +137,12 @@ func buildLifter0(
 						return res, nil
 					}
 					return nil, fmt.Errorf("expected arrays got %T", j)
-				}, nil
+				}
 			case "StringMap":
 				return func(j Json) (Json, error) {
 					if jo, ok := j.(JsonObject); ok {
 						res := make(JsonObject)
+						var err error
 						for k, v := range jo {
 							res[k], err = elem_lifter(v)
 							if err != nil {
@@ -154,50 +152,44 @@ func buildLifter0(
 						return res, nil
 					}
 					return nil, fmt.Errorf("expected object got %T", j)
-				}, nil
+				}
 			}
-			return nil, fmt.Errorf("unexpected primitive %s", primitive)
+			panic(fmt.Errorf("unexpected primitive %s", primitive))
 		},
-		func(typeParam string) (Lifter, error) {
-			return boundTypeParams[typeParam], nil
+		func(typeParam string) Lifter {
+			return boundTypeParams[typeParam]
 		},
-		func(reference adlast.ScopedName) (Lifter, error) {
+		func(reference adlast.ScopedName) Lifter {
 			ast := resolver.Resolve(reference)
-			return adlast.HandleWithErr_DeclType[Lifter](
+			return adlast.Handle_DeclType[Lifter](
 				ast.Decl.Type_,
-				func(struct_ adlast.Struct) (Lifter, error) {
+				func(struct_ adlast.Struct) Lifter {
 					return buildStructLifter(resolver, struct_, texpr, boundTypeParams)
 				},
-				func(union_ adlast.Union) (Lifter, error) {
+				func(union_ adlast.Union) Lifter {
 					if goadl.IsEnum(union_) {
-						return idLifter, nil
+						return idLifter
 					}
 					return buildUnionLifter(resolver, union_, texpr, boundTypeParams)
 				},
-				func(type_ adlast.TypeDef) (Lifter, error) {
-					newBoundTypeParams, err := BindTypeParams(
+				func(type_ adlast.TypeDef) Lifter {
+					newBoundTypeParams := BindTypeParams(
 						type_.TypeParams,
 						texpr.Parameters,
-						func(te adlast.TypeExpr) (Lifter, error) {
+						func(te adlast.TypeExpr) Lifter {
 							return buildLifter(resolver, te, boundTypeParams)
 						},
 					)
-					if err != nil {
-						return nil, err
-					}
 					return buildLifter(resolver, type_.TypeExpr, newBoundTypeParams)
 				},
-				func(newtype_ adlast.NewType) (Lifter, error) {
-					newBoundTypeParams, err := BindTypeParams(
+				func(newtype_ adlast.NewType) Lifter {
+					newBoundTypeParams := BindTypeParams(
 						newtype_.TypeParams,
 						texpr.Parameters,
-						func(te adlast.TypeExpr) (Lifter, error) {
+						func(te adlast.TypeExpr) Lifter {
 							return buildLifter(resolver, te, boundTypeParams)
 						},
 					)
-					if err != nil {
-						return nil, err
-					}
 					return buildLifter(resolver, newtype_.TypeExpr, newBoundTypeParams)
 				},
 				nil,
@@ -210,17 +202,13 @@ func buildLifter0(
 func BindTypeParams[T any](
 	paramNames []string,
 	paramTypes []adlast.TypeExpr,
-	fn func(adlast.TypeExpr) (T, error),
-) (map[string]T, error) {
+	fn func(adlast.TypeExpr) T,
+) map[string]T {
 	result := map[string]T{}
-	var err error
 	for i := range paramNames {
-		result[paramNames[i]], err = fn(paramTypes[i])
-		if err != nil {
-			return nil, err
-		}
+		result[paramNames[i]] = fn(paramTypes[i])
 	}
-	return result, nil
+	return result
 }
 
 func buildStructLifter(
@@ -228,23 +216,17 @@ func buildStructLifter(
 	struct_ adlast.Struct,
 	texpr adlast.TypeExpr,
 	boundTypeParams map[string]Lifter,
-) (Lifter, error) {
-	newBoundTypeParams, err := BindTypeParams(
+) Lifter {
+	newBoundTypeParams := BindTypeParams(
 		struct_.TypeParams,
 		texpr.Parameters,
-		func(te adlast.TypeExpr) (Lifter, error) {
+		func(te adlast.TypeExpr) Lifter {
 			return buildLifter(resolver, te, boundTypeParams)
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
 	fieldDetails := map[string]Lifter{}
 	for _, fld := range struct_.Fields {
-		fieldDetails[fld.SerializedName], err = buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
-		if err != nil {
-			return nil, err
-		}
+		fieldDetails[fld.SerializedName] = buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
 	}
 	return func(j Json) (Json, error) {
 		if jo, ok := j.(JsonObject); ok {
@@ -264,7 +246,7 @@ func buildStructLifter(
 			return jv2, nil
 		}
 		return nil, fmt.Errorf("expected object got %T", j)
-	}, nil
+	}
 }
 
 type Ancestor struct {
@@ -288,23 +270,17 @@ func buildUnionLifter(
 	union_ adlast.Union,
 	texpr adlast.TypeExpr,
 	boundTypeParams map[string]Lifter,
-) (Lifter, error) {
-	newBoundTypeParams, err := BindTypeParams(
+) Lifter {
+	newBoundTypeParams := BindTypeParams(
 		union_.TypeParams,
 		texpr.Parameters,
-		func(te adlast.TypeExpr) (Lifter, error) {
+		func(te adlast.TypeExpr) Lifter {
 			return buildLifter(resolver, te, boundTypeParams)
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
 	fields := make(map[string]UnionFieldDetails)
 	for _, fld := range union_.Fields {
-		lifter, err := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
-		if err != nil {
-			return nil, err
-		}
+		lifter := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
 		fields[fld.SerializedName] = UnionFieldDetails{
 			Ancestors:  []Ancestor{},
 			MaxVersion: -1,
@@ -317,7 +293,7 @@ func buildUnionLifter(
 	for _, fld := range union_.Fields {
 		disc, err := goadl.GetAnnotation(fld.Annotations, tdSN, jb)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 		if disc != nil {
 			typeDiscs = append(typeDiscs, TypeDisc{Field: fld, Disc: *disc})
@@ -331,7 +307,7 @@ func buildUnionLifter(
 			typeDiscs = append(typeDiscs, td.fld)
 		}
 	}
-	return buildLiftUnion(resolver, typeDiscs, fields), nil
+	return buildLiftUnion(resolver, typeDiscs, fields)
 }
 
 func buildLiftUnion(
@@ -535,11 +511,11 @@ func expandTypes(
 					// TODO need to sub fields?
 				},
 				func(type_ adlast.TypeDef) adlast.TypeExpr {
-					nbp, _ := BindTypeParams(type_.TypeParams, texpr.Parameters, func(te adlast.TypeExpr) (adlast.TypeExpr, error) { return te, nil })
+					nbp := BindTypeParams(type_.TypeParams, texpr.Parameters, func(te adlast.TypeExpr) adlast.TypeExpr { return te })
 					return expandTypes(resolver, type_.TypeExpr, nbp)
 				},
 				func(newtype_ adlast.NewType) adlast.TypeExpr {
-					nbp, _ := BindTypeParams(newtype_.TypeParams, texpr.Parameters, func(te adlast.TypeExpr) (adlast.TypeExpr, error) { return te, nil })
+					nbp := BindTypeParams(newtype_.TypeParams, texpr.Parameters, func(te adlast.TypeExpr) adlast.TypeExpr { return te })
 					return expandTypes(resolver, newtype_.TypeExpr, nbp)
 				},
 				nil,
@@ -580,10 +556,10 @@ func transitiveTypeDisc(
 				},
 				func(union_ adlast.Union) []ttdR {
 					ret := []ttdR{}
-					newBoundTypeParams, _ := BindTypeParams(
+					newBoundTypeParams := BindTypeParams(
 						union_.TypeParams,
 						ftexpr.Parameters,
-						func(te adlast.TypeExpr) (Lifter, error) {
+						func(te adlast.TypeExpr) Lifter {
 							return buildLifter(resolver, te, boundTypeParams)
 						},
 					)
@@ -608,7 +584,7 @@ func transitiveTypeDisc(
 							panic(err)
 						}
 						if disc != nil {
-							bldr, _ := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
+							bldr := buildLifter(resolver, fld.TypeExpr, newBoundTypeParams)
 							ret = append(ret, ttdR{
 								fld: TypeDisc{
 									Field: fld,
