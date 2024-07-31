@@ -198,7 +198,7 @@ func buildNewDecodeBinding(
 					return structDecodeBinding(dres, struct_, tbind)
 				},
 				func(union_ adlast.Union) DecodeFunc {
-					if isEnum(union_) {
+					if IsEnum(union_) {
 						return enumDecodeBinding(dres, union_)
 					}
 					return unionDecodeBinding(dres, union_, ast.Decl.Annotations, tbind)
@@ -405,6 +405,7 @@ func enumDecodeBinding(
 			key = t
 			val = nil
 		case map[string]any:
+			delete(t, "@v")
 			if len(t) != 1 {
 				return fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t))
 			}
@@ -490,6 +491,7 @@ func unionDecodeBinding(
 			key = t
 			val = nil
 		case map[string]any:
+			delete(t, "@v")
 			if len(t) != 1 {
 				return fromLiftedFirstBranch(path, rval, v, fmt.Errorf("path: %v, expect an object with one and only element received %v", path, len(t)))
 			}
@@ -515,6 +517,9 @@ func unionDecodeBinding(
 
 func setBranchValue(bf DecodeFunc, path []string, key string, rval *reflect.Value, val any) error {
 	var vn reflect.Value
+	if !rval.CanAddr() {
+		panic(fmt.Errorf("path: %v, setBranchValue:can't addr '%v'", path, rval))
+	}
 	if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
 		meth := rval.Addr().MethodByName("MakeNewBranch")
 		resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})

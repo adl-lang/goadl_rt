@@ -188,7 +188,7 @@ func buildNewEncodeBinding(
 					return structEncodeBinding(dres, struct_, tbind)
 				},
 				func(union_ adlast.Union) EncoderFunc {
-					if isEnum(union_) {
+					if IsEnum(union_) {
 						return enumEncodeBinding()
 					}
 					return unionEncodeBinding(dres, union_, tbind)
@@ -606,26 +606,4 @@ func resolveKeyName(k reflect.Value) (string, error) {
 		return strconv.FormatUint(k.Uint(), 10), nil
 	}
 	panic("unexpected map key type")
-}
-
-func isEnum(union adlast.Union) bool {
-	for _, field := range union.Fields {
-		isv := adlast.Handle_TypeRef[bool](
-			field.TypeExpr.TypeRef,
-			func(primitive string) bool {
-				return primitive == "Void"
-			},
-			func(typeParam string) bool {
-				return false
-			},
-			func(reference adlast.ScopedName) bool {
-				return false
-			},
-			nil,
-		)
-		if !isv {
-			return false
-		}
-	}
-	return true
 }

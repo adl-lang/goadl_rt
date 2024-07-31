@@ -128,3 +128,25 @@ func HasAnnotation(anns adlast.Annotations, sn adlast.ScopedName) bool {
 func ScopedNamesEqual(sn1 adlast.ScopedName, sn2 adlast.ScopedName) bool {
 	return sn1.ModuleName == sn2.ModuleName && sn1.Name == sn2.Name
 }
+
+func IsEnum(union adlast.Union) bool {
+	for _, field := range union.Fields {
+		isv := adlast.Handle_TypeRef[bool](
+			field.TypeExpr.TypeRef,
+			func(primitive string) bool {
+				return primitive == "Void"
+			},
+			func(typeParam string) bool {
+				return false
+			},
+			func(reference adlast.ScopedName) bool {
+				return false
+			},
+			nil,
+		)
+		if !isv {
+			return false
+		}
+	}
+	return true
+}

@@ -8,6 +8,43 @@ import (
 	"github.com/adl-lang/goadl_rt/v3/sys/types"
 )
 
+func Texpr_AllowUntaggedDeserializeOfFirstBranch() adlast.ATypeExpr[AllowUntaggedDeserializeOfFirstBranch] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.annotations", "AllowUntaggedDeserializeOfFirstBranch"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[AllowUntaggedDeserializeOfFirstBranch](te)
+}
+
+func AST_AllowUntaggedDeserializeOfFirstBranch() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"AllowUntaggedDeserializeOfFirstBranch",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_type_(
+			adlast.MakeAll_TypeDef(
+				[]adlast.Ident{},
+				adlast.MakeAll_TypeExpr(
+					adlast.Make_TypeRef_primitive(
+						"Void",
+					),
+					[]adlast.TypeExpr{},
+				),
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("sys.annotations", decl)
+}
+
+func init() {
+	goadl.RESOLVER.Register(
+		adlast.Make_ScopedName("sys.annotations", "AllowUntaggedDeserializeOfFirstBranch"),
+		AST_AllowUntaggedDeserializeOfFirstBranch(),
+	)
+}
+
 func Texpr_CustomSerialization() adlast.ATypeExpr[CustomSerialization] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
@@ -45,6 +82,66 @@ func init() {
 	)
 }
 
+func Texpr_DiscriminatorConfig() adlast.ATypeExpr[DiscriminatorConfig] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.annotations", "DiscriminatorConfig"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[DiscriminatorConfig](te)
+}
+
+func AST_DiscriminatorConfig() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"DiscriminatorConfig",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_union_(
+			adlast.MakeAll_Union(
+				[]adlast.Ident{},
+				[]adlast.Field{
+					adlast.MakeAll_Field(
+						"by_type",
+						"by_type",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Void",
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "Indicates that the json type should be used as the discriminator.\nThe minimal type discrimination is primitive vs object vs array.\nPrimitive can be further discriminated in string, number, bool (depending on the implementation).\nVoid CAN'T be discrimination.\nNullable<T> ???\n"},
+					),
+					adlast.MakeAll_Field(
+						"obj_props",
+						"obj_props",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_reference(
+								adlast.MakeAll_ScopedName(
+									"sys.annotations",
+									"ObjectProperties",
+								),
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "Indicates an object should be discriminated on its fields, using the properties specified.\nCan't be used to specify fields with default values.\n"},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("sys.annotations", decl)
+}
+
+func init() {
+	goadl.RESOLVER.Register(
+		adlast.Make_ScopedName("sys.annotations", "DiscriminatorConfig"),
+		AST_DiscriminatorConfig(),
+	)
+}
+
 func Texpr_Doc() adlast.ATypeExpr[Doc] {
 	te := adlast.Make_TypeExpr(
 		adlast.Make_TypeRef_reference(
@@ -79,6 +176,110 @@ func init() {
 	goadl.RESOLVER.Register(
 		adlast.Make_ScopedName("sys.annotations", "Doc"),
 		AST_Doc(),
+	)
+}
+
+func Texpr_ObjectProperties() adlast.ATypeExpr[ObjectProperties] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.annotations", "ObjectProperties"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[ObjectProperties](te)
+}
+
+func AST_ObjectProperties() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"ObjectProperties",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_union_(
+			adlast.MakeAll_Union(
+				[]adlast.Ident{},
+				[]adlast.Field{
+					adlast.MakeAll_Field(
+						"field",
+						"field",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"String",
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "TypeDiscrimination"): map[string]interface{}{"@v": 0}},
+					),
+					adlast.MakeAll_Field(
+						"and",
+						"and",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]adlast.TypeExpr{
+								adlast.MakeAll_TypeExpr(
+									adlast.Make_TypeRef_reference(
+										adlast.MakeAll_ScopedName(
+											"sys.annotations",
+											"ObjectProperties",
+										),
+									),
+									[]adlast.TypeExpr{},
+								),
+							},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "TypeDiscrimination"): map[string]interface{}{"@v": 0}},
+					),
+					adlast.MakeAll_Field(
+						"or",
+						"or",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Vector",
+							),
+							[]adlast.TypeExpr{
+								adlast.MakeAll_TypeExpr(
+									adlast.Make_TypeRef_reference(
+										adlast.MakeAll_ScopedName(
+											"sys.annotations",
+											"ObjectProperties",
+										),
+									),
+									[]adlast.TypeExpr{},
+								),
+							},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+					adlast.MakeAll_Field(
+						"not",
+						"not",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_reference(
+								adlast.MakeAll_ScopedName(
+									"sys.annotations",
+									"ObjectProperties",
+								),
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{},
+	)
+	return adlast.Make_ScopedDecl("sys.annotations", decl)
+}
+
+func init() {
+	goadl.RESOLVER.Register(
+		adlast.Make_ScopedName("sys.annotations", "ObjectProperties"),
+		AST_ObjectProperties(),
 	)
 }
 
@@ -161,5 +362,67 @@ func init() {
 	goadl.RESOLVER.Register(
 		adlast.Make_ScopedName("sys.annotations", "SerializedWithInternalTag"),
 		AST_SerializedWithInternalTag(),
+	)
+}
+
+func Texpr_TypeDiscrimination() adlast.ATypeExpr[TypeDiscrimination] {
+	te := adlast.Make_TypeExpr(
+		adlast.Make_TypeRef_reference(
+			adlast.Make_ScopedName("sys.annotations", "TypeDiscrimination"),
+		),
+		[]adlast.TypeExpr{},
+	)
+	return adlast.Make_ATypeExpr[TypeDiscrimination](te)
+}
+
+func AST_TypeDiscrimination() adlast.ScopedDecl {
+	decl := adlast.MakeAll_Decl(
+		"TypeDiscrimination",
+		types.Make_Maybe_nothing[uint32](),
+		adlast.Make_DeclType_struct_(
+			adlast.MakeAll_Struct(
+				[]adlast.Ident{},
+				[]adlast.Field{
+					adlast.MakeAll_Field(
+						"disc_cfg",
+						"disc_cfg",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_reference(
+								adlast.MakeAll_ScopedName(
+									"sys.annotations",
+									"DiscriminatorConfig",
+								),
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_just[any](
+							"by_type",
+						),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "The discrimination method to use, either by type or object properties.\n"},
+					),
+					adlast.MakeAll_Field(
+						"version",
+						"@v",
+						adlast.MakeAll_TypeExpr(
+							adlast.Make_TypeRef_primitive(
+								"Word32",
+							),
+							[]adlast.TypeExpr{},
+						),
+						types.Make_Maybe_nothing[any](),
+						customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "The version of the union decl this annotation was applied to.\n"},
+					),
+				},
+			),
+		),
+		customtypes.MapMap[adlast.ScopedName, any]{adlast.Make_ScopedName("sys.annotations", "Doc"): "This annotation allows properties of a type to be used to discriminate untagged union branches.\nIt can be used;\n  - by a json->json transformer to up-lift old (untagged) values to new (tagged) values\n  - by a deserializer to allow backward compatiblity (the above transformer could be used)\nThis annotation can be used to make json value more humanly readable (see ObjectProperties as an example).\n"},
+	)
+	return adlast.Make_ScopedDecl("sys.annotations", decl)
+}
+
+func init() {
+	goadl.RESOLVER.Register(
+		adlast.Make_ScopedName("sys.annotations", "TypeDiscrimination"),
+		AST_TypeDiscrimination(),
 	)
 }
