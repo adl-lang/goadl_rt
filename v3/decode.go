@@ -417,14 +417,20 @@ func enumDecodeBinding(
 		}
 
 		if bf, ok := decMap[key]; ok {
-			var vn reflect.Value
-			if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := rval.Addr().MethodByName("MakeNewBranch")
-				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
-				if resps[1].Interface() != nil {
+			var (
+				vn      reflect.Value
+				factory BranchFactory
+				ok      bool
+			)
+			if rval.CanAddr() {
+				factory, ok = rval.Addr().Interface().(BranchFactory)
+			}
+			if ok {
+				branch, err := factory.MakeNewBranch(key)
+				if err != nil {
 					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
 				}
-				vn = resps[0].Elem()
+				vn = reflect.ValueOf(branch)
 			} else {
 				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
 			}
@@ -485,14 +491,20 @@ func unionDecodeBinding(
 		}
 
 		if bf, ok := decMap[key]; ok {
-			var vn reflect.Value
-			if rval.CanAddr() && rval.Addr().Type().Implements(reflect.TypeFor[BranchFactory]()) {
-				meth := rval.Addr().MethodByName("MakeNewBranch")
-				resps := meth.Call([]reflect.Value{reflect.ValueOf(key)})
-				if resps[1].Interface() != nil {
+			var (
+				vn      reflect.Value
+				factory BranchFactory
+				ok      bool
+			)
+			if rval.CanAddr() {
+				factory, ok = rval.Addr().Interface().(BranchFactory)
+			}
+			if ok {
+				branch, err := factory.MakeNewBranch(key)
+				if err != nil {
 					return fmt.Errorf("path: %v, unexpected branch - no type in branch factory '%v'", path, key)
 				}
-				vn = resps[0].Elem()
+				vn = reflect.ValueOf(branch)
 			} else {
 				return fmt.Errorf("path: %v, MakeNewBranch not implemented '%v'", path, rval.Type())
 			}
